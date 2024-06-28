@@ -1,1 +1,1 @@
-# test-harness
+# GOV.UK One Login Simulator
