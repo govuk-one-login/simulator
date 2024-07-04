@@ -1,0 +1,75 @@
+name: Publish Docker image
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  push_to_registry:
+    name: Push image to Github Packages
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: write
+      attestations: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Log in to the Container registry
+        uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get version number
+        run: |
+          PREVIOUSTAG=$(git ls-remote --tags --refs origin | tail -n1 | sed 's/.*\///')
+          PREVIOUSPATCH=$(echo "${PREVIOUSTAG}" | grep -oP '[0-9][0-9]\.[0-9][0-9]\.\K.*')
+          PREVIOUSDATE=$(echo "${PREVIOUSTAG}" | grep -oP '[0-9][0-9]\.[0-9][0-9]')
+          if [[ "$PREVIOUSDATE" != $(date +'%y.%m') ]]; then PATCH=0; else PATCH=$((PREVIOUSPATCH+1)); fi;
+          echo "VERSION=$(date +'%y.%m').$PATCH" >> $GITHUB_ENV
+
+      - name: Create tag
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/${{ env.VERSION }}',
+              sha: context.sha
+            });
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          labels: |
+            org.opencontainers.image.description=GOV.UK One Login Simulator
+            org.opencontainers.image.version=${{ env.VERSION }}
+          tags: |
+            ${{ env.VERSION }}
+            latest
+
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@1a162644f9a7e87d8f4b053101d1d9a712edc18c
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
+          subject-digest: ${{ steps.push.outputs.digest }}
