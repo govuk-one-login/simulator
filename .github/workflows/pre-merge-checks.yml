@@ -1,0 +1,30 @@
+name: Pre-merge checks
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - ready_for_review
+      - synchronize
+  merge_group:
+
+jobs:
+  style-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Get Node.js version
+        run: |
+          version=$(grep -oP -m1 'node:\K.*(?=@)' Dockerfile)
+          echo "NODE_VERSION=$version" >> $GITHUB_ENV
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Install dependencies
+        run: npm install
+      - name: Run lint
+        run: npm run check:lint
+      - name: Run prettier
+        run: npm run check:pretty
