@@ -28,3 +28,21 @@ jobs:
         run: npm run check:lint
       - name: Run prettier
         run: npm run check:pretty
+
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Get Node.js version
+        run: |
+          version=$(grep -oP -m1 'node:\K.*(?=@)' Dockerfile)
+          echo "NODE_VERSION=$version" >> $GITHUB_ENV
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Install dependencies
+        run: npm install
+      - name: Run tests
+        run: npm run test
