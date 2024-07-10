@@ -13,7 +13,8 @@
     "fix:pretty": "prettier --write \"*/**/*.{ts,json}\"",
     "fix": "npm run fix:lint && npm run fix:pretty",
     "prepare": "husky",
-    "test": "jest"
+    "test": "jest",
+    "test:coverage": "jest --coverage"
   },
   "prettier": {
     "trailingComma": "es5",
