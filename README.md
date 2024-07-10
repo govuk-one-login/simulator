@@ -52,3 +52,11 @@ npm run fix:lint; # Fix linting
 ```shell script
 npm run prepare
 ```
+
+## Testing
+
+> To run tests run
+
+```shell script
+npm run test
+```
