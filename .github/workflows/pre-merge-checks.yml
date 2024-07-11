@@ -9,6 +9,26 @@ on:
   merge_group:
 
 jobs:
+  build-npm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Get Node.js version
+        run: |
+          version=$(grep -oP -m1 'node:\K.*(?=@)' Dockerfile)
+          echo "NODE_VERSION=$version" >> $GITHUB_ENV
+      - name: Using Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Get NPM version
+        run: echo "Using npm:$(npm -version)"
+      - name: Install dependencies
+        run: npm install
+      - name: Build app
+        run: npm run build
+
   style-checks:
     runs-on: ubuntu-latest
     steps:
