@@ -37,26 +37,30 @@ CQIDAQAB
 
     this.clientId = process.env.CLIENT_ID || "HGIOgho9HIRhgoepdIOPFdIUWgewi0jw";
     this.publicKey = process.env.PUBLIC_KEY || defaultPublicKey;
-    this.scopes = process.env.SCOPES || ["openid", "email", "password"];
-    this.redirectUrls = process.env.REDIRECT_URLS || [
-      "http://localhost:8080/authorization-code/callback",
-    ];
-    this.claims = process.env.CLAIMS || [
-      "https://vocab.account.gov.uk/v1/coreIdentityJWT",
-    ];
+    this.scopes = process.env.SCOPES
+      ? process.env.SCOPES.split(",")
+      : ["openid", "email", "password"];
+    this.redirectUrls = process.env.REDIRECT_URLS
+      ? process.env.REDIRECT_URLS.split(",")
+      : ["http://localhost:8080/authorization-code/callback"];
+    this.claims = process.env.CLAIMS
+      ? process.env.CLAIMS.split(",")
+      : ["https://vocab.account.gov.uk/v1/coreIdentityJWT"];
     this.identityVerificationSupported =
-      process.env.IDENTITY_VERIFICATION_SUPPORTED || true;
+      process.env.IDENTITY_VERIFICATION_SUPPORTED !== "false";
     this.idTokenSigningAlgorithm =
       process.env.ID_TOKEN_SIGNING_ALGORITHM || "ES256";
-    this.clientLoCs = process.env.CLIENT_LOCS || ["P0", "P2"];
+    this.clientLoCs = process.env.CLIENT_LOCS
+      ? process.env.CLIENT_LOCS.split(",")
+      : ["P0", "P2"];
 
     this.sub =
       process.env.SUB ||
       "urn:fdc:gov.uk:2022:56P4CMsGh_02YOlWpd8PAOI-2sVlB2nsNU7mcLZYhYw=";
     this.email = process.env.EMAIL || "john.smith@gmail.com";
-    this.emailVerified = process.env.EMAIL_VERIFIED || true;
+    this.emailVerified = process.env.EMAIL_VERIFIED !== "false";
     this.phoneNumber = process.env.PHONE_NUMBER || "07123456789";
-    this.phoneNumberVerified = process.env.PHONE_NUMBER_VERIFIED || true;
+    this.phoneNumberVerified = process.env.PHONE_NUMBER_VERIFIED !== "false";
   }
 
   public static getInstance(): Config {
@@ -107,7 +111,7 @@ CQIDAQAB
   }
 
   public getEmailVerified(): boolean {
-    return this.identityVerificationSupported;
+    return this.emailVerified;
   }
 
   public getPhoneNumber(): string {

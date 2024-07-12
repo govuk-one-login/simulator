@@ -63,8 +63,13 @@ npm run test
 
 ## Configuration
 Client configuration and configuration for the response can be set as environment variables, however there are also default values set.
+Parameters that are parsed as an array should be set as a comma separated string, for example
+```
+CLIENT_LOCS=P0,P2
+```
 The parameters to be set can be found in `src/config.ts`. The private key for the default public key is:
 
+```
 -----BEGIN PRIVATE KEY-----
 MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQCZddHcSxG9QxWE
 Qky1DXB7EmN9DTRDQxDsBF9KE3ncGc5AQ8WdL8jye0F12Qp0Ter68xMjvbDoW/dK
@@ -93,3 +98,4 @@ eZG4zLcylZXusOv3VYBJKypBLVI74buoFfrvMcV/lQrI3Yo+6V95rNYGm+2MVxIc
 iZSejbyqjUjJBAH9GHkPsiA+w1vutdd2PuPKOV05TLmV5ZM06bmLHQjMCGMiWK0G
 8qVxFvr2NWRDB3otAjxVHR/ZQA==
 -----END PRIVATE KEY-----
+```
