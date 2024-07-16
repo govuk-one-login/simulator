@@ -1,3 +1,5 @@
+import AuthRequestParameters from "./types/auth-request-parameters";
+
 //TODO ATO-827: Remove the below line when the config class is used
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -22,6 +24,10 @@ class Config {
   private emailVerified: boolean;
   private phoneNumber: string;
   private phoneNumberVerified: boolean;
+
+  // Authorisation Request Parameters Storage
+
+  private authCodeRequestParamsStore: Record<string, AuthRequestParameters>;
 
   private constructor() {
     const defaultPublicKey = `-----BEGIN PUBLIC KEY-----
@@ -61,6 +67,8 @@ CQIDAQAB
     this.emailVerified = process.env.EMAIL_VERIFIED !== "false";
     this.phoneNumber = process.env.PHONE_NUMBER || "07123456789";
     this.phoneNumberVerified = process.env.PHONE_NUMBER_VERIFIED !== "false";
+
+    this.authCodeRequestParamsStore = {};
   }
 
   public static getInstance(): Config {
@@ -120,5 +128,20 @@ CQIDAQAB
 
   public getPhoneNumberVerified(): boolean {
     return this.phoneNumberVerified;
+  }
+
+  public getAuthCodeRequestParams(authCode: string): AuthRequestParameters {
+    return this.authCodeRequestParamsStore[authCode];
+  }
+
+  public addToAuthCodeRequestParamsStore(
+    authCode: string,
+    authRequestParameters: AuthRequestParameters
+  ): void {
+    this.authCodeRequestParamsStore[authCode] = authRequestParameters;
+  }
+
+  public deleteFromAuthCodeRequestParamsStore(authCode: string): void {
+    delete this.authCodeRequestParamsStore[authCode];
   }
 }
