@@ -1,4 +1,4 @@
-import ConfigRequest from "../../types/configRequest";
+import ConfigRequest from "../../types/config-request";
 import { Request, Response } from "express";
 import { Config } from "../../config";
 

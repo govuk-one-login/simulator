@@ -1,5 +1,5 @@
 import express, { Application, Express, Request, Response } from "express";
-import { configController } from "./components/config/configController";
+import { configController } from "./components/config/config-controller";
 import bodyParser from "body-parser";
 
 const createApp = (): Application => {
