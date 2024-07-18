@@ -54,6 +54,8 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Get Node.js version
         run: |
           version=$(grep -oP -m1 'node:\K.*(?=@)' Dockerfile)
