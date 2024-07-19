@@ -30,7 +30,7 @@ jobs:
 
       - name: Get version number
         run: |
-          PREVIOUSTAG=$(git ls-remote --tags --refs origin | tail -n1 | sed 's/.*\///')
+          PREVIOUSTAG=$(git ls-remote --sort=v:refname --tags --refs origin | tail -n1 | sed 's/.*\///')
           PREVIOUSPATCH=$(echo "${PREVIOUSTAG}" | grep -oP '[0-9][0-9]\.[0-9][0-9]\.\K.*')
           PREVIOUSDATE=$(echo "${PREVIOUSTAG}" | grep -oP '[0-9][0-9]\.[0-9][0-9]')
           if [[ "$PREVIOUSDATE" != $(date +'%y.%m') ]]; then PATCH=0; else PATCH=$((PREVIOUSPATCH+1)); fi;
