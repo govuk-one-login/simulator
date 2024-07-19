@@ -1,9 +1,6 @@
 import AuthRequestParameters from "./types/auth-request-parameters";
 
-//TODO ATO-827: Remove the below line when the config class is used
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-class Config {
+export class Config {
   private static instance: Config;
 
   // Client Configuration
@@ -78,56 +75,114 @@ CQIDAQAB
     return Config.instance;
   }
 
+  public static resetInstance(): void {
+    Config.instance = new Config();
+  }
+
   public getClientId(): string {
     return this.clientId;
+  }
+
+  public setClientId(clientId: string): void {
+    this.clientId = clientId;
   }
 
   public getPublicKey(): string {
     return this.publicKey;
   }
 
+  public setPublicKey(publicKey: string): void {
+    this.publicKey = publicKey;
+  }
+
   public getScopes(): string[] {
     return this.scopes;
+  }
+
+  public setScopes(scopes: string[]): void {
+    this.scopes = scopes;
   }
 
   public getRedirectUrls(): string[] {
     return this.redirectUrls;
   }
 
+  public setRedirectUrls(redirectUrls: string[]): void {
+    this.redirectUrls = redirectUrls;
+  }
+
   public getClaims(): string[] {
     return this.claims;
+  }
+
+  public setClaims(claims: string[]): void {
+    this.claims = claims;
   }
 
   public getIdentityVerificationSupported(): boolean {
     return this.identityVerificationSupported;
   }
 
+  public setIdentityVerificationSupported(
+    identityVerificationSupported: boolean
+  ): void {
+    this.identityVerificationSupported = identityVerificationSupported;
+  }
+
   public getIdTokenSigningAlgorithm(): string {
     return this.idTokenSigningAlgorithm;
+  }
+
+  public setIdTokenSigningAlgorithm(idTokenSigningAlgorithm: string): void {
+    this.idTokenSigningAlgorithm = idTokenSigningAlgorithm;
   }
 
   public getClientLoCs(): string[] {
     return this.clientLoCs;
   }
 
+  public setClientLoCs(clientLoCs: string[]): void {
+    this.clientLoCs = clientLoCs;
+  }
+
   public getSub(): string {
     return this.sub;
+  }
+
+  public setSub(sub: string): void {
+    this.sub = sub;
   }
 
   public getEmail(): string {
     return this.email;
   }
 
+  public setEmail(email: string): void {
+    this.email = email;
+  }
+
   public getEmailVerified(): boolean {
     return this.emailVerified;
+  }
+
+  public setEmailVerified(emailVerified: boolean): void {
+    this.emailVerified = emailVerified;
   }
 
   public getPhoneNumber(): string {
     return this.phoneNumber;
   }
 
+  public setPhoneNumber(phoneNumber: string): void {
+    this.phoneNumber = phoneNumber;
+  }
+
   public getPhoneNumberVerified(): boolean {
     return this.phoneNumberVerified;
+  }
+
+  public setPhoneNumberVerified(phoneNumberVerified: boolean): void {
+    this.phoneNumberVerified = phoneNumberVerified;
   }
 
   public getAuthCodeRequestParams(authCode: string): AuthRequestParameters {
