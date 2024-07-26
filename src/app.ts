@@ -1,9 +1,11 @@
 import express, { Application, Express, Request, Response } from "express";
 import { configController } from "./components/config/config-controller.js";
 import bodyParser from "body-parser";
+import { createOidcProvider } from "./provider.js";
 
-const createApp = (): Application => {
+const createApp = async (): Promise<Application> => {
   const app: Express = express();
+  const oidcProvider = await createOidcProvider();
 
   app.use(express.json());
   app.use(bodyParser.json());
@@ -15,6 +17,7 @@ const createApp = (): Application => {
 
   app.post("/config", configController);
 
+  app.use(oidcProvider.callback());
   return app;
 };
 

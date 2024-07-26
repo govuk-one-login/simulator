@@ -22,7 +22,7 @@ describe("Integration: Config POST", () => {
   });
 
   test("Config is set by call to endpoint", async () => {
-    const app = createApp();
+    const app = await createApp();
     const response = await request(app)
       .post("/config")
       .send({
@@ -68,7 +68,7 @@ describe("Integration: Config POST", () => {
   });
 
   test("If a config value is not included, the default value stands", async () => {
-    const app = createApp();
+    const app = await createApp();
     const response = await request(app)
       .post("/config")
       .send({
@@ -91,7 +91,7 @@ describe("Integration: Config POST", () => {
 
     expect(config.getClientId()).toEqual("HGIOgho9HIRhgoepdIOPFdIUWgewi0jw");
     expect(config.getPublicKey()).toEqual(TEST_PUBLIC_KEY);
-    expect(config.getScopes()).toEqual(["openid", "email", "password"]);
+    expect(config.getScopes()).toEqual(["openid", "email", "phone"]);
     expect(config.getRedirectUrls()).toEqual(TEST_REDIRECT_URLS);
     expect(config.getClaims()).toEqual(TEST_CLAIMS);
     expect(config.getIdentityVerificationSupported()).toEqual(true);
