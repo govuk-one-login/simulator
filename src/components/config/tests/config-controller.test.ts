@@ -23,21 +23,27 @@ describe("Integration: Config POST", () => {
 
   test("Config is set by call to endpoint", async () => {
     const app = createApp();
-    const response = await request(app).post("/config").send({
-      clientId: TEST_CLIENT_ID,
-      publicKey: TEST_PUBLIC_KEY,
-      scopes: TEST_SCOPES,
-      redirectUrls: TEST_REDIRECT_URLS,
-      claims: TEST_CLAIMS,
-      identityVerificationSupported: TEST_IDENTITY_VERIFICATION_SUPPORTED,
-      idTokenSigningAlgorithm: TEST_ID_TOKEN_SIGNING_ALGORITHM,
-      clientLoCs: TEST_CLIENT_LOCS,
-      sub: TEST_SUB,
-      email: TEST_EMAIL,
-      emailVerified: TEST_EMAIL_VERIFIED,
-      phoneNumber: TEST_PHONE_NUMBER,
-      phoneNumberVerified: TEST_PHONE_NUMBER_VERIFIED,
-    });
+    const response = await request(app)
+      .post("/config")
+      .send({
+        clientConfiguration: {
+          clientId: TEST_CLIENT_ID,
+          publicKey: TEST_PUBLIC_KEY,
+          scopes: TEST_SCOPES,
+          redirectUrls: TEST_REDIRECT_URLS,
+          claims: TEST_CLAIMS,
+          identityVerificationSupported: TEST_IDENTITY_VERIFICATION_SUPPORTED,
+          idTokenSigningAlgorithm: TEST_ID_TOKEN_SIGNING_ALGORITHM,
+          clientLoCs: TEST_CLIENT_LOCS,
+        },
+        responseConfiguration: {
+          sub: TEST_SUB,
+          email: TEST_EMAIL,
+          emailVerified: TEST_EMAIL_VERIFIED,
+          phoneNumber: TEST_PHONE_NUMBER,
+          phoneNumberVerified: TEST_PHONE_NUMBER_VERIFIED,
+        },
+      });
     expect(response.status).toEqual(200);
 
     const config = Config.getInstance();
@@ -63,18 +69,22 @@ describe("Integration: Config POST", () => {
 
   test("If a config value is not included, the default value stands", async () => {
     const app = createApp();
-    const response = await request(app).post("/config").send({
-      publicKey: TEST_PUBLIC_KEY,
-      redirectUrls: TEST_REDIRECT_URLS,
-      claims: TEST_CLAIMS,
-      idTokenSigningAlgorithm: TEST_ID_TOKEN_SIGNING_ALGORITHM,
-      clientLoCs: TEST_CLIENT_LOCS,
-      sub: TEST_SUB,
-      email: TEST_EMAIL,
-      emailVerified: TEST_EMAIL_VERIFIED,
-      phoneNumber: TEST_PHONE_NUMBER,
-      phoneNumberVerified: TEST_PHONE_NUMBER_VERIFIED,
-    });
+    const response = await request(app)
+      .post("/config")
+      .send({
+        clientConfiguration: {
+          publicKey: TEST_PUBLIC_KEY,
+          redirectUrls: TEST_REDIRECT_URLS,
+          claims: TEST_CLAIMS,
+          idTokenSigningAlgorithm: TEST_ID_TOKEN_SIGNING_ALGORITHM,
+          clientLoCs: TEST_CLIENT_LOCS,
+        },
+        responseConfiguration: {
+          sub: TEST_SUB,
+          emailVerified: TEST_EMAIL_VERIFIED,
+          phoneNumber: TEST_PHONE_NUMBER,
+        },
+      });
     expect(response.status).toEqual(200);
 
     const config = Config.getInstance();
@@ -90,9 +100,9 @@ describe("Integration: Config POST", () => {
     );
     expect(config.getClientLoCs()).toEqual(TEST_CLIENT_LOCS);
     expect(config.getSub()).toEqual(TEST_SUB);
-    expect(config.getEmail()).toEqual(TEST_EMAIL);
+    expect(config.getEmail()).toEqual("john.smith@gmail.com");
     expect(config.getEmailVerified()).toEqual(TEST_EMAIL_VERIFIED);
     expect(config.getPhoneNumber()).toEqual(TEST_PHONE_NUMBER);
-    expect(config.getPhoneNumberVerified()).toEqual(TEST_PHONE_NUMBER_VERIFIED);
+    expect(config.getPhoneNumberVerified()).toEqual(true);
   });
 });
