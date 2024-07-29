@@ -1,29 +1,12 @@
 import AuthRequestParameters from "./types/auth-request-parameters";
+import ClientConfiguration from "./types/client-configuration";
+import ResponseConfiguration from "./types/response-configuration";
 
 export class Config {
   private static instance: Config;
 
-  // Client Configuration
-
-  private clientId: string;
-  private publicKey: string;
-  private scopes: string[];
-  private redirectUrls: string[];
-  private claims: string[];
-  private identityVerificationSupported: boolean;
-  private idTokenSigningAlgorithm: string;
-  private clientLoCs: string[];
-
-  // Response Configuration
-
-  private sub: string;
-  private email: string;
-  private emailVerified: boolean;
-  private phoneNumber: string;
-  private phoneNumberVerified: boolean;
-
-  // Authorisation Request Parameters Storage
-
+  private clientConfiguration: ClientConfiguration;
+  private responseConfiguration: ResponseConfiguration;
   private authCodeRequestParamsStore: Record<string, AuthRequestParameters>;
 
   private constructor() {
@@ -37,33 +20,36 @@ QD+tdKsrw7QDIYnx0IiXFnkGnizl3UtqSmXAaceTvPM2Pz84x2JiwHrp2Sml6RYL
 CQIDAQAB
 -----END PUBLIC KEY-----
 `;
+    this.clientConfiguration = {
+      clientId: process.env.CLIENT_ID ?? "HGIOgho9HIRhgoepdIOPFdIUWgewi0jw",
+      publicKey: process.env.PUBLIC_KEY ?? defaultPublicKey,
+      scopes: process.env.SCOPES
+        ? process.env.SCOPES.split(",")
+        : ["openid", "email", "password"],
+      redirectUrls: process.env.REDIRECT_URLS
+        ? process.env.REDIRECT_URLS.split(",")
+        : ["http://localhost:8080/authorization-code/callback"],
+      claims: process.env.CLAIMS
+        ? process.env.CLAIMS.split(",")
+        : ["https://vocab.account.gov.uk/v1/coreIdentityJWT"],
+      identityVerificationSupported:
+        process.env.IDENTITY_VERIFICATION_SUPPORTED !== "false",
+      idTokenSigningAlgorithm:
+        process.env.ID_TOKEN_SIGNING_ALGORITHM ?? "ES256",
+      clientLoCs: process.env.CLIENT_LOCS
+        ? process.env.CLIENT_LOCS.split(",")
+        : ["P0", "P2"],
+    };
 
-    this.clientId = process.env.CLIENT_ID || "HGIOgho9HIRhgoepdIOPFdIUWgewi0jw";
-    this.publicKey = process.env.PUBLIC_KEY || defaultPublicKey;
-    this.scopes = process.env.SCOPES
-      ? process.env.SCOPES.split(",")
-      : ["openid", "email", "password"];
-    this.redirectUrls = process.env.REDIRECT_URLS
-      ? process.env.REDIRECT_URLS.split(",")
-      : ["http://localhost:8080/authorization-code/callback"];
-    this.claims = process.env.CLAIMS
-      ? process.env.CLAIMS.split(",")
-      : ["https://vocab.account.gov.uk/v1/coreIdentityJWT"];
-    this.identityVerificationSupported =
-      process.env.IDENTITY_VERIFICATION_SUPPORTED !== "false";
-    this.idTokenSigningAlgorithm =
-      process.env.ID_TOKEN_SIGNING_ALGORITHM || "ES256";
-    this.clientLoCs = process.env.CLIENT_LOCS
-      ? process.env.CLIENT_LOCS.split(",")
-      : ["P0", "P2"];
-
-    this.sub =
-      process.env.SUB ||
-      "urn:fdc:gov.uk:2022:56P4CMsGh_02YOlWpd8PAOI-2sVlB2nsNU7mcLZYhYw=";
-    this.email = process.env.EMAIL || "john.smith@gmail.com";
-    this.emailVerified = process.env.EMAIL_VERIFIED !== "false";
-    this.phoneNumber = process.env.PHONE_NUMBER || "07123456789";
-    this.phoneNumberVerified = process.env.PHONE_NUMBER_VERIFIED !== "false";
+    this.responseConfiguration = {
+      sub:
+        process.env.SUB ??
+        "urn:fdc:gov.uk:2022:56P4CMsGh_02YOlWpd8PAOI-2sVlB2nsNU7mcLZYhYw=",
+      email: process.env.EMAIL ?? "john.smith@gmail.com",
+      emailVerified: process.env.EMAIL_VERIFIED !== "false",
+      phoneNumber: process.env.PHONE_NUMBER || "07123456789",
+      phoneNumberVerified: process.env.PHONE_NUMBER_VERIFIED !== "false",
+    };
 
     this.authCodeRequestParamsStore = {};
   }
@@ -80,109 +66,110 @@ CQIDAQAB
   }
 
   public getClientId(): string {
-    return this.clientId;
+    return this.clientConfiguration.clientId;
   }
 
   public setClientId(clientId: string): void {
-    this.clientId = clientId;
+    this.clientConfiguration.clientId = clientId;
   }
 
   public getPublicKey(): string {
-    return this.publicKey;
+    return this.clientConfiguration.publicKey;
   }
 
   public setPublicKey(publicKey: string): void {
-    this.publicKey = publicKey;
+    this.clientConfiguration.publicKey = publicKey;
   }
 
   public getScopes(): string[] {
-    return this.scopes;
+    return this.clientConfiguration.scopes;
   }
 
   public setScopes(scopes: string[]): void {
-    this.scopes = scopes;
+    this.clientConfiguration.scopes = scopes;
   }
 
   public getRedirectUrls(): string[] {
-    return this.redirectUrls;
+    return this.clientConfiguration.redirectUrls;
   }
 
   public setRedirectUrls(redirectUrls: string[]): void {
-    this.redirectUrls = redirectUrls;
+    this.clientConfiguration.redirectUrls = redirectUrls;
   }
 
   public getClaims(): string[] {
-    return this.claims;
+    return this.clientConfiguration.claims;
   }
 
   public setClaims(claims: string[]): void {
-    this.claims = claims;
+    this.clientConfiguration.claims = claims;
   }
 
   public getIdentityVerificationSupported(): boolean {
-    return this.identityVerificationSupported;
+    return this.clientConfiguration.identityVerificationSupported;
   }
 
   public setIdentityVerificationSupported(
     identityVerificationSupported: boolean
   ): void {
-    this.identityVerificationSupported = identityVerificationSupported;
+    this.clientConfiguration.identityVerificationSupported =
+      identityVerificationSupported;
   }
 
   public getIdTokenSigningAlgorithm(): string {
-    return this.idTokenSigningAlgorithm;
+    return this.clientConfiguration.idTokenSigningAlgorithm;
   }
 
   public setIdTokenSigningAlgorithm(idTokenSigningAlgorithm: string): void {
-    this.idTokenSigningAlgorithm = idTokenSigningAlgorithm;
+    this.clientConfiguration.idTokenSigningAlgorithm = idTokenSigningAlgorithm;
   }
 
   public getClientLoCs(): string[] {
-    return this.clientLoCs;
+    return this.clientConfiguration.clientLoCs;
   }
 
   public setClientLoCs(clientLoCs: string[]): void {
-    this.clientLoCs = clientLoCs;
+    this.clientConfiguration.clientLoCs = clientLoCs;
   }
 
   public getSub(): string {
-    return this.sub;
+    return this.responseConfiguration.sub;
   }
 
   public setSub(sub: string): void {
-    this.sub = sub;
+    this.responseConfiguration.sub = sub;
   }
 
   public getEmail(): string {
-    return this.email;
+    return this.responseConfiguration.email;
   }
 
   public setEmail(email: string): void {
-    this.email = email;
+    this.responseConfiguration.email = email;
   }
 
   public getEmailVerified(): boolean {
-    return this.emailVerified;
+    return this.responseConfiguration.emailVerified;
   }
 
   public setEmailVerified(emailVerified: boolean): void {
-    this.emailVerified = emailVerified;
+    this.responseConfiguration.emailVerified = emailVerified;
   }
 
   public getPhoneNumber(): string {
-    return this.phoneNumber;
+    return this.responseConfiguration.phoneNumber;
   }
 
   public setPhoneNumber(phoneNumber: string): void {
-    this.phoneNumber = phoneNumber;
+    this.responseConfiguration.phoneNumber = phoneNumber;
   }
 
   public getPhoneNumberVerified(): boolean {
-    return this.phoneNumberVerified;
+    return this.responseConfiguration.phoneNumberVerified;
   }
 
   public setPhoneNumberVerified(phoneNumberVerified: boolean): void {
-    this.phoneNumberVerified = phoneNumberVerified;
+    this.responseConfiguration.phoneNumberVerified = phoneNumberVerified;
   }
 
   public getAuthCodeRequestParams(authCode: string): AuthRequestParameters {

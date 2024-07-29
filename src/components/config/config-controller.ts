@@ -1,52 +1,75 @@
 import ConfigRequest from "../../types/config-request";
 import { Request, Response } from "express";
 import { Config } from "../../config";
+import ClientConfiguration from "../../types/client-configuration";
+import ResponseConfiguration from "../../types/response-configuration";
 
 export const configController = (
   req: Request<ConfigRequest>,
   res: Response
 ): void => {
+  if (req.body.clientConfiguration !== undefined) {
+    populateClientConfiguration(req.body.clientConfiguration);
+  }
+  if (req.body.responseConfiguration !== undefined) {
+    populateResponseConfiguration(req.body.responseConfiguration);
+  }
+
+  res.status(200).send();
+};
+
+const populateClientConfiguration = (
+  clientConfiguration: ClientConfiguration
+) => {
   const config = Config.getInstance();
-  if (req.body.clientId !== undefined) {
-    config.setClientId(req.body.clientId);
+
+  if (clientConfiguration.clientId !== undefined) {
+    config.setClientId(clientConfiguration.clientId);
   }
-  if (req.body.publicKey !== undefined) {
-    config.setPublicKey(req.body.publicKey);
+  if (clientConfiguration.publicKey !== undefined) {
+    config.setPublicKey(clientConfiguration.publicKey);
   }
-  if (req.body.scopes !== undefined) {
-    config.setScopes(req.body.scopes);
+  if (clientConfiguration.scopes !== undefined) {
+    config.setScopes(clientConfiguration.scopes);
   }
-  if (req.body.redirectUrls !== undefined) {
-    config.setRedirectUrls(req.body.redirectUrls);
+  if (clientConfiguration.redirectUrls !== undefined) {
+    config.setRedirectUrls(clientConfiguration.redirectUrls);
   }
-  if (req.body.claims !== undefined) {
-    config.setClaims(req.body.claims);
+  if (clientConfiguration.claims !== undefined) {
+    config.setClaims(clientConfiguration.claims);
   }
-  if (req.body.identityVerificationSupported !== undefined) {
+  if (clientConfiguration.identityVerificationSupported !== undefined) {
     config.setIdentityVerificationSupported(
-      req.body.identityVerificationSupported
+      clientConfiguration.identityVerificationSupported
     );
   }
-  if (req.body.idTokenSigningAlgorithm !== undefined) {
-    config.setIdTokenSigningAlgorithm(req.body.idTokenSigningAlgorithm);
+  if (clientConfiguration.idTokenSigningAlgorithm !== undefined) {
+    config.setIdTokenSigningAlgorithm(
+      clientConfiguration.idTokenSigningAlgorithm
+    );
   }
-  if (req.body.clientLoCs !== undefined) {
-    config.setClientLoCs(req.body.clientLoCs);
+  if (clientConfiguration.clientLoCs !== undefined) {
+    config.setClientLoCs(clientConfiguration.clientLoCs);
   }
-  if (req.body.sub !== undefined) {
-    config.setSub(req.body.sub);
+};
+
+const populateResponseConfiguration = (
+  responseConfiguration: ResponseConfiguration
+) => {
+  const config = Config.getInstance();
+  if (responseConfiguration.sub !== undefined) {
+    config.setSub(responseConfiguration.sub);
   }
-  if (req.body.email !== undefined) {
-    config.setEmail(req.body.email);
+  if (responseConfiguration.email !== undefined) {
+    config.setEmail(responseConfiguration.email);
   }
-  if (req.body.emailVerified !== undefined) {
-    config.setEmailVerified(req.body.emailVerified);
+  if (responseConfiguration.emailVerified !== undefined) {
+    config.setEmailVerified(responseConfiguration.emailVerified);
   }
-  if (req.body.phoneNumber !== undefined) {
-    config.setPhoneNumber(req.body.phoneNumber);
+  if (responseConfiguration.phoneNumber !== undefined) {
+    config.setPhoneNumber(responseConfiguration.phoneNumber);
   }
-  if (req.body.phoneNumberVerified !== undefined) {
-    config.setPhoneNumberVerified(req.body.phoneNumberVerified);
+  if (responseConfiguration.phoneNumberVerified !== undefined) {
+    config.setPhoneNumberVerified(responseConfiguration.phoneNumberVerified);
   }
-  res.status(200).send();
 };
