@@ -15,8 +15,8 @@
     "fix:pretty": "prettier --write \"*/**/*.{ts,json}\"",
     "fix": "npm run fix:lint && npm run fix:pretty",
     "prepare": "husky",
-    "test": "jest",
-    "test:coverage": "jest --coverage"
+    "test": "NODE_OPTIONS=--experimental-vm-modules NODE_NO_WARNINGS=1 jest -c ./jest.config.ts",
+    "test:coverage": "npm run test --coverage"
   },
   "prettier": {
     "trailingComma": "es5",
