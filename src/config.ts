@@ -1,6 +1,6 @@
-import AuthRequestParameters from "./types/auth-request-parameters";
-import ClientConfiguration from "./types/client-configuration";
-import ResponseConfiguration from "./types/response-configuration";
+import AuthRequestParameters from "./types/auth-request-parameters.js";
+import ClientConfiguration from "./types/client-configuration.js";
+import ResponseConfiguration from "./types/response-configuration.js";
 
 export class Config {
   private static instance: Config;

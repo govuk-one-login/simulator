@@ -1,6 +1,6 @@
-import { createApp } from "../../../app";
+import { createApp } from "../../../app.js";
 import request from "supertest";
-import { Config } from "../../../config";
+import { Config } from "../../../config.js";
 
 const TEST_CLIENT_ID = "test-id";
 const TEST_PUBLIC_KEY = "test-public-key";

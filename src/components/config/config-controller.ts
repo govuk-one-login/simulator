@@ -1,8 +1,8 @@
-import ConfigRequest from "../../types/config-request";
+import ConfigRequest from "../../types/config-request.js";
 import { Request, Response } from "express";
-import { Config } from "../../config";
-import ClientConfiguration from "../../types/client-configuration";
-import ResponseConfiguration from "../../types/response-configuration";
+import { Config } from "../../config.js";
+import ClientConfiguration from "../../types/client-configuration.js";
+import ResponseConfiguration from "../../types/response-configuration.js";
 
 export const configController = (
   req: Request<ConfigRequest>,

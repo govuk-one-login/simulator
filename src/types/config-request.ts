@@ -1,5 +1,5 @@
-import ClientConfiguration from "./client-configuration";
-import ResponseConfiguration from "./response-configuration";
+import ClientConfiguration from "./client-configuration.js";
+import ResponseConfiguration from "./response-configuration.js";
 
 export default interface ConfigRequest {
   clientConfiguration: ClientConfiguration;
