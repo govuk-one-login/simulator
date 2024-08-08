@@ -22,10 +22,11 @@ CQIDAQAB
 `;
     this.clientConfiguration = {
       clientId: process.env.CLIENT_ID ?? "HGIOgho9HIRhgoepdIOPFdIUWgewi0jw",
+      clientName: process.env.CLIENT_NAME ?? "TEST_CLIENT",
       publicKey: process.env.PUBLIC_KEY ?? defaultPublicKey,
       scopes: process.env.SCOPES
         ? process.env.SCOPES.split(",")
-        : ["openid", "email", "password"],
+        : ["openid", "email", "phone"],
       redirectUrls: process.env.REDIRECT_URLS
         ? process.env.REDIRECT_URLS.split(",")
         : ["http://localhost:8080/authorization-code/callback"],
@@ -63,6 +64,14 @@ CQIDAQAB
 
   public static resetInstance(): void {
     Config.instance = new Config();
+  }
+
+  public getClientName(): string {
+    return this.clientConfiguration.clientName;
+  }
+
+  public setClientName(clientName: string): void {
+    this.clientConfiguration.clientName = clientName;
   }
 
   public getClientId(): string {
