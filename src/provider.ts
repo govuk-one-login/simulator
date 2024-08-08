@@ -7,7 +7,11 @@ import { Config } from "./config.js";
 import { createOidcClientFromConfig } from "./helper/create-oidc-client-from-config.js";
 import { claimsValidator } from "./validators/claims-validator.js";
 import { vtrValidator } from "./validators/vtr-validator.js";
-import { ISSUER_VALUE } from "./constants/provider-config.js";
+import {
+  EC_PRIVATE_KEY_JWK,
+  ISSUER_VALUE,
+  RSA_PRIVATE_KEY_JWK,
+} from "./constants/provider-config.js";
 import { errorRender } from "./error/error-render.js";
 import { findAccount } from "./components/find-account.js";
 
@@ -61,7 +65,6 @@ const createOidcProvider = async (): Promise<Provider> => {
     clientDefaults: {
       token_endpoint_auth_method: "private_key_jwt",
       scope: "openid",
-      id_token_signed_response_alg: "ES256",
       backchannel_logout_session_required: false,
       response_types: ["code"],
       identity_verification_supported: false,
@@ -138,6 +141,11 @@ const createOidcProvider = async (): Promise<Provider> => {
     },
     cookies: {
       keys: ["some secret key"],
+    },
+    jwks: {
+      //These are required to enable the idTokenSigningAlgValues
+      // we have chose above.
+      keys: [RSA_PRIVATE_KEY_JWK, EC_PRIVATE_KEY_JWK],
     },
   };
 
