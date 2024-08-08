@@ -1,6 +1,6 @@
-import AuthRequestParameters from "./types/auth-request-parameters";
-import ClientConfiguration from "./types/client-configuration";
-import ResponseConfiguration from "./types/response-configuration";
+import AuthRequestParameters from "./types/auth-request-parameters.js";
+import ClientConfiguration from "./types/client-configuration.js";
+import ResponseConfiguration from "./types/response-configuration.js";
 
 export class Config {
   private static instance: Config;
@@ -22,10 +22,11 @@ CQIDAQAB
 `;
     this.clientConfiguration = {
       clientId: process.env.CLIENT_ID ?? "HGIOgho9HIRhgoepdIOPFdIUWgewi0jw",
+      clientName: process.env.CLIENT_NAME ?? "TEST_CLIENT",
       publicKey: process.env.PUBLIC_KEY ?? defaultPublicKey,
       scopes: process.env.SCOPES
         ? process.env.SCOPES.split(",")
-        : ["openid", "email", "password"],
+        : ["openid", "email", "phone"],
       redirectUrls: process.env.REDIRECT_URLS
         ? process.env.REDIRECT_URLS.split(",")
         : ["http://localhost:8080/authorization-code/callback"],
@@ -63,6 +64,14 @@ CQIDAQAB
 
   public static resetInstance(): void {
     Config.instance = new Config();
+  }
+
+  public getClientName(): string {
+    return this.clientConfiguration.clientName;
+  }
+
+  public setClientName(clientName: string): void {
+    this.clientConfiguration.clientName = clientName;
   }
 
   public getClientId(): string {
@@ -172,7 +181,9 @@ CQIDAQAB
     this.responseConfiguration.phoneNumberVerified = phoneNumberVerified;
   }
 
-  public getAuthCodeRequestParams(authCode: string): AuthRequestParameters {
+  public getAuthCodeRequestParams(
+    authCode: string
+  ): AuthRequestParameters | undefined {
     return this.authCodeRequestParamsStore[authCode];
   }
 

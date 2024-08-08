@@ -1,5 +1,6 @@
 export default interface ClientConfiguration {
   clientId: string;
+  clientName: string;
   publicKey: string;
   scopes: string[];
   redirectUrls: string[];

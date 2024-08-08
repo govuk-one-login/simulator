@@ -1,14 +1,17 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "nodeNext",
     "esModuleInterop": true,
+    "moduleResolution": "nodeNext",
     "resolveJsonModule": true,
-    "target": "es2022",
+    "target": "ES2022", 
     "strict": true,
     "sourceMap": true,
+    "noUncheckedIndexedAccess": true,
     "outDir": "dist",
     "baseUrl": ".",
-    "typeRoots": ["@types", "node_modules/@types"]
+    "typeRoots": ["@types", "node_modules/@types"],
+    "lib": ["ES2023"],
   },
   "include": ["src/**/*.ts"],
   "exclude": ["tests", "coverage", "src/**/**/tests"]

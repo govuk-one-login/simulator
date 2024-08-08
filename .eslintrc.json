@@ -22,7 +22,12 @@
         "allowArgumentsExplicitlyTypedAsAny": true
       }
     ],
-    "@typescript-eslint/no-unused-vars": ["error"],
+    "@typescript-eslint/no-unused-vars": ["error",
+    {
+      "argsIgnorePattern": "^_",
+      "varsIgnorePattern": "^_",
+      "caughtErrorsIgnorePattern": "^_"
+    }],
     "padding-line-between-statements": [
       "error",
       { "blankLine": "any", "prev": "*", "next": "*" }
