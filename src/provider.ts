@@ -15,6 +15,7 @@ import {
 } from "./constants/provider-config.js";
 import { errorRender } from "./error/error-render.js";
 import { findAccount } from "./components/find-account.js";
+import { scopeValidator } from "./validators/scope-validator.js";
 
 const { base } = interactionPolicy;
 
@@ -23,6 +24,8 @@ const baseInteractions = base();
 baseInteractions.remove("consent");
 
 const createOidcProvider = async (): Promise<Provider> => {
+  const clientConfig = Config.getInstance();
+
   const config: Configuration = {
     features: {
       claimsParameter: {
@@ -39,6 +42,7 @@ const createOidcProvider = async (): Promise<Provider> => {
     },
     extraParams: {
       vtr: vtrValidator,
+      scope: scopeValidator,
     },
     routes: {
       authorization: "/authorize",
@@ -82,7 +86,7 @@ const createOidcProvider = async (): Promise<Provider> => {
       ],
     },
     allowOmittingSingleRegisteredRedirectUri: false,
-    clients: [await createOidcClientFromConfig(Config.getInstance())],
+    clients: [await createOidcClientFromConfig(clientConfig)],
     pkce: {
       required: () => false,
     },
