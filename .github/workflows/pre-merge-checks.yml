@@ -1,4 +1,4 @@
-name: Pre-merge checks
+name: Pre-merge and main checks
 on:
   push:
     branches:
