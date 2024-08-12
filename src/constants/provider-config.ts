@@ -8,7 +8,7 @@ export const VALID_CLAIMS = [
   "https://vocab.account.gov.uk/v1/returnCode",
   "https://vocab.account.gov.uk/v1/inheritedIdentityJWT",
 ];
-
+export const VALID_SCOPES = ["openid", "email", "phone", "wallet_subject_id"];
 export const VALID_CREDENTIAL_TRUST_VALUES = ["Cl", "Cl.Cm"];
 export const DEFAULT_CREDENTIAL_TRUST = "Cl.Cm";
 export const VALID_LOC_VALUES = ["P0", "P2"];

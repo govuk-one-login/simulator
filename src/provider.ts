@@ -11,6 +11,7 @@ import {
   EC_PRIVATE_KEY_JWK,
   ISSUER_VALUE,
   RSA_PRIVATE_KEY_JWK,
+  VALID_SCOPES,
 } from "./constants/provider-config.js";
 import { errorRender } from "./error/error-render.js";
 import { findAccount } from "./components/find-account.js";
@@ -59,7 +60,7 @@ const createOidcProvider = async (): Promise<Provider> => {
       "https://vocab.account.gov.uk/v1/inheritedIdentityJWT": null,
       "https://vocab.account.gov.uk/v1/drivingPermit": null,
     },
-    scopes: ["openid", "email", "phone", "wallet_subject_id"],
+    scopes: VALID_SCOPES,
     subjectTypes: ["public", "pairwise"],
     clientAuthMethods: ["private_key_jwt"],
     clientDefaults: {
