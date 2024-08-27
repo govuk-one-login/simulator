@@ -9,19 +9,7 @@ import {
 import { logger } from "../../../logger";
 import AuthRequestParameters from "src/types/auth-request-parameters";
 import { signToken } from "./sign-token";
-
-type IdTokenClaims = {
-  at_hash: string;
-  sub: string;
-  aud: string;
-  iss: string;
-  vot: string;
-  exp: number;
-  iat: number;
-  nonce: string;
-  vtm: string;
-  sid: string;
-};
+import { IdTokenClaims } from "../../../types/id-token-claims";
 
 export const createIdToken = async (
   authRequestParams: AuthRequestParameters,

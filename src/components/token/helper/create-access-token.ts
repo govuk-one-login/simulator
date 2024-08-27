@@ -7,17 +7,7 @@ import {
 import { Config } from "../../../config";
 import { logger } from "../../../logger";
 import { signToken } from "./sign-token";
-
-type AccessTokenClaims = {
-  exp: number;
-  iat: number;
-  iss: string;
-  jti: string;
-  client_id: string;
-  sub: string;
-  sid: string;
-  scope: string[];
-};
+import { AccessTokenClaims } from "../../../types/access-token-claims";
 
 export const createAccessToken = async (
   requestScopes: string[]
