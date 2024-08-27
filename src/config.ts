@@ -172,7 +172,9 @@ CQIDAQAB
     this.responseConfiguration.phoneNumberVerified = phoneNumberVerified;
   }
 
-  public getAuthCodeRequestParams(authCode: string): AuthRequestParameters {
+  public getAuthCodeRequestParams(
+    authCode: string
+  ): AuthRequestParameters | undefined {
     return this.authCodeRequestParamsStore[authCode];
   }
 
