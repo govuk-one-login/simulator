@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import { tokenController } from "./components/token/token-controller";
 import { authoriseGetController } from "./components/authorise/authorise-get-controller";
 import { dedupeQueryParams } from "./middleware/dedupe-query-params";
+import { userInfoController } from "./components/user-info/user-info-controller";
 
 const createApp = (): Application => {
   const app: Express = express();
@@ -20,6 +21,7 @@ const createApp = (): Application => {
 
   app.post("/config", configController);
   app.post("/token", tokenController);
+  app.get("/userinfo", userInfoController);
 
   return app;
 };
