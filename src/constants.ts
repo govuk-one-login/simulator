@@ -1,0 +1,47 @@
+import type { JSONWebKeySet } from "jose/dist/types/types";
+
+export const ISSUER_VALUE = "https://oidc.test.account.gov.uk";
+export const TRUSTMARK_URL = "https://oidc.test.account.gov.uk/trustmark";
+export const ACCESS_TOKEN_EXPIRY = 180; //3 Minutes
+export const ID_TOKEN_EXPIRY = 120; //2  Minutes
+
+//This is not a secret, this is the simulator's provider key used to sign tokens
+export const RSA_PRIVATE_TOKEN_SIGNING_KEY =
+  "-----BEGIN PRIVATE KEY-----MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDCwNMZ2+cMY7xoSiiEAR8IBpL/uN5u7gM0mkc47Q9W+CDHpKfmSRmZZao6/lE0Y7wI5HcXBTkYf2gyPSK4SWa0uE+EiyHyfx94LcItof+aNjSgckJ7Yv4taG0ipOfhHpZ3x9kJ51KZmdoTmpbMtxIEqUPQCi6gXulOjWQFIoPa7rJMRrTUInfMAYyrScvZvYu2iwrZZhyLkpr6NQXVDbSqU5HV9iTBDrJNwdgcqMX1CrZIMXCXKD4Ji2E2Ki6Xl3xMWDmQVudAkwk7I8FCfRdXnxTZd2K0Nr1Y3Bc1kaFqCsexwmFqUP0aqDNYHmMctBCPm9Z3j7GzqPzUPp0udY6HAgMBAAECggEAVJVpuffrg9KHYCYhLZ/NCe/NBVqV5MjjxINi/oLbIDMZDYxiTZ6fCyQACKouu5m7b4NGg82FbDHdn8A0paRfgorwIklJP6hdkxUQmkAbIq97MNofLLakXTVW/O5xNTFTOYenKGl60vJiqBQCfbvfC/410ROzB3zhSHgZIi/I45r4/EDQuKXcSBfszKDQ8+uVhXHv0Ck7ny+fEXxgfgm7v0PEwlHvBBbig7fAdxBefwdgaXQMRtDiJBbjIYTm8OpynjCENd3jRmuR2qAErt1mCEDg/OaHzWV+LDffOg1DBACjzIlJ5ltE+VPRy17x6lj1KOrgUGRLqsLAst9y5f/bxQKBgQDkjSFEBXymIZBIAwCNdGnqMMqmotNB5hjxupbRL+atvsQ3wabPpp8rL3aRrjVydDPHmLS6iQx6C8tV0tFUP6lkRJ17nmqcw8+kyJZ7q0QfwoG+Vegm3lqlcnnkJm9YUe2uWeZpCnjlzlaDVNCK+MMZ2lZGb1NflT34VvWqelygnQKBgQDaJJBpJQni+HoQtSs/g3AsgY+K+MoEHksqG9TabWWStFv7idLMgKhWWiIQJmRrCpseU/8N5DjaPPEL0hSiS28VzGdsNXU37O7ZSnr3YVIms1bzgFABF4bOr+SoVQ2d5DndDztsgNdrARGAPoOFsvEt80DdncS6NKEfBBgk8b6IcwKBgQCtfUQHMnMQWOIBB+ZfekL79tWd8HOUzmmY9R6O5GGi+fBQsrtBXSXtzjWfGDKSEwtLM+vcvTOvYUyUdVdZMIoRBtTUhcg//5Obbnhsn/Eyep+qL+PtvVPpyyAjw9k5nddiRfPVQJHNP/gD8VnsZDEVatua097h65QC81/AbOnrMQKBgD9VDEQqh7NIto+xOYwoCeIx/022q1gEv4fLKsH7rtin2mit+/B5jeX8JxWPP+o/2wc0FcGft83MkaL/7BOuWOL4RDKLVqvU8wdM82Rs8d/gg2cQoqmeffn14Snp/5kOkKoYaQU4ZtJfLgiQnbisWg8gJ33v9xSkgP6zPptDQDD3AoGBAKEqpxhCf7jpae5t1KJUupHjrB2Lb0bV7p8U7FiX9NObmyWuVMBRWYYEBe1QkXlmsOM4EMlvaUJZYXPvB52w5mT2FX6Ve6bqpY7T0VxbLBKwAIXTigxvUZuIfkXbhreR/PPCjrjifQr0SAZZjedmykg1vHJB4wIHJNOzE+GsmhgO-----END PRIVATE KEY-----";
+export const RSA_KEY_ID = "7334b718-3f29-44ef-8b65-e266a17daea5";
+//This is not a secret, this is the simulator's provider key used validate tokens
+export const RSA_PUBLIC_TOKEN_SIGNING_KEY =
+  "-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwsDTGdvnDGO8aEoohAEfCAaS/7jebu4DNJpHOO0PVvggx6Sn5kkZmWWqOv5RNGO8COR3FwU5GH9oMj0iuElmtLhPhIsh8n8feC3CLaH/mjY0oHJCe2L+LWhtIqTn4R6Wd8fZCedSmZnaE5qWzLcSBKlD0AouoF7pTo1kBSKD2u6yTEa01CJ3zAGMq0nL2b2LtosK2WYci5Ka+jUF1Q20qlOR1fYkwQ6yTcHYHKjF9Qq2SDFwlyg+CYthNioul5d8TFg5kFbnQJMJOyPBQn0XV58U2XditDa9WNwXNZGhagrHscJhalD9GqgzWB5jHLQQj5vWd4+xs6j81D6dLnWOhwIDAQAB-----END PUBLIC KEY-----";
+
+//This is not a secret, this is the simulator's provider key used to sign tokens
+export const EC_PRIVATE_TOKEN_SIGNING_KEY =
+  "-----BEGIN PRIVATE KEY-----MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgJx+BhLSXqIdFrPhFmAkifXysPRgVHCmyKi8DqMHH1XihRANCAAT/AhlQkClTY+FuaQUEoGvTMPaJq5IQY0HbItiGtjLEu18alBOIfHfW8BgjynlTmYvsdJ0+sJ80r14YDsbPBjNZ-----END PRIVATE KEY-----";
+export const EC_KEY_ID = "b9162667-e025-4d93-8c5b-e538e6c792ac";
+//This is not a secret, this is the simulator's provider key used validate tokens
+export const EC_PUBLIC_TOKEN_SIGNING_KEY =
+  "-----BEGIN PUBLIC KEY-----MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE/wIZUJApU2PhbmkFBKBr0zD2iauSEGNB2yLYhrYyxLtfGpQTiHx31vAYI8p5U5mL7HSdPrCfNK9eGA7GzwYzWQ==-----END PUBLIC KEY-----";
+
+//This is not a secret, this is the simulator's provider key set used validate tokens
+export const JWKS: JSONWebKeySet = {
+  keys: [
+    {
+      kty: "RSA",
+      n: "wsDTGdvnDGO8aEoohAEfCAaS_7jebu4DNJpHOO0PVvggx6Sn5kkZmWWqOv5RNGO8COR3FwU5GH9oMj0iuElmtLhPhIsh8n8feC3CLaH_mjY0oHJCe2L-LWhtIqTn4R6Wd8fZCedSmZnaE5qWzLcSBKlD0AouoF7pTo1kBSKD2u6yTEa01CJ3zAGMq0nL2b2LtosK2WYci5Ka-jUF1Q20qlOR1fYkwQ6yTcHYHKjF9Qq2SDFwlyg-CYthNioul5d8TFg5kFbnQJMJOyPBQn0XV58U2XditDa9WNwXNZGhagrHscJhalD9GqgzWB5jHLQQj5vWd4-xs6j81D6dLnWOhw",
+      e: "AQAB",
+      ext: true,
+      kid: RSA_KEY_ID,
+      alg: "RS256",
+      use: "sig",
+    },
+    {
+      kty: "EC",
+      crv: "p256",
+      x: "nAQ0TRE94xb0lS0Nf9lLhfvgcRsbwE1hQfAZjfOZkUU",
+      y: "eAayC7l8Rr0mgxEVl2r0AVsdzbai5nIjGLPR5Hxc4dM",
+      ext: true,
+      kid: EC_KEY_ID,
+      alg: "ES256",
+      use: "sig",
+    },
+  ],
+};
