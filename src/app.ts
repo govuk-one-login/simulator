@@ -1,6 +1,7 @@
 import express, { Application, Express, Request, Response } from "express";
 import { configController } from "./components/config/config-controller";
 import bodyParser from "body-parser";
+import { tokenController } from "./components/token/token-controller";
 
 const createApp = (): Application => {
   const app: Express = express();
@@ -14,6 +15,7 @@ const createApp = (): Application => {
   });
 
   app.post("/config", configController);
+  app.post("/token", tokenController);
 
   return app;
 };
