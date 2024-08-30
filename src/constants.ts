@@ -28,6 +28,8 @@ export const VALID_OIDC_PROMPTS = [
 export const VALID_OIDC_RESPONSE_TYPES = ["token", "code", "id_token"];
 
 export const SUPPORTED_UI_LOCALES = ["en", "cy", "cy-AR"];
+import type { JSONWebKeySet } from "jose/dist/types/types";
+
 export const ISSUER_VALUE = "https://oidc.account.gov.uk";
 export const EXPECTED_PRIVATE_KEY_JWT_AUDIENCE =
   "https://oidc.account.gov.uk/token";
@@ -47,3 +49,28 @@ export const RSA_KEY_ID = "7334b718-3f29-44ef-8b65-e266a17daea5";
 export const EC_PRIVATE_TOKEN_SIGNING_KEY =
   "-----BEGIN PRIVATE KEY-----MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgJx+BhLSXqIdFrPhFmAkifXysPRgVHCmyKi8DqMHH1XihRANCAAT/AhlQkClTY+FuaQUEoGvTMPaJq5IQY0HbItiGtjLEu18alBOIfHfW8BgjynlTmYvsdJ0+sJ80r14YDsbPBjNZ-----END PRIVATE KEY-----";
 export const EC_KEY_ID = "b9162667-e025-4d93-8c5b-e538e6c792ac";
+
+//This is not a secret, this is the simulator's provider key set used validate tokens
+export const JWKS: JSONWebKeySet = {
+  keys: [
+    {
+      kty: "RSA",
+      n: "wsDTGdvnDGO8aEoohAEfCAaS_7jebu4DNJpHOO0PVvggx6Sn5kkZmWWqOv5RNGO8COR3FwU5GH9oMj0iuElmtLhPhIsh8n8feC3CLaH_mjY0oHJCe2L-LWhtIqTn4R6Wd8fZCedSmZnaE5qWzLcSBKlD0AouoF7pTo1kBSKD2u6yTEa01CJ3zAGMq0nL2b2LtosK2WYci5Ka-jUF1Q20qlOR1fYkwQ6yTcHYHKjF9Qq2SDFwlyg-CYthNioul5d8TFg5kFbnQJMJOyPBQn0XV58U2XditDa9WNwXNZGhagrHscJhalD9GqgzWB5jHLQQj5vWd4-xs6j81D6dLnWOhw",
+      e: "AQAB",
+      ext: true,
+      kid: RSA_KEY_ID,
+      alg: "RS256",
+      use: "sig",
+    },
+    {
+      kty: "EC",
+      crv: "p256",
+      x: "nAQ0TRE94xb0lS0Nf9lLhfvgcRsbwE1hQfAZjfOZkUU",
+      y: "eAayC7l8Rr0mgxEVl2r0AVsdzbai5nIjGLPR5Hxc4dM",
+      ext: true,
+      kid: EC_KEY_ID,
+      alg: "ES256",
+      use: "sig",
+    },
+  ],
+};
