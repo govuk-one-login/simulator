@@ -1,3 +1,33 @@
+export const VALID_SCOPES = ["openid", "email", "phone"];
+
+export const VALID_CLAIMS = [
+  "https://vocab.account.gov.uk/v1/passport",
+  "https://vocab.account.gov.uk/v1/address",
+  "https://vocab.account.gov.uk/v1/drivingPermit",
+  "https://vocab.account.gov.uk/v1/socialSecurityRecord",
+  "https://vocab.account.gov.uk/v1/coreIdentityJWT",
+  "https://vocab.account.gov.uk/v1/returnCode",
+  "https://vocab.account.gov.uk/v1/inheritedIdentityJWT",
+];
+
+export const VALID_CREDENTIAL_TRUST_VALUES = ["Cl", "Cl.Cm"];
+
+export const VALID_LOC_VALUES = ["P0", "P1", "P2"];
+
+//Whilst we don't support all of these we do need to reject
+//requests with invalid prompt values.
+export const VALID_OIDC_PROMPTS = [
+  "none",
+  "login",
+  "consent",
+  "select_account",
+];
+
+//We only support the code response_type, but
+// we need to reject invalid ones
+export const VALID_OIDC_RESPONSE_TYPES = ["token", "code", "id_token"];
+
+export const SUPPORTED_UI_LOCALES = ["en", "cy", "cy-AR"];
 export const ISSUER_VALUE = "https://oidc.account.gov.uk";
 export const EXPECTED_PRIVATE_KEY_JWT_AUDIENCE =
   "https://oidc.account.gov.uk/token";
