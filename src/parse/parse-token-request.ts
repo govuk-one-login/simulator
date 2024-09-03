@@ -1,4 +1,4 @@
-import { ParseRequestError } from "../errors/parse-request-error";
+import { ParseTokenRequestError } from "../errors/parse-token-request-error";
 import { TokenRequestError } from "../errors/token-request-error";
 import { logger } from "../logger";
 import { TokenRequest } from "../types/token-request";
@@ -186,7 +186,7 @@ const parseClientAssertion = (
   const jwtParts = clientAssertion.split(".");
 
   if (jwtParts.length !== 3) {
-    throw new ParseRequestError(
+    throw new ParseTokenRequestError(
       "Invalid client_assertion JWT: Unexpected number of Base64URL parts, must be three"
     );
   }
@@ -197,7 +197,7 @@ const parseClientAssertion = (
   } catch (error) {
     if (error instanceof errors.JWTInvalid) {
       logger.error("Invalid JSON in client_assertion: " + error.message);
-      throw new ParseRequestError(
+      throw new ParseTokenRequestError(
         "Payload of JWS object is not a valid JSON object"
       );
     } else throw error;
@@ -206,31 +206,31 @@ const parseClientAssertion = (
   const signature = jwtParts[2];
 
   if (!signature || signature.trim().length === 0) {
-    throw new ParseRequestError(
+    throw new ParseTokenRequestError(
       "Invalid client_assertion JWT: The signature must not be empty"
     );
   }
 
   if (!payload.sub) {
-    throw new ParseRequestError(
+    throw new ParseTokenRequestError(
       "Invalid client_assertion JWT: Missing subject in client JWT assertion"
     );
   }
 
   if (!payload.iss) {
-    throw new ParseRequestError(
+    throw new ParseTokenRequestError(
       "Invalid client_assertion JWT: Missing issuer in client JWT assertion"
     );
   }
 
   if (!payload.aud) {
-    throw new ParseRequestError(
+    throw new ParseTokenRequestError(
       "Invalid client_assertion JWT: Missing audience in client JWT assertion"
     );
   }
 
   if (!payload.exp || typeof payload.exp !== "number") {
-    throw new ParseRequestError(
+    throw new ParseTokenRequestError(
       "Invalid client_assertion JWT: Missing or invalid expiry in client JWT assertion"
     );
   }
@@ -243,7 +243,7 @@ const parseClientAssertion = (
     );
 
     if (typeof payload.nbf !== "number") {
-      throw new ParseRequestError(
+      throw new ParseTokenRequestError(
         "Invalid client_assertion JWT: Invalid nbf claim in client JWT assertion"
       );
     }
@@ -256,7 +256,7 @@ const parseClientAssertion = (
   }
 
   if (payload.iat && typeof payload.iat !== "number") {
-    throw new ParseRequestError(
+    throw new ParseTokenRequestError(
       "Invalid client_assertion JWT: Invalid iat claim in client JWT assertion"
     );
   }
@@ -268,13 +268,13 @@ const parseClientAssertion = (
   }
 
   if (!header.alg || !["RS256", "ES256"].includes(header.alg)) {
-    throw new ParseRequestError(
+    throw new ParseTokenRequestError(
       "Invalid client_assertion JWT: The client assertion JWT must be RSA or ECDSA-signed (RS256, RS384, RS512, PS256, PS384, PS512, ES256, ES384 or ES512)"
     );
   }
 
   if (tokenRequestClientId && tokenRequestClientId !== payload.sub) {
-    throw new ParseRequestError(
+    throw new ParseTokenRequestError(
       "Invalid client_assertion JWT: The client identifier doesn't match the client assertion subject"
     );
   }

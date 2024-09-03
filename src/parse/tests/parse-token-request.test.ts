@@ -1,7 +1,7 @@
 import { exportSPKI, SignJWT } from "jose";
 import { Config } from "../../config";
 import { EXPECTED_PRIVATE_KEY_JWT_AUDIENCE } from "../../constants";
-import { ParseRequestError } from "../../errors/parse-request-error";
+import { ParseTokenRequestError } from "../../errors/parse-token-request-error";
 import { TokenRequestError } from "../../errors/token-request-error";
 import { parseTokenRequest } from "../parse-token-request";
 import { generateKeyPairSync, randomUUID } from "crypto";
@@ -192,7 +192,7 @@ describe("parseTokenRequest tests", () => {
     );
   });
 
-  it("throws an ParseRequestError for an invalid JWS in the client_assertion", async () => {
+  it("throws an ParseTokenRequestError for an invalid JWS in the client_assertion", async () => {
     await expect(() =>
       parseTokenRequest(
         {
@@ -206,14 +206,14 @@ describe("parseTokenRequest tests", () => {
         config
       )
     ).rejects.toThrow(
-      new ParseRequestError(
+      new ParseTokenRequestError(
         "Invalid client_assertion JWT: " +
           "Unexpected number of Base64URL parts, must be three"
       )
     );
   });
 
-  it("throws an ParseRequestError if the payload is invalid JSON", async () => {
+  it("throws an ParseTokenRequestError if the payload is invalid JSON", async () => {
     await expect(() =>
       parseTokenRequest(
         {
@@ -232,11 +232,13 @@ describe("parseTokenRequest tests", () => {
         config
       )
     ).rejects.toThrow(
-      new ParseRequestError("Payload of JWS object is not a valid JSON object")
+      new ParseTokenRequestError(
+        "Payload of JWS object is not a valid JSON object"
+      )
     );
   });
 
-  it("throws an ParseRequestError if the signature is empty", async () => {
+  it("throws an ParseTokenRequestError if the signature is empty", async () => {
     await expect(() =>
       parseTokenRequest(
         {
@@ -262,13 +264,13 @@ describe("parseTokenRequest tests", () => {
         config
       )
     ).rejects.toThrow(
-      new ParseRequestError(
+      new ParseTokenRequestError(
         "Invalid client_assertion JWT: " + "The signature must not be empty"
       )
     );
   });
 
-  it("throws an ParseRequestError if there is no sub claim in the client_assertion", async () => {
+  it("throws an ParseTokenRequestError if there is no sub claim in the client_assertion", async () => {
     await expect(() =>
       parseTokenRequest(
         {
@@ -292,14 +294,14 @@ describe("parseTokenRequest tests", () => {
         config
       )
     ).rejects.toThrow(
-      new ParseRequestError(
+      new ParseTokenRequestError(
         "Invalid client_assertion JWT: " +
           "Missing subject in client JWT assertion"
       )
     );
   });
 
-  it("throws an ParseRequestError if there is no issuer in the client_assertion", async () => {
+  it("throws an ParseTokenRequestError if there is no issuer in the client_assertion", async () => {
     await expect(() =>
       parseTokenRequest(
         {
@@ -323,14 +325,14 @@ describe("parseTokenRequest tests", () => {
         config
       )
     ).rejects.toThrow(
-      new ParseRequestError(
+      new ParseTokenRequestError(
         "Invalid client_assertion JWT: " +
           "Missing issuer in client JWT assertion"
       )
     );
   });
 
-  it("throws an ParseRequestError if there is no aud in the client_assertion", async () => {
+  it("throws an ParseTokenRequestError if there is no aud in the client_assertion", async () => {
     await expect(() =>
       parseTokenRequest(
         {
@@ -354,14 +356,14 @@ describe("parseTokenRequest tests", () => {
         config
       )
     ).rejects.toThrow(
-      new ParseRequestError(
+      new ParseTokenRequestError(
         "Invalid client_assertion JWT: " +
           "Missing audience in client JWT assertion"
       )
     );
   });
 
-  it("throws an ParseRequestError if there is no exp in the client_assertion", async () => {
+  it("throws an ParseTokenRequestError if there is no exp in the client_assertion", async () => {
     await expect(() =>
       parseTokenRequest(
         {
@@ -385,14 +387,14 @@ describe("parseTokenRequest tests", () => {
         config
       )
     ).rejects.toThrow(
-      new ParseRequestError(
+      new ParseTokenRequestError(
         "Invalid client_assertion JWT: " +
           "Missing or invalid expiry in client JWT assertion"
       )
     );
   });
 
-  it("throws an ParseRequestError if the exp is invalid the client_assertion", async () => {
+  it("throws an ParseTokenRequestError if the exp is invalid the client_assertion", async () => {
     await expect(() =>
       parseTokenRequest(
         {
@@ -417,14 +419,14 @@ describe("parseTokenRequest tests", () => {
         config
       )
     ).rejects.toThrow(
-      new ParseRequestError(
+      new ParseTokenRequestError(
         "Invalid client_assertion JWT: " +
           "Missing or invalid expiry in client JWT assertion"
       )
     );
   });
 
-  it("throws an ParseRequestError if the nbf claim is invalid the client_assertion", async () => {
+  it("throws an ParseTokenRequestError if the nbf claim is invalid the client_assertion", async () => {
     await expect(() =>
       parseTokenRequest(
         {
@@ -450,14 +452,14 @@ describe("parseTokenRequest tests", () => {
         config
       )
     ).rejects.toThrow(
-      new ParseRequestError(
+      new ParseTokenRequestError(
         "Invalid client_assertion JWT: " +
           "Invalid nbf claim in client JWT assertion"
       )
     );
   });
 
-  it("throws an ParseRequestError if the nbf claim is invalid the client_assertion", async () => {
+  it("throws an ParseTokenRequestError if the nbf claim is invalid the client_assertion", async () => {
     await expect(() =>
       parseTokenRequest(
         {
@@ -483,14 +485,14 @@ describe("parseTokenRequest tests", () => {
         config
       )
     ).rejects.toThrow(
-      new ParseRequestError(
+      new ParseTokenRequestError(
         "Invalid client_assertion JWT: " +
           "Invalid iat claim in client JWT assertion"
       )
     );
   });
 
-  it("throws an ParseRequestError if there is no alg in the header", async () => {
+  it("throws an ParseTokenRequestError if there is no alg in the header", async () => {
     await expect(() =>
       parseTokenRequest(
         {
@@ -513,14 +515,14 @@ describe("parseTokenRequest tests", () => {
         config
       )
     ).rejects.toThrow(
-      new ParseRequestError(
+      new ParseTokenRequestError(
         "Invalid client_assertion JWT: " +
           "The client assertion JWT must be RSA or ECDSA-signed (RS256, RS384, RS512, PS256, PS384, PS512, ES256, ES384 or ES512)"
       )
     );
   });
 
-  it("throws an ParseRequestError if the alg in the header is not RS256 or ES256", async () => {
+  it("throws an ParseTokenRequestError if the alg in the header is not RS256 or ES256", async () => {
     await expect(() =>
       parseTokenRequest(
         {
@@ -545,7 +547,7 @@ describe("parseTokenRequest tests", () => {
         config
       )
     ).rejects.toThrow(
-      new ParseRequestError(
+      new ParseTokenRequestError(
         "Invalid client_assertion JWT: " +
           "The client assertion JWT must be RSA or ECDSA-signed (RS256, RS384, RS512, PS256, PS384, PS512, ES256, ES384 or ES512)"
       )
@@ -579,7 +581,7 @@ describe("parseTokenRequest tests", () => {
         config
       )
     ).rejects.toThrow(
-      new ParseRequestError(
+      new ParseTokenRequestError(
         "Invalid client_assertion JWT: " +
           "The client identifier doesn't match the client assertion subject"
       )
