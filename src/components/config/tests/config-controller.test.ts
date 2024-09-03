@@ -91,7 +91,7 @@ describe("Integration: Config POST", () => {
 
     expect(config.getClientId()).toEqual("HGIOgho9HIRhgoepdIOPFdIUWgewi0jw");
     expect(config.getPublicKey()).toEqual(TEST_PUBLIC_KEY);
-    expect(config.getScopes()).toEqual(["openid", "email", "password"]);
+    expect(config.getScopes()).toEqual(["openid", "email", "phone"]);
     expect(config.getRedirectUrls()).toEqual(TEST_REDIRECT_URLS);
     expect(config.getClaims()).toEqual(TEST_CLAIMS);
     expect(config.getIdentityVerificationSupported()).toEqual(true);
