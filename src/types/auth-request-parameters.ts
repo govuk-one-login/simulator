@@ -1,10 +1,9 @@
+import { VectorOfTrust } from "./vector-of-trust";
+
 export default interface AuthRequestParameters {
   redirectUri: string;
   nonce: string;
   scopes: string[];
   claims: string[];
-  vtr: {
-    credentialTrust: "Cl" | "Cl.Cm";
-    levelOfConfidence?: "P0" | "P2";
-  };
+  vtr: VectorOfTrust;
 }

@@ -18,6 +18,7 @@ describe("createIdToken tests", () => {
     redirectUri: "https://example.com/authentication-callback/",
     vtr: {
       credentialTrust: "Cl.Cm",
+      levelOfConfidence: null,
     },
   };
   const testTimestamp = 1723707024;

@@ -444,6 +444,7 @@ describe("/token endpoint valid client_assertion", () => {
     claims: [],
     vtr: {
       credentialTrust: "Cl.Cm",
+      levelOfConfidence: null,
     },
   };
   const redirectUriMismatchParams: AuthRequestParameters = {
@@ -453,6 +454,7 @@ describe("/token endpoint valid client_assertion", () => {
     claims: [],
     vtr: {
       credentialTrust: "Cl.Cm",
+      levelOfConfidence: null,
     },
   };
 
