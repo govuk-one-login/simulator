@@ -4,7 +4,7 @@ import { Config } from "../../config";
 import { createAccessToken } from "./helper/create-access-token";
 import { createIdToken } from "./helper/create-id-token";
 import { TokenRequestError } from "../../errors/token-request-error";
-import { ParseRequestError } from "../../errors/parse-request-error";
+import { ParseTokenRequestError } from "../../errors/parse-token-request-error";
 import { parseTokenRequest } from "../../parse/parse-token-request";
 
 export const tokenController = async (
@@ -66,7 +66,7 @@ export const tokenController = async (
     if (error instanceof TokenRequestError) {
       handleTokenRequestError(error, res);
       return;
-    } else if (error instanceof ParseRequestError) {
+    } else if (error instanceof ParseTokenRequestError) {
       res.status(400).json({
         error: "invalid_request",
         error_description: "Invalid private_key_jwt",

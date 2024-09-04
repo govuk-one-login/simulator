@@ -68,7 +68,7 @@ const setupClientConfig = async (
 
 describe("/token endpoint tests, invalid request", () => {
   it("returns an invalid_request error for missing grant_type", async () => {
-    const app = await createApp();
+    const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send({
       code: "123456",
       redirect_uri: "http://localhost:8080/authorization-code/callback",
@@ -86,7 +86,7 @@ describe("/token endpoint tests, invalid request", () => {
   });
 
   it("returns an invalid_request error when grant_type is not authorization_code", async () => {
-    const app = await createApp();
+    const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send({
       grant_type: "not_authorization_code",
       code: "123456",
@@ -105,7 +105,7 @@ describe("/token endpoint tests, invalid request", () => {
   });
 
   it("returns an invalid_request no redirect_uri is included", async () => {
-    const app = await createApp();
+    const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send({
       grant_type: "authorization_code",
       code: "123456",
@@ -123,7 +123,7 @@ describe("/token endpoint tests, invalid request", () => {
   });
 
   it("returns an invalid_request when no auth_code is included", async () => {
-    const app = await createApp();
+    const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send({
       grant_type: "authorization_code",
       redirect_uri: "http://localhost:8080/authorization-code/callback",
@@ -141,7 +141,7 @@ describe("/token endpoint tests, invalid request", () => {
   });
 
   it("returns an invalid_request when the client_assertion_type is not included", async () => {
-    const app = await createApp();
+    const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send({
       grant_type: "authorization_code",
       code: "123456",
@@ -158,7 +158,7 @@ describe("/token endpoint tests, invalid request", () => {
   });
 
   it("returns an invalid_request when the client_assertion is not included", async () => {
-    const app = await createApp();
+    const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send({
       grant_type: "authorization_code",
       code: "123456",
@@ -175,7 +175,7 @@ describe("/token endpoint tests, invalid request", () => {
   });
 
   it("returns an invalid_request when the client_assertion is not included", async () => {
-    const app = await createApp();
+    const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send({
       grant_type: "authorization_code",
       code: "123456",
@@ -192,7 +192,7 @@ describe("/token endpoint tests, invalid request", () => {
   });
 
   it("returns an invalid_request when the client_assertion_type is not included", async () => {
-    const app = await createApp();
+    const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send({
       grant_type: "authorization_code",
       code: "123456",
@@ -225,7 +225,7 @@ describe("/token endpoint tests, invalid client assertion", () => {
       "." +
       fakeSignature();
 
-    const app = await createApp();
+    const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send({
       grant_type: "authorization_code",
       code: "123456",
@@ -254,7 +254,7 @@ describe("/token endpoint tests, invalid client assertion", () => {
       "." +
       fakeSignature();
 
-    const app = await createApp();
+    const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send({
       grant_type: "authorization_code",
       code: "123456",
@@ -284,7 +284,7 @@ describe("/token endpoint tests, invalid client assertion", () => {
       "." +
       fakeSignature();
 
-    const app = await createApp();
+    const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send({
       grant_type: "authorization_code",
       code: "123456",
@@ -314,7 +314,7 @@ describe("/token endpoint tests, invalid client assertion", () => {
       "." +
       fakeSignature();
 
-    const app = await createApp();
+    const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send({
       grant_type: "authorization_code",
       code: "123456",
@@ -347,7 +347,7 @@ describe("/token endpoint tests, invalid client assertion", () => {
       "." +
       fakeSignature();
 
-    const app = await createApp();
+    const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send({
       grant_type: "authorization_code",
       code: "123456",
@@ -377,7 +377,7 @@ describe("/token endpoint tests, invalid client assertion", () => {
       "." +
       fakeSignature();
 
-    const app = await createApp();
+    const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send({
       grant_type: "authorization_code",
       code: "123456",
@@ -414,7 +414,7 @@ describe("/token endpoint tests, invalid client assertion", () => {
       "." +
       fakeSignature();
 
-    const app = await createApp();
+    const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send({
       grant_type: "authorization_code",
       code: randomUUID(),
@@ -444,6 +444,7 @@ describe("/token endpoint valid client_assertion", () => {
     claims: [],
     vtr: {
       credentialTrust: "Cl.Cm",
+      levelOfConfidence: null,
     },
   };
   const redirectUriMismatchParams: AuthRequestParameters = {
@@ -453,6 +454,7 @@ describe("/token endpoint valid client_assertion", () => {
     claims: [],
     vtr: {
       credentialTrust: "Cl.Cm",
+      levelOfConfidence: null,
     },
   };
 
@@ -497,7 +499,7 @@ describe("/token endpoint valid client_assertion", () => {
       "ES256"
     );
 
-    const app = await createApp();
+    const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send({
       grant_type: "authorization_code",
       code: randomUUID(),
@@ -531,7 +533,7 @@ describe("/token endpoint valid client_assertion", () => {
       "ES256"
     );
 
-    const app = await createApp();
+    const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send({
       grant_type: "authorization_code",
       code: redirectUriMismatchCode,
@@ -565,7 +567,7 @@ describe("/token endpoint valid client_assertion", () => {
       "ES256"
     );
 
-    const app = await createApp();
+    const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send({
       grant_type: "authorization_code",
       code: knownAuthCode,
@@ -630,7 +632,7 @@ describe("/token endpoint valid client_assertion", () => {
       "RS256"
     );
 
-    const app = await createApp();
+    const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send({
       grant_type: "authorization_code",
       code: knownAuthCode,

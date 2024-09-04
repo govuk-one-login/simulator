@@ -1,4 +1,4 @@
-export class ParseRequestError extends Error {
+export class MissingParameterError extends Error {
   constructor(message: string) {
     super();
     this.message = message;

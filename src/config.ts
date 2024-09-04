@@ -25,7 +25,7 @@ CQIDAQAB
       publicKey: process.env.PUBLIC_KEY ?? defaultPublicKey,
       scopes: process.env.SCOPES
         ? process.env.SCOPES.split(",")
-        : ["openid", "email", "password"],
+        : ["openid", "email", "phone"],
       redirectUrls: process.env.REDIRECT_URLS
         ? process.env.REDIRECT_URLS.split(",")
         : ["http://localhost:8080/authorization-code/callback"],
