@@ -5,16 +5,7 @@ import { Config } from "../config";
 import { logger } from "../logger";
 
 const AuthorisationHeaderKey: string = "Authorization";
-const ValidScopes: string[] = [
-  "openid",
-  "email",
-  "phone",
-  "offline_access",
-  "am",
-  "govuk-account",
-  "doc-checking-app",
-  "wallet-subject-id",
-];
+const ValidScopes: string[] = ["openid", "email", "phone"];
 
 export const userInfoRequestValidator = async (
   userInfoRequestHeaders: IncomingHttpHeaders
