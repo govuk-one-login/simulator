@@ -4,7 +4,7 @@ import { signedJwtValidator } from "./signed-jwt-validator";
 import { Config } from "../config";
 import { logger } from "../logger";
 
-const AuthorisationHeaderKey: string = "Authorization";
+const AuthorisationHeaderKey: string = "authorization";
 const ValidScopes: string[] = ["openid", "email", "phone"];
 
 export const userInfoRequestValidator = async (
@@ -16,6 +16,9 @@ export const userInfoRequestValidator = async (
       error: UserInfoRequestError;
     }
 > => {
+  for (const key of Object.keys(userInfoRequestHeaders)) {
+    userInfoRequestHeaders[key.toLowerCase()] = userInfoRequestHeaders[key];
+  }
   const accessToken = userInfoRequestHeaders[AuthorisationHeaderKey];
   let match;
   try {
