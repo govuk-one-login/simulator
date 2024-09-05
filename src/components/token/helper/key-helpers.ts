@@ -1,4 +1,4 @@
-import { importPKCS8, KeyLike } from "jose";
+import { exportJWK, importPKCS8, KeyLike, type JSONWebKeySet } from "jose";
 import {
   EC_KEY_ID,
   EC_PRIVATE_TOKEN_SIGNING_KEY,
@@ -22,4 +22,16 @@ export const getKeyId = (tokenSigningAlgorithm: string): string => {
   } else {
     return RSA_KEY_ID;
   }
+};
+
+export const generateJWKS = async (): Promise<JSONWebKeySet> => {
+  const ecKey = await importPKCS8(EC_PRIVATE_TOKEN_SIGNING_KEY, "EC");
+  const rsKey = await importPKCS8(RSA_PRIVATE_TOKEN_SIGNING_KEY, "RSA");
+  const ecJwk = await exportJWK(ecKey);
+  ecJwk.kid = EC_KEY_ID;
+  const rsJwk = await exportJWK(rsKey);
+  rsJwk.kid = RSA_KEY_ID;
+  return {
+    keys: [ecJwk, rsJwk],
+  };
 };
