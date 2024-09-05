@@ -29,9 +29,9 @@ export const VALID_OIDC_RESPONSE_TYPES = ["token", "code", "id_token"];
 
 export const SUPPORTED_UI_LOCALES = ["en", "cy", "cy-AR"];
 
-export const ISSUER_VALUE = "https://oidc.account.gov.uk";
+export const ISSUER_VALUE = "http://host.docker.internal:3000/";
 export const EXPECTED_PRIVATE_KEY_JWT_AUDIENCE =
-  "https://oidc.account.gov.uk/token";
+  "http://host.docker.internal:3000/token";
 export const TRUSTMARK_URL = "https://oidc.account.gov.uk/trustmark";
 export const ACCESS_TOKEN_EXPIRY = 180; //3 Minutes
 export const ID_TOKEN_EXPIRY = 120; //2  Minutes

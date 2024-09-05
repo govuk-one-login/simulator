@@ -28,7 +28,7 @@ CQIDAQAB
         : ["openid", "email", "phone"],
       redirectUrls: process.env.REDIRECT_URLS
         ? process.env.REDIRECT_URLS.split(",")
-        : ["http://localhost:8080/authorization-code/callback"],
+        : ["http://localhost:8080/oidc/authorization-code/callback"],
       claims: process.env.CLAIMS
         ? process.env.CLAIMS.split(",")
         : ["https://vocab.account.gov.uk/v1/coreIdentityJWT"],
