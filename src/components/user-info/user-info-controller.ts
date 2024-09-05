@@ -18,6 +18,7 @@ export const userInfoController = async (
       AuthenticateHeaderKey,
       validationResult.error.toAuthenticateHeader()
     );
+    res.send();
     return;
   }
 
