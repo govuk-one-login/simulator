@@ -28,7 +28,7 @@ export const userInfoRequestValidator = async (
     return { valid: false, error: UserInfoRequestError.MISSING_TOKEN };
   }
 
-  if (!match || !match.groups || match.groups.token) {
+  if (!match?.groups?.token) {
     logger.warn("Missing access token in authorisation header.");
     return { valid: false, error: UserInfoRequestError.MISSING_TOKEN };
   }
