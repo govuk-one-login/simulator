@@ -1,4 +1,4 @@
-import { randomUUID } from "crypto";
+import crypto from "crypto";
 import { createApp } from "../../../app";
 import request from "supertest";
 import { Config } from "../../../config";
@@ -8,6 +8,8 @@ const knownClientId = "43c729a8f8a8bed3441a872039d45180";
 const knownRedirectUri = "https://example.com/authentication-callback";
 const unknownRedirectUri =
   "https://some.other.client.example.com/auth-callback";
+const knownAuthCode =
+  "NmU0MTk1MTI5MDY2MTM1ZGEyYzgxNzQ1MjQ3YmIwZWRmODJlMDBkYTVhODkyNWQxYTEyODk2MjlhZDg2MzM";
 
 const createRequestParams = (params: Record<string, string>): string => {
   return Object.entries(params)
@@ -110,7 +112,7 @@ describe("/authorize GET controller: invalid request non-redirecting errors", ()
   it("returns an Invalid request response for an unknown client_id", async () => {
     const app = createApp();
     const requestParams = createRequestParams({
-      client_id: randomUUID(),
+      client_id: crypto.randomUUID(),
       redirect_uri: knownRedirectUri,
       response_type: "code",
     });
@@ -393,6 +395,13 @@ describe("/authorize GET controller: Invalid request, redirecting errors", () =>
 });
 
 describe("valid auth request", () => {
+  jest
+    .spyOn(crypto, "randomBytes")
+    .mockImplementation(() =>
+      Buffer.from(
+        "6e4195129066135da2c81745247bb0edf82e00da5a8925d1a1289629ad8633"
+      )
+    );
   beforeEach(() => {
     process.env.CLIENT_ID = knownClientId;
     process.env.REDIRECT_URLS = knownRedirectUri;
@@ -419,7 +428,7 @@ describe("valid auth request", () => {
     );
     expect(response.status).toBe(302);
     expect(response.header.location).toBe(
-      `${knownRedirectUri}?code=c87fe9af6880180fbb73a77597395053&state=${state}`
+      `${knownRedirectUri}?code=${knownAuthCode}&state=${state}`
     );
   });
 
@@ -442,7 +451,7 @@ describe("valid auth request", () => {
     );
     expect(response.status).toBe(302);
     expect(response.header.location).toBe(
-      `${knownRedirectUri}?code=c87fe9af6880180fbb73a77597395053&state=${state}`
+      `${knownRedirectUri}?code=${knownAuthCode}&state=${state}`
     );
   });
 
@@ -466,7 +475,7 @@ describe("valid auth request", () => {
     );
     expect(response.status).toBe(302);
     expect(response.header.location).toBe(
-      `${knownRedirectUri}?code=c87fe9af6880180fbb73a77597395053&state=${state}`
+      `${knownRedirectUri}?code=${knownAuthCode}&state=${state}`
     );
   });
 
@@ -491,7 +500,7 @@ describe("valid auth request", () => {
     );
     expect(response.status).toBe(302);
     expect(response.header.location).toBe(
-      `${knownRedirectUri}?code=c87fe9af6880180fbb73a77597395053&state=${state}`
+      `${knownRedirectUri}?code=${knownAuthCode}&state=${state}`
     );
   });
 });
