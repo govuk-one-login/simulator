@@ -6,6 +6,8 @@ import { BadRequestError } from "../../errors/bad-request-error";
 import { ParseAuthRequestError } from "../../errors/parse-auth-request-error";
 import { Config } from "../../config";
 import { MissingParameterError } from "../../errors/missing-parameter-error";
+import { base64url } from "jose";
+import { randomBytes } from "crypto";
 
 export const authoriseGetController = (req: Request, res: Response): void => {
   const config = Config.getInstance();
@@ -39,8 +41,7 @@ export const authoriseGetController = (req: Request, res: Response): void => {
   }
 };
 
-//static auth code
-const generateAuthCode = (): string => "c87fe9af6880180fbb73a77597395053";
+const generateAuthCode = (): string => base64url.encode(randomBytes(32));
 
 const handleRequestError = (
   error: unknown,
