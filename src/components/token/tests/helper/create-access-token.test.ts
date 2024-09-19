@@ -9,6 +9,7 @@ import {
   ISSUER_VALUE,
   RSA_KEY_ID,
   SESSION_ID,
+  VALID_CLAIMS,
 } from "../../../../constants";
 import { VectorOfTrust } from "../../../../types/vector-of-trust";
 import { createAccessToken } from "../../helper/create-access-token";
@@ -102,5 +103,45 @@ describe("createAccessToken tests", () => {
       scope: ["openid"],
     });
     expect(typeof tokenParts[2]).toBe("string");
+  });
+
+  it("does not contain any claims if no claims were given", async () => {
+    const vtr: VectorOfTrust = {
+      credentialTrust: "Cl.Cm",
+      levelOfConfidence: "P2",
+    };
+    const accessToken = await createAccessToken(["openid"], vtr, null);
+    const tokenParts = accessToken.split(".");
+
+    const payload = decodeTokenPart(tokenParts[1]);
+
+    expect(payload).not.toHaveProperty("claims");
+  });
+
+  it("does not contain any claims if level of confidence is null", async () => {
+    const vtr: VectorOfTrust = {
+      credentialTrust: "Cl",
+      levelOfConfidence: null,
+    };
+    const accessToken = await createAccessToken(["openid"], vtr, VALID_CLAIMS);
+    const tokenParts = accessToken.split(".");
+
+    const payload = decodeTokenPart(tokenParts[1]);
+
+    expect(payload).not.toHaveProperty("claims");
+  });
+
+  // TODO: ATO-1051: only the valid claims should be returned back, not all requested claims
+  it("contains all requested claims if level of confidence is not null", async () => {
+    const vtr: VectorOfTrust = {
+      credentialTrust: "Cl",
+      levelOfConfidence: "P0",
+    };
+    const accessToken = await createAccessToken(["openid"], vtr, VALID_CLAIMS);
+    const tokenParts = accessToken.split(".");
+
+    const payload = decodeTokenPart(tokenParts[1]);
+
+    expect(payload.claims).toStrictEqual(VALID_CLAIMS);
   });
 });
