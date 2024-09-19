@@ -99,3 +99,42 @@ iZSejbyqjUjJBAH9GHkPsiA+w1vutdd2PuPKOV05TLmV5ZM06bmLHQjMCGMiWK0G
 8qVxFvr2NWRDB3otAjxVHR/ZQA==
 -----END PRIVATE KEY-----
 ```
+
+### Error configuration:
+
+You can setup the simulator to return specific error scenarios for the Core Identity JWT and ID Token issued. Multiple error states can be enabled and these should be passed to the following environment variables as a comma separated string:
+
+> `ID_TOKEN_ERRORS` - This enables invalid ID Tokens to be issued by the simulator and has the following valid values:
+>
+> > - "INVALID_ISS"
+> > - "INVALID_AUD"
+> > - "INVALID_ALG_HEADER"
+> > - "INVALID_SIGNATURE"
+> > - "TOKEN_EXPIRED"
+> > - "TOKEN_NOT_VALID_YET"
+> > - "NONCE_NOT_MATCHING"
+> > - "INCORRECT_VOT"
+
+> `CORE_IDENTITY_ERRORS` - This enables invalid ID Tokens to be issued by the simulator and has the following valid values:
+>
+> > - "INVALID_ALG_HEADER"
+> > - "INVALID_SIGNATURE"
+> > - "INVALID_ISS"
+> > - "INVALID_AUD"
+> > - "INCORRECT_SUB"
+> > - "TOKEN_EXPIRED"
+
+You can also setup these error scenarios using the `/config` endpoint by making a POST request with a body similar to the one below:
+
+```json
+{
+    "errorConfiguration":{
+        "coreIdentityErrors": ["INVALID_ALG_HEADER"], 
+        "idTokenErrors": ["INVALID_ISS"]
+    }
+}
+```
+To remove an error configuration, you can either unset the environment variables mentioned above, or you can POST the config endpoint **without** the `errorConfiguration` field in the body. 
+
+> [!NOTE]  
+> Anytime you update your configuration using the `/config` endpoint you **must** include the errorConfiguration if you wish to maintain the configured errors
