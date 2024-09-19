@@ -3,6 +3,9 @@ import { Request, Response } from "express";
 import { Config } from "../../config";
 import ClientConfiguration from "../../types/client-configuration";
 import ResponseConfiguration from "../../types/response-configuration";
+import { ErrorConfiguration } from "../../types/error-configuration";
+import { isCoreIdentityError } from "../../validators/core-identity-error";
+import { isIdTokenError } from "../../validators/id-token-error";
 
 export const configController = (
   req: Request<ConfigRequest>,
@@ -14,6 +17,8 @@ export const configController = (
   if (req.body.responseConfiguration !== undefined) {
     populateResponseConfiguration(req.body.responseConfiguration);
   }
+
+  populateErrorConfiguration(req.body.errorConfiguration);
 
   res.status(200).send();
 };
@@ -72,4 +77,25 @@ const populateResponseConfiguration = (
   if (responseConfiguration.phoneNumberVerified !== undefined) {
     config.setPhoneNumberVerified(responseConfiguration.phoneNumberVerified);
   }
+};
+
+const populateErrorConfiguration = (
+  errorConfiguration: Partial<ErrorConfiguration> | undefined
+): void => {
+  const config = Config.getInstance();
+
+  if (!errorConfiguration) {
+    config.setCoreIdentityErrors([]);
+    config.setIdTokenErrors([]);
+    return;
+  }
+
+  const coreIdentityErrors =
+    errorConfiguration.coreIdentityErrors?.filter(isCoreIdentityError) ?? [];
+
+  const idTokenErrors =
+    errorConfiguration.idTokenErrors?.filter(isIdTokenError) ?? [];
+
+  config.setCoreIdentityErrors(coreIdentityErrors);
+  config.setIdTokenErrors(idTokenErrors);
 };
