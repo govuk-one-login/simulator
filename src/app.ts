@@ -5,6 +5,7 @@ import { tokenController } from "./components/token/token-controller";
 import { authoriseGetController } from "./components/authorise/authorise-get-controller";
 import { dedupeQueryParams } from "./middleware/dedupe-query-params";
 import { userInfoController } from "./components/user-info/user-info-controller";
+import { generateJWKS } from "./components/token/helper/key-helpers";
 
 const createApp = (): Application => {
   const app: Express = express();
@@ -22,6 +23,10 @@ const createApp = (): Application => {
   app.post("/config", configController);
   app.post("/token", tokenController);
   app.get("/userinfo", userInfoController);
+  app.get("/.well-known/jwks.json", async (req: Request, res: Response) => {
+    res.header("Content-Type", "application/json");
+    res.send(JSON.stringify(await generateJWKS()));
+  });
 
   return app;
 };
