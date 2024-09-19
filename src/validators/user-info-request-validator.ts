@@ -3,8 +3,7 @@ import { IncomingHttpHeaders } from "http";
 import { signedJwtValidator } from "./signed-jwt-validator";
 import { Config } from "../config";
 import { logger } from "../logger";
-
-const ValidScopes: string[] = ["openid", "email", "phone"];
+import { VALID_SCOPES } from "../constants";
 
 export const userInfoRequestValidator = async (
   userInfoRequestHeaders: IncomingHttpHeaders
@@ -51,7 +50,7 @@ export const userInfoRequestValidator = async (
   if (
     !Array.isArray(scope) ||
     !scope.every((s) => typeof s == "string") ||
-    scope.some((s) => !ValidScopes.includes(s)) ||
+    scope.some((s) => !VALID_SCOPES.includes(s)) ||
     scope.some((s) => !config_scopes.includes(s))
   ) {
     logger.warn(
