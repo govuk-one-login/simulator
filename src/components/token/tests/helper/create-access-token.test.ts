@@ -10,6 +10,7 @@ import {
   RSA_KEY_ID,
   SESSION_ID,
 } from "../../../../constants";
+import { VectorOfTrust } from "../../../../types/vector-of-trust";
 import { createAccessToken } from "../../helper/create-access-token";
 
 describe("createAccessToken tests", () => {
@@ -38,11 +39,15 @@ describe("createAccessToken tests", () => {
   });
 
   it("returns a signed jwt using RS256", async () => {
+    const vtr: VectorOfTrust = {
+      credentialTrust: "Cl.Cm",
+      levelOfConfidence: "P2",
+    };
     tokenSigningAlgorithmSpy.mockReturnValue("RS256");
     subSpy.mockReturnValue(testSubClaim);
     clientIdSpy.mockReturnValue(testClientId);
 
-    const accessToken = await createAccessToken(["openid"]);
+    const accessToken = await createAccessToken(["openid"], vtr, null);
     const tokenParts = accessToken.split(".");
 
     const header = decodeTokenPart(tokenParts[0]);
@@ -67,11 +72,15 @@ describe("createAccessToken tests", () => {
   });
 
   it("returns a signed jwt using ES256", async () => {
+    const vtr: VectorOfTrust = {
+      credentialTrust: "Cl.Cm",
+      levelOfConfidence: "P2",
+    };
     tokenSigningAlgorithmSpy.mockReturnValue("ES256");
     subSpy.mockReturnValue(testSubClaim);
     clientIdSpy.mockReturnValue(testClientId);
 
-    const accessToken = await createAccessToken(["openid"]);
+    const accessToken = await createAccessToken(["openid"], vtr, null);
     const tokenParts = accessToken.split(".");
 
     const header = decodeTokenPart(tokenParts[0]);

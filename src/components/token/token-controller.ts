@@ -49,7 +49,11 @@ export const tokenController = async (
       });
     }
 
-    const accessToken = await createAccessToken(authCodeParams.scopes);
+    const accessToken = await createAccessToken(
+      authCodeParams.scopes,
+      authCodeParams.vtr,
+      authCodeParams.claims
+    );
     const idToken = await createIdToken(authCodeParams, accessToken);
 
     res.status(200).json({
