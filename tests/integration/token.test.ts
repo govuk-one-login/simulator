@@ -11,6 +11,7 @@ import {
   RSA_KEY_ID,
   SESSION_ID,
   TRUSTMARK_URL,
+  VALID_CLAIMS,
 } from "../../src/constants";
 
 const TOKEN_ENDPOINT = "/token";
@@ -441,12 +442,13 @@ describe("/token endpoint valid client_assertion", () => {
     nonce,
     redirectUri: redirectUri,
     scopes,
-    claims: [],
+    claims: VALID_CLAIMS,
     vtr: {
       credentialTrust: "Cl.Cm",
-      levelOfConfidence: null,
+      levelOfConfidence: "P2",
     },
   };
+
   const redirectUriMismatchParams: AuthRequestParameters = {
     nonce,
     redirectUri: "https://example.com/authentication-callback-invalid/",
@@ -549,117 +551,85 @@ describe("/token endpoint valid client_assertion", () => {
     });
   });
 
-  it("returns a valid access_token and id_token for a valid token request with a ES256 signed client assertion", async () => {
-    await setupClientConfig(knownClientId, "ES256");
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(validAuthRequestParams);
+  test.each<{
+    tokenSigningAlgorithm: "RS256" | "ES256";
+    expectedKeyId: string;
+  }>([
+    {
+      tokenSigningAlgorithm: "RS256",
+      expectedKeyId: RSA_KEY_ID,
+    },
+    {
+      tokenSigningAlgorithm: "ES256",
+      expectedKeyId: EC_KEY_ID,
+    },
+  ])(
+    "returns a valid access_token and id_token for a valid token request with a $tokenSigningAlgorithm signed client assertion",
+    async ({ tokenSigningAlgorithm, expectedKeyId }) => {
+      await setupClientConfig(knownClientId, tokenSigningAlgorithm);
+      jest
+        .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
+        .mockReturnValue(validAuthRequestParams);
 
-    const clientAssertion = await createValidClientAssertion(
-      {
-        iss: knownClientId,
-        sub: knownClientId,
-        aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
-        jti: randomUUID(),
-        iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor(Date.now() / 1000) + 3600,
-      },
-      "ES256"
-    );
+      const clientAssertion = await createValidClientAssertion(
+        {
+          iss: knownClientId,
+          sub: knownClientId,
+          aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+          jti: randomUUID(),
+          iat: Math.floor(Date.now() / 1000),
+          exp: Math.floor(Date.now() / 1000) + 3600,
+        },
+        tokenSigningAlgorithm
+      );
 
-    const app = createApp();
-    const response = await request(app).post(TOKEN_ENDPOINT).send({
-      grant_type: "authorization_code",
-      code: knownAuthCode,
-      client_assertion_type:
-        "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-      redirect_uri: redirectUri,
-      client_assertion: clientAssertion,
-    });
+      const app = createApp();
+      const response = await request(app).post(TOKEN_ENDPOINT).send({
+        grant_type: "authorization_code",
+        code: knownAuthCode,
+        client_assertion_type:
+          "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+        redirect_uri: redirectUri,
+        client_assertion: clientAssertion,
+      });
 
-    expect(response.status).toEqual(200);
+      expect(response.status).toEqual(200);
 
-    const { access_token, expires_in, id_token, token_type } = response.body;
+      const { access_token, expires_in, id_token, token_type } = response.body;
 
-    const [accessTokenHeader, accessTokenPayload] = access_token.split(".");
-    const [idTokenHeader, idTokenPayload] = id_token.split(".");
+      const [accessTokenHeader, accessTokenPayload] = access_token.split(".");
+      const [idTokenHeader, idTokenPayload] = id_token.split(".");
 
-    const decodedAccessToken = decodeTokenPart(accessTokenPayload);
-    const decodedIdToken = decodeTokenPart(idTokenPayload);
+      const decodedAccessToken = decodeTokenPart(accessTokenPayload);
+      const decodedIdToken = decodeTokenPart(idTokenPayload);
 
-    expect(expires_in).toEqual(3600);
-    expect(token_type).toEqual("Bearer");
+      expect(expires_in).toEqual(3600);
+      expect(token_type).toEqual("Bearer");
 
-    expect(decodeTokenPart(accessTokenHeader)).toStrictEqual({
-      alg: "ES256",
-      kid: EC_KEY_ID,
-    });
-    expect(decodedAccessToken.sub).toBe(knownSub);
-    expect(decodedAccessToken.client_id).toBe(knownClientId);
-    expect(decodedAccessToken.sid).toBe(SESSION_ID);
-    expect(decodedAccessToken.scope).toStrictEqual(
-      validAuthRequestParams.scopes
-    );
-
-    expect(decodeTokenPart(idTokenHeader)).toStrictEqual({
-      alg: "ES256",
-      kid: EC_KEY_ID,
-    });
-    expect(decodedIdToken.sub).toBe(knownSub);
-    expect(decodedIdToken.iss).toBe(ISSUER_VALUE);
-    expect(decodedIdToken.vtm).toBe(TRUSTMARK_URL);
-    expect(decodedIdToken.aud).toBe(knownClientId);
-    expect(decodedIdToken.sid).toBe(SESSION_ID);
-    expect(decodedIdToken.nonce).toBe(validAuthRequestParams.nonce);
-    expect(decodedIdToken.vot).toBe(validAuthRequestParams.vtr.credentialTrust);
-  });
-
-  it("returns a valid access_token and id_token for a valid token request with a RS256 signed client assertion", async () => {
-    await setupClientConfig(knownClientId, "RS256");
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(validAuthRequestParams);
-
-    const clientAssertion = await createValidClientAssertion(
-      {
-        iss: knownClientId,
-        sub: knownClientId,
-        aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
-        jti: randomUUID(),
-        iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor(Date.now() / 1000) + 3600,
-      },
-      "RS256"
-    );
-
-    const app = createApp();
-    const response = await request(app).post(TOKEN_ENDPOINT).send({
-      grant_type: "authorization_code",
-      code: knownAuthCode,
-      client_assertion_type:
-        "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-      redirect_uri: redirectUri,
-      client_assertion: clientAssertion,
-    });
-
-    expect(response.status).toEqual(200);
-
-    const { access_token, expires_in, id_token, token_type } = response.body;
-
-    const [accessTokenHeader] = access_token.split(".");
-    const [idTokenHeader] = id_token.split(".");
-
-    expect(expires_in).toEqual(3600);
-    expect(token_type).toEqual("Bearer");
-
-    expect(decodeTokenPart(accessTokenHeader)).toStrictEqual({
-      alg: "RS256",
-      kid: RSA_KEY_ID,
-    });
-
-    expect(decodeTokenPart(idTokenHeader)).toStrictEqual({
-      alg: "RS256",
-      kid: RSA_KEY_ID,
-    });
-  });
+      expect(decodeTokenPart(accessTokenHeader)).toStrictEqual({
+        alg: tokenSigningAlgorithm,
+        kid: expectedKeyId,
+      });
+      expect(decodedAccessToken.sub).toBe(knownSub);
+      expect(decodedAccessToken.client_id).toBe(knownClientId);
+      expect(decodedAccessToken.sid).toBe(SESSION_ID);
+      expect(decodedAccessToken.scope).toStrictEqual(
+        validAuthRequestParams.scopes
+      );
+      expect(decodedAccessToken.claims).toEqual(VALID_CLAIMS);
+      expect(decodeTokenPart(idTokenHeader)).toStrictEqual({
+        alg: tokenSigningAlgorithm,
+        kid: expectedKeyId,
+      });
+      expect(decodedIdToken.sub).toBe(knownSub);
+      expect(decodedIdToken.iss).toBe(ISSUER_VALUE);
+      expect(decodedIdToken.vtm).toBe(TRUSTMARK_URL);
+      expect(decodedIdToken.aud).toBe(knownClientId);
+      expect(decodedIdToken.sid).toBe(SESSION_ID);
+      expect(decodedIdToken.nonce).toBe(validAuthRequestParams.nonce);
+      expect(decodedIdToken.vot).toBe(
+        validAuthRequestParams.vtr.credentialTrust
+      );
+    }
+  );
 });

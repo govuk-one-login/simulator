@@ -39,71 +39,58 @@ describe("createAccessToken tests", () => {
     jest.useRealTimers();
   });
 
-  it("returns a signed jwt using RS256", async () => {
-    const vtr: VectorOfTrust = {
-      credentialTrust: "Cl.Cm",
-      levelOfConfidence: "P2",
-    };
-    tokenSigningAlgorithmSpy.mockReturnValue("RS256");
-    subSpy.mockReturnValue(testSubClaim);
-    clientIdSpy.mockReturnValue(testClientId);
+  test.each<{
+    tokenSigningAlgorithm: "RS256" | "ES256";
+    expectedKeyId: string;
+  }>([
+    {
+      tokenSigningAlgorithm: "RS256",
+      expectedKeyId: RSA_KEY_ID,
+    },
+    {
+      tokenSigningAlgorithm: "ES256",
+      expectedKeyId: EC_KEY_ID,
+    },
+  ])(
+    "returns a signed jwt using $tokenSigningAlgorithm",
+    async ({ tokenSigningAlgorithm, expectedKeyId }) => {
+      const vtr: VectorOfTrust = {
+        credentialTrust: "Cl.Cm",
+        levelOfConfidence: "P2",
+      };
+      tokenSigningAlgorithmSpy.mockReturnValue(tokenSigningAlgorithm);
+      subSpy.mockReturnValue(testSubClaim);
+      clientIdSpy.mockReturnValue(testClientId);
 
-    const accessToken = await createAccessToken(["openid"], vtr, null);
-    const tokenParts = accessToken.split(".");
+      const accessToken = await createAccessToken(
+        ["openid"],
+        vtr,
+        VALID_CLAIMS
+      );
+      const tokenParts = accessToken.split(".");
 
-    const header = decodeTokenPart(tokenParts[0]);
-    const payload = decodeTokenPart(tokenParts[1]);
+      const header = decodeTokenPart(tokenParts[0]);
+      const payload = decodeTokenPart(tokenParts[1]);
 
-    expect(tokenParts.length).toBe(3);
-    expect(header).toStrictEqual({
-      alg: "RS256",
-      kid: RSA_KEY_ID,
-    });
-    expect(payload).toStrictEqual({
-      iat: Math.floor(testTimestamp / 1000),
-      exp: Math.floor(testTimestamp / 1000) + ACCESS_TOKEN_EXPIRY,
-      iss: ISSUER_VALUE,
-      jti: "1234567",
-      client_id: testClientId,
-      sub: testSubClaim,
-      sid: SESSION_ID,
-      scope: ["openid"],
-    });
-    expect(typeof tokenParts[2]).toBe("string");
-  });
-
-  it("returns a signed jwt using ES256", async () => {
-    const vtr: VectorOfTrust = {
-      credentialTrust: "Cl.Cm",
-      levelOfConfidence: "P2",
-    };
-    tokenSigningAlgorithmSpy.mockReturnValue("ES256");
-    subSpy.mockReturnValue(testSubClaim);
-    clientIdSpy.mockReturnValue(testClientId);
-
-    const accessToken = await createAccessToken(["openid"], vtr, null);
-    const tokenParts = accessToken.split(".");
-
-    const header = decodeTokenPart(tokenParts[0]);
-    const payload = decodeTokenPart(tokenParts[1]);
-
-    expect(tokenParts.length).toStrictEqual(3);
-    expect(header).toStrictEqual({
-      alg: "ES256",
-      kid: EC_KEY_ID,
-    });
-    expect(payload).toStrictEqual({
-      iat: Math.floor(testTimestamp / 1000),
-      exp: Math.floor(testTimestamp / 1000) + ACCESS_TOKEN_EXPIRY,
-      iss: ISSUER_VALUE,
-      jti: "1234567",
-      client_id: testClientId,
-      sub: testSubClaim,
-      sid: SESSION_ID,
-      scope: ["openid"],
-    });
-    expect(typeof tokenParts[2]).toBe("string");
-  });
+      expect(tokenParts.length).toBe(3);
+      expect(header).toStrictEqual({
+        alg: tokenSigningAlgorithm,
+        kid: expectedKeyId,
+      });
+      expect(payload).toStrictEqual({
+        iat: Math.floor(testTimestamp / 1000),
+        exp: Math.floor(testTimestamp / 1000) + ACCESS_TOKEN_EXPIRY,
+        iss: ISSUER_VALUE,
+        jti: "1234567",
+        client_id: testClientId,
+        sub: testSubClaim,
+        sid: SESSION_ID,
+        scope: ["openid"],
+        claims: VALID_CLAIMS,
+      });
+      expect(typeof tokenParts[2]).toBe("string");
+    }
+  );
 
   it("does not contain any claims if no claims were given", async () => {
     const vtr: VectorOfTrust = {
