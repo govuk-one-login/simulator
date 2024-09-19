@@ -68,3 +68,5 @@ export const ID_TOKEN_ERRORS = [
   "NONCE_NOT_MATCHING",
   "INCORRECT_VOT",
 ];
+
+export const INVALID_ISSUER = "https://example.com/identity-provider";
