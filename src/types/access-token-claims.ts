@@ -7,4 +7,5 @@ export type AccessTokenClaims = {
   sub: string;
   sid: string;
   scope: string[];
+  claims?: string[] | null;
 };
