@@ -45,7 +45,7 @@ CQIDAQAB
       sub:
         process.env.SUB ??
         "urn:fdc:gov.uk:2022:56P4CMsGh_02YOlWpd8PAOI-2sVlB2nsNU7mcLZYhYw=",
-      email: process.env.EMAIL ?? "john.smith@gmail.com",
+      email: process.env.EMAIL ?? "test@example.com",
       emailVerified: process.env.EMAIL_VERIFIED !== "false",
       phoneNumber: process.env.PHONE_NUMBER || "07123456789",
       phoneNumberVerified: process.env.PHONE_NUMBER_VERIFIED !== "false",

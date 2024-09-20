@@ -11,7 +11,7 @@ const TEST_IDENTITY_VERIFICATION_SUPPORTED = false;
 const TEST_ID_TOKEN_SIGNING_ALGORITHM = "RS256";
 const TEST_CLIENT_LOCS = ["PCL200"];
 const TEST_SUB = "test-sub";
-const TEST_EMAIL = "test@gmail.com";
+const TEST_EMAIL = "email@example.com";
 const TEST_EMAIL_VERIFIED = false;
 const TEST_PHONE_NUMBER = "07777777777";
 const TEST_PHONE_NUMBER_VERIFIED = false;
@@ -100,7 +100,7 @@ describe("Integration: Config POST", () => {
     );
     expect(config.getClientLoCs()).toEqual(TEST_CLIENT_LOCS);
     expect(config.getSub()).toEqual(TEST_SUB);
-    expect(config.getEmail()).toEqual("john.smith@gmail.com");
+    expect(config.getEmail()).toEqual("test@example.com");
     expect(config.getEmailVerified()).toEqual(TEST_EMAIL_VERIFIED);
     expect(config.getPhoneNumber()).toEqual(TEST_PHONE_NUMBER);
     expect(config.getPhoneNumberVerified()).toEqual(true);
