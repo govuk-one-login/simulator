@@ -1,3 +1,7 @@
+import {
+  AccessTokenStore,
+  AccessTokenStoreKey,
+} from "./types/access-token-store";
 import AuthRequestParameters from "./types/auth-request-parameters";
 import ClientConfiguration from "./types/client-configuration";
 import ResponseConfiguration from "./types/response-configuration";
@@ -14,6 +18,7 @@ export class Config {
   private responseConfiguration: ResponseConfiguration;
   private errorConfiguration: ErrorConfiguration;
   private authCodeRequestParamsStore: Record<string, AuthRequestParameters>;
+  private accessTokenStore: AccessTokenStore;
 
   private constructor() {
     const defaultPublicKey = `-----BEGIN PUBLIC KEY-----
@@ -67,6 +72,7 @@ CQIDAQAB
     };
 
     this.authCodeRequestParamsStore = {};
+    this.accessTokenStore = {};
   }
 
   public static getInstance(): Config {
@@ -202,6 +208,22 @@ CQIDAQAB
 
   public deleteFromAuthCodeRequestParamsStore(authCode: string): void {
     delete this.authCodeRequestParamsStore[authCode];
+  }
+
+  public getAccessTokensFromStore(
+    clientIdSub: AccessTokenStoreKey
+  ): string[] | undefined {
+    return this.accessTokenStore[clientIdSub];
+  }
+
+  public addToAccessTokenStore(
+    clientIdSub: AccessTokenStoreKey,
+    accessToken: string
+  ): void {
+    this.accessTokenStore[clientIdSub] = [
+      ...(this.accessTokenStore[clientIdSub] ?? []),
+      accessToken,
+    ];
   }
 
   public getCoreIdentityErrors(): CoreIdentityError[] {
