@@ -56,6 +56,11 @@ export const tokenController = async (
     );
     const idToken = await createIdToken(authCodeParams, accessToken);
 
+    config.addToAccessTokenStore(
+      `${config.getClientId()}.${config.getSub()}`,
+      accessToken
+    );
+
     res.status(200).json({
       access_token: accessToken,
       token_type: "Bearer",
