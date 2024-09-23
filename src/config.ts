@@ -1,12 +1,18 @@
 import AuthRequestParameters from "./types/auth-request-parameters";
 import ClientConfiguration from "./types/client-configuration";
 import ResponseConfiguration from "./types/response-configuration";
+import { ErrorConfiguration } from "./types/error-configuration";
+import { isCoreIdentityError } from "./validators/core-identity-error";
+import { isIdTokenError } from "./validators/id-token-error";
+import { CoreIdentityError } from "./types/core-identity-error";
+import { IdTokenError } from "./types/id-token-error";
 
 export class Config {
   private static instance: Config;
 
   private clientConfiguration: ClientConfiguration;
   private responseConfiguration: ResponseConfiguration;
+  private errorConfiguration: ErrorConfiguration;
   private authCodeRequestParamsStore: Record<string, AuthRequestParameters>;
 
   private constructor() {
@@ -49,6 +55,15 @@ CQIDAQAB
       emailVerified: process.env.EMAIL_VERIFIED !== "false",
       phoneNumber: process.env.PHONE_NUMBER || "07123456789",
       phoneNumberVerified: process.env.PHONE_NUMBER_VERIFIED !== "false",
+    };
+
+    this.errorConfiguration = {
+      coreIdentityErrors:
+        process.env.CORE_IDENTITY_ERRORS?.split(",").filter(
+          isCoreIdentityError
+        ) ?? [],
+      idTokenErrors:
+        process.env.ID_TOKEN_ERRORS?.split(",").filter(isIdTokenError) ?? [],
     };
 
     this.authCodeRequestParamsStore = {};
@@ -187,5 +202,21 @@ CQIDAQAB
 
   public deleteFromAuthCodeRequestParamsStore(authCode: string): void {
     delete this.authCodeRequestParamsStore[authCode];
+  }
+
+  public getCoreIdentityErrors(): CoreIdentityError[] {
+    return this.errorConfiguration.coreIdentityErrors;
+  }
+
+  public setCoreIdentityErrors(coreIdentityErrors: CoreIdentityError[]): void {
+    this.errorConfiguration.coreIdentityErrors = coreIdentityErrors;
+  }
+
+  public getIdTokenErrors(): IdTokenError[] {
+    return this.errorConfiguration.idTokenErrors;
+  }
+
+  public setIdTokenErrors(idTokenErrors: IdTokenError[]): void {
+    this.errorConfiguration.idTokenErrors = idTokenErrors;
   }
 }
