@@ -196,7 +196,7 @@ describe("/userinfo endpoint tests, invalid request", () => {
       .set(AUTHORIZATION_HEADER_KEY, tokenHeader);
 
     const expectedUserInfo: UserInfo = {
-      email: "john.smith@gmail.com",
+      email: "test@example.com",
       email_verified: true,
       phone_number: "07123456789",
       phone_number_verified: true,
