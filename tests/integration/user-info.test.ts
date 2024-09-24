@@ -10,6 +10,8 @@ import { UserInfo } from "../../src/types/user-info";
 
 const USER_INFO_ENDPOINT = "/userinfo";
 const KNOWN_CLIENT_ID = "d76db56760ceda7cab875f085c54bd35";
+const KNOWN_SUB_CLAIM =
+  "urn:fdc:gov.uk:2022:56P4CMsGh_02YOlWpd8PAOI-2sVlB2nsNU7mcLZYhYw=";
 const INVALID_EC_PRIVATE_TOKEN_SIGNING_KEY =
   "-----BEGIN PRIVATE KEY-----MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgnEpemWfQ6m2Fxo6ENP13NkocvvrAKHc/IWbC+jSOc/uhRANCAARcsKXyN+lhvtj4KzR1QNYqHE2OWFK8W3dap/x1mO/OYN6D6f9KWLXy6+Nrnp11SB5Qj9IMUWPQUBolJLSaxhBI-----END PRIVATE KEY-----";
 const AUTHORIZATION_HEADER_KEY: string = "authorization";
@@ -29,10 +31,10 @@ describe("/userinfo endpoint tests, invalid request", () => {
   it("returns a invalid_token error for badly formed header", async () => {
     await setupClientConfig(KNOWN_CLIENT_ID, ["openid", "email", "phone"]);
     const app = createApp();
-    const tokenHeader = "invalid-authentication-header";
+    const accessToken = "invalid-access-token";
     const response = await request(app)
       .get(USER_INFO_ENDPOINT)
-      .set(AUTHORIZATION_HEADER_KEY, tokenHeader);
+      .set(AUTHORIZATION_HEADER_KEY, `Bearer ${accessToken}`);
 
     expect(response.status).toBe(401);
     expect(response.header[AUTHENTICATE_HEADER_KEY]).toBe(
@@ -44,7 +46,7 @@ describe("/userinfo endpoint tests, invalid request", () => {
   it("returns an invalid_scope error for invalid scope", async () => {
     await setupClientConfig(KNOWN_CLIENT_ID, ["openid", "email", "phone"]);
     const app = createApp();
-    const tokenHeader = await generateTokenHeader(
+    const accessToken = await createAccessToken(
       ISSUER_VALUE,
       KNOWN_CLIENT_ID,
       ["invalid-scope"],
@@ -52,7 +54,7 @@ describe("/userinfo endpoint tests, invalid request", () => {
     );
     const response = await request(app)
       .get(USER_INFO_ENDPOINT)
-      .set(AUTHORIZATION_HEADER_KEY, tokenHeader);
+      .set(AUTHORIZATION_HEADER_KEY, `Bearer ${accessToken}`);
 
     expect(response.status).toBe(401);
     expect(response.header[AUTHENTICATE_HEADER_KEY]).toBe(
@@ -64,7 +66,7 @@ describe("/userinfo endpoint tests, invalid request", () => {
   it("returns an invalid_scope error for unexpected scope", async () => {
     await setupClientConfig(KNOWN_CLIENT_ID, ["openid", "email"]);
     const app = createApp();
-    const tokenHeader = await generateTokenHeader(
+    const accessToken = await createAccessToken(
       ISSUER_VALUE,
       KNOWN_CLIENT_ID,
       ["openid", "phone"],
@@ -72,7 +74,7 @@ describe("/userinfo endpoint tests, invalid request", () => {
     );
     const response = await request(app)
       .get(USER_INFO_ENDPOINT)
-      .set(AUTHORIZATION_HEADER_KEY, tokenHeader);
+      .set(AUTHORIZATION_HEADER_KEY, `Bearer ${accessToken}`);
 
     expect(response.status).toBe(401);
     expect(response.header[AUTHENTICATE_HEADER_KEY]).toBe(
@@ -84,7 +86,7 @@ describe("/userinfo endpoint tests, invalid request", () => {
   it("returns an invalid_token error for missing client id", async () => {
     await setupClientConfig(KNOWN_CLIENT_ID, ["openid", "email", "phone"]);
     const app = createApp();
-    const tokenHeader = await generateTokenHeader(
+    const accessToken = await createAccessToken(
       ISSUER_VALUE,
       null,
       ["openid", "email", "phone"],
@@ -92,7 +94,7 @@ describe("/userinfo endpoint tests, invalid request", () => {
     );
     const response = await request(app)
       .get(USER_INFO_ENDPOINT)
-      .set(AUTHORIZATION_HEADER_KEY, tokenHeader);
+      .set(AUTHORIZATION_HEADER_KEY, `Bearer ${accessToken}`);
 
     expect(response.status).toBe(401);
     expect(response.header[AUTHENTICATE_HEADER_KEY]).toBe(
@@ -104,7 +106,7 @@ describe("/userinfo endpoint tests, invalid request", () => {
   it("returns an invalid_token error for unexpected client id", async () => {
     await setupClientConfig(KNOWN_CLIENT_ID, ["openid", "email", "phone"]);
     const app = createApp();
-    const tokenHeader = await generateTokenHeader(
+    const accessToken = await createAccessToken(
       ISSUER_VALUE,
       "unexpected-client-id",
       ["openid", "email", "phone"],
@@ -112,7 +114,7 @@ describe("/userinfo endpoint tests, invalid request", () => {
     );
     const response = await request(app)
       .get(USER_INFO_ENDPOINT)
-      .set(AUTHORIZATION_HEADER_KEY, tokenHeader);
+      .set(AUTHORIZATION_HEADER_KEY, `Bearer ${accessToken}`);
 
     expect(response.status).toBe(401);
     expect(response.header[AUTHENTICATE_HEADER_KEY]).toBe(
@@ -124,7 +126,7 @@ describe("/userinfo endpoint tests, invalid request", () => {
   it("returns an invalid_token error for expired token", async () => {
     await setupClientConfig(KNOWN_CLIENT_ID, ["openid", "email", "phone"]);
     const app = createApp();
-    const tokenHeader = await generateTokenHeader(
+    const accessToken = await createAccessToken(
       ISSUER_VALUE,
       KNOWN_CLIENT_ID,
       ["openid", "email", "phone"],
@@ -133,7 +135,7 @@ describe("/userinfo endpoint tests, invalid request", () => {
     );
     const response = await request(app)
       .get(USER_INFO_ENDPOINT)
-      .set(AUTHORIZATION_HEADER_KEY, tokenHeader);
+      .set(AUTHORIZATION_HEADER_KEY, `Bearer ${accessToken}`);
 
     expect(response.status).toBe(401);
     expect(response.header[AUTHENTICATE_HEADER_KEY]).toBe(
@@ -145,7 +147,7 @@ describe("/userinfo endpoint tests, invalid request", () => {
   it("returns an invalid_token error for invalid signature", async () => {
     await setupClientConfig(KNOWN_CLIENT_ID, ["openid", "email", "phone"]);
     const app = createApp();
-    const tokenHeader = await generateTokenHeader(
+    const accessToken = await createAccessToken(
       ISSUER_VALUE,
       KNOWN_CLIENT_ID,
       ["openid", "email", "phone"],
@@ -153,7 +155,7 @@ describe("/userinfo endpoint tests, invalid request", () => {
     );
     const response = await request(app)
       .get(USER_INFO_ENDPOINT)
-      .set(AUTHORIZATION_HEADER_KEY, tokenHeader);
+      .set(AUTHORIZATION_HEADER_KEY, `Bearer ${accessToken}`);
 
     expect(response.status).toBe(401);
     expect(response.header[AUTHENTICATE_HEADER_KEY]).toBe(
@@ -165,7 +167,7 @@ describe("/userinfo endpoint tests, invalid request", () => {
   it("returns an invalid_token error for unexpected issuer", async () => {
     await setupClientConfig(KNOWN_CLIENT_ID, ["openid", "email", "phone"]);
     const app = createApp();
-    const tokenHeader = await generateTokenHeader(
+    const accessToken = await createAccessToken(
       "unexpected-issuer",
       KNOWN_CLIENT_ID,
       ["openid", "email", "phone"],
@@ -173,7 +175,7 @@ describe("/userinfo endpoint tests, invalid request", () => {
     );
     const response = await request(app)
       .get(USER_INFO_ENDPOINT)
-      .set(AUTHORIZATION_HEADER_KEY, tokenHeader);
+      .set(AUTHORIZATION_HEADER_KEY, `Bearer ${accessToken}`);
 
     expect(response.status).toBe(401);
     expect(response.header[AUTHENTICATE_HEADER_KEY]).toBe(
@@ -182,25 +184,69 @@ describe("/userinfo endpoint tests, invalid request", () => {
     expect(response.body).toStrictEqual({});
   });
 
-  it("returns expected user info for valid token", async () => {
+  it("returns an invalid token error if the access token is not in the accessToken store", async () => {
     await setupClientConfig(KNOWN_CLIENT_ID, ["openid", "email", "phone"]);
-    const app = createApp();
-    const tokenHeader = await generateTokenHeader(
+    const accessToken = await createAccessToken(
       ISSUER_VALUE,
       KNOWN_CLIENT_ID,
       ["openid", "email", "phone"],
       EC_PRIVATE_TOKEN_SIGNING_KEY
     );
+    const app = createApp();
     const response = await request(app)
       .get(USER_INFO_ENDPOINT)
-      .set(AUTHORIZATION_HEADER_KEY, tokenHeader);
+      .set(AUTHORIZATION_HEADER_KEY, `Bearer ${accessToken}`);
+
+    expect(response.status).toBe(401);
+    expect(response.header[AUTHENTICATE_HEADER_KEY]).toBe(
+      'Bearer error="invalid_token", error_description="Invalid access token"'
+    );
+  });
+
+  it("returns an invalid token error if the access does not match the one in the access token store", async () => {
+    await setupClientConfig(KNOWN_CLIENT_ID, ["openid", "email", "phone"]);
+    addAccessTokenToStore(
+      KNOWN_CLIENT_ID,
+      KNOWN_SUB_CLAIM,
+      "not-the-same-access-token"
+    );
+    const accessToken = await createAccessToken(
+      ISSUER_VALUE,
+      KNOWN_CLIENT_ID,
+      ["openid", "email", "phone"],
+      EC_PRIVATE_TOKEN_SIGNING_KEY
+    );
+    const app = createApp();
+    const response = await request(app)
+      .get(USER_INFO_ENDPOINT)
+      .set(AUTHORIZATION_HEADER_KEY, `Bearer ${accessToken}`);
+
+    expect(response.status).toBe(401);
+    expect(response.header[AUTHENTICATE_HEADER_KEY]).toBe(
+      'Bearer error="invalid_token", error_description="Invalid access token"'
+    );
+  });
+
+  it("returns expected user info for valid token", async () => {
+    await setupClientConfig(KNOWN_CLIENT_ID, ["openid", "email", "phone"]);
+    const accessToken = await createAccessToken(
+      ISSUER_VALUE,
+      KNOWN_CLIENT_ID,
+      ["openid", "email", "phone"],
+      EC_PRIVATE_TOKEN_SIGNING_KEY
+    );
+    addAccessTokenToStore(KNOWN_CLIENT_ID, KNOWN_SUB_CLAIM, accessToken);
+    const app = createApp();
+    const response = await request(app)
+      .get(USER_INFO_ENDPOINT)
+      .set(AUTHORIZATION_HEADER_KEY, `Bearer ${accessToken}`);
 
     const expectedUserInfo: UserInfo = {
       email: "test@example.com",
       email_verified: true,
       phone_number: "07123456789",
       phone_number_verified: true,
-      sub: "urn:fdc:gov.uk:2022:56P4CMsGh_02YOlWpd8PAOI-2sVlB2nsNU7mcLZYhYw=",
+      sub: KNOWN_SUB_CLAIM,
     };
 
     expect(response.status).toBe(200);
@@ -209,7 +255,7 @@ describe("/userinfo endpoint tests, invalid request", () => {
   });
 });
 
-async function generateTokenHeader(
+async function createAccessToken(
   issuer: string,
   clientId: string | null,
   scopes: string[],
@@ -228,11 +274,19 @@ async function generateTokenHeader(
     await importPKCS8(privateKey, "EC")
   );
 
-  return `Bearer ${signedJwt}`;
+  return signedJwt;
 }
 
 const setupClientConfig = async (clientId: string, scopes: string[]) => {
   process.env.CLIENT_ID = clientId;
   process.env.SCOPES = scopes.join(",");
   Config.resetInstance();
+};
+
+const addAccessTokenToStore = (
+  clientId: string,
+  sub: string,
+  accessToken: string
+): void => {
+  Config.getInstance().addToAccessTokenStore(`${clientId}.${sub}`, accessToken);
 };
