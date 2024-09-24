@@ -7,9 +7,9 @@ import {
   TRUSTMARK_URL,
 } from "../../../constants";
 import { logger } from "../../../logger";
-import AuthRequestParameters from "src/types/auth-request-parameters";
 import { signToken } from "./sign-token";
 import { IdTokenClaims } from "../../../types/id-token-claims";
+import AuthRequestParameters from "../../../types/auth-request-parameters";
 
 export const createIdToken = async (
   authRequestParams: AuthRequestParameters,
