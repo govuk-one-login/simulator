@@ -504,3 +504,67 @@ describe("valid auth request", () => {
     );
   });
 });
+
+describe("identity check", () => {
+  beforeEach(() => {
+    process.env.CLIENT_ID = knownClientId;
+    process.env.REDIRECT_URLS = knownRedirectUri;
+    process.env.SCOPES = "openid,email";
+    process.env.CLIENT_LOCS = "P2";
+    process.env.RETURN_CODE = '{"code": "PLACEHOLDER"}';
+  });
+
+  it("returns 302 and redirect with an access denied message when return code exists and user is not permitted to view return code", async () => {
+    process.env.CLAIMS = "https://vocab.account.gov.uk/v1/coreIdentityJWT";
+    Config.resetInstance();
+
+    const app = createApp();
+    const requestParams = createRequestParams({
+      client_id: knownClientId,
+      redirect_uri: knownRedirectUri,
+      response_type: "code",
+      scope: "openid email",
+      state: "a7e4bfd39d3eaa57c27775744f22c5a2",
+      claims:
+        '{"userinfo":{"https://vocab.account.gov.uk/v1/coreIdentityJWT":null}}',
+      nonce: "3eb5b04ca8e1baf7dea15b7fb7ac05a6",
+      prompt: "login",
+      vtr: '["Cl.Cm.P2"]',
+    });
+    const response = await request(app).get(
+      authoriseEndpoint + "?" + requestParams
+    );
+
+    expect(response.status).toBe(302);
+    expect(response.header.location).toBe(
+      `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Access Denied: Not requested to view return code")}`
+    );
+  });
+
+  it("returns 302 and redirect with return code when return code exists and user is permitted to view return code", async () => {
+    process.env.CLAIMS = "https://vocab.account.gov.uk/v1/returnCode";
+    Config.resetInstance();
+
+    const app = createApp();
+    const requestParams = createRequestParams({
+      client_id: knownClientId,
+      redirect_uri: knownRedirectUri,
+      response_type: "code",
+      scope: "openid email",
+      state: "a7e4bfd39d3eaa57c27775744f22c5a2",
+      claims:
+        '{"userinfo":{"https://vocab.account.gov.uk/v1/returnCode":null}}',
+      nonce: "3eb5b04ca8e1baf7dea15b7fb7ac05a6",
+      prompt: "login",
+      vtr: '["Cl.Cm.P2"]',
+    });
+    const response = await request(app).get(
+      authoriseEndpoint + "?" + requestParams
+    );
+
+    expect(response.status).toBe(302);
+    expect(response.header.location).toBe(
+      `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Return Code: PLACEHOLDER")}`
+    );
+  });
+});

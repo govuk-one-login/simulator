@@ -8,6 +8,9 @@ import { Config } from "../../config";
 import { MissingParameterError } from "../../errors/missing-parameter-error";
 import { base64url } from "jose";
 import { randomBytes } from "crypto";
+import { checkForReturnCode } from "../../validators/claims-validator";
+import { ReturnCodeError } from "../../errors/return-code-error";
+import { VectorOfTrust } from "../../types/vector-of-trust";
 
 export const authoriseGetController = (req: Request, res: Response): void => {
   const config = Config.getInstance();
@@ -19,6 +22,14 @@ export const authoriseGetController = (req: Request, res: Response): void => {
       req.query as Record<string, string | undefined>,
       config
     );
+
+    if (isIdentityRequired(config, parsedAuthRequestParams.vtr)) {
+      checkForReturnCode(
+        config,
+        parsedAuthRequestParams.claims,
+        parsedAuthRequestParams.redirect_uri
+      );
+    }
 
     const authCode = generateAuthCode();
 
@@ -68,6 +79,16 @@ const handleRequestError = (
         `${error.redirectUri}?error=invalid_request&error_description=${encodeURIComponent("Invalid Request")}`
       );
     }
+  } else if (error instanceof ReturnCodeError) {
+    if (config.getReturnCode()) {
+      res.redirect(
+        `${error.redirectUri}?error=invalid_request&error_description=${encodeURIComponent(error.message)}`
+      );
+    } else {
+      res.redirect(
+        `${error.redirectUri}?error=access_denied&error_description=${encodeURIComponent(error.message)}`
+      );
+    }
   } else if (error instanceof BadRequestError) {
     res.status(400).send("Invalid Request");
   } else {
@@ -76,4 +97,9 @@ const handleRequestError = (
       message: "Internal Server Error",
     });
   }
+};
+
+const isIdentityRequired = (config: Config, vtrList: VectorOfTrust[]) => {
+  const confidenceLevel = vtrList[0].levelOfConfidence;
+  return config.getIdentityVerificationSupported() && confidenceLevel !== "P0";
 };
