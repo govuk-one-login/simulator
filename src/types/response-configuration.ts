@@ -4,4 +4,5 @@ export default interface ResponseConfiguration {
   emailVerified: boolean;
   phoneNumber: string;
   phoneNumberVerified: boolean;
+  returnCode: string[];
 }

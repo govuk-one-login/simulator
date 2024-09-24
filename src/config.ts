@@ -1,6 +1,7 @@
 import AuthRequestParameters from "./types/auth-request-parameters";
 import ClientConfiguration from "./types/client-configuration";
 import ResponseConfiguration from "./types/response-configuration";
+import ReturnCode from "./types/return-code";
 
 export class Config {
   private static instance: Config;
@@ -49,6 +50,9 @@ CQIDAQAB
       emailVerified: process.env.EMAIL_VERIFIED !== "false",
       phoneNumber: process.env.PHONE_NUMBER || "07123456789",
       phoneNumberVerified: process.env.PHONE_NUMBER_VERIFIED !== "false",
+      returnCode: process.env.RETURN_CODE
+        ? process.env.RETURN_CODE.split(",")
+        : [],
     };
 
     this.authCodeRequestParamsStore = {};
@@ -170,6 +174,13 @@ CQIDAQAB
 
   public setPhoneNumberVerified(phoneNumberVerified: boolean): void {
     this.responseConfiguration.phoneNumberVerified = phoneNumberVerified;
+  }
+
+  public getReturnCode(): ReturnCode | null {
+    const returnCode = this.responseConfiguration.returnCode[0];
+    if (returnCode) {
+      return JSON.parse(this.responseConfiguration.returnCode[0]);
+    } else return null;
   }
 
   public getAuthCodeRequestParams(

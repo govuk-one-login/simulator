@@ -1,6 +1,7 @@
 import { logger } from "../logger";
 import { Config } from "../config";
 import { VALID_CLAIMS } from "../constants";
+import { ReturnCodeError } from "../errors/return-code-error";
 
 export const areClaimsValid = (claims: string[], config: Config): boolean => {
   const clientClaims = config.getClaims();
@@ -26,4 +27,22 @@ export const areClaimsValid = (claims: string[], config: Config): boolean => {
   }
 
   return true;
+};
+
+export const checkForReturnCode = (
+  config: Config,
+  claims: string[],
+  redirectUri: string
+): void => {
+  const returnCode = config.getReturnCode();
+  if (returnCode) {
+    if (claims.includes("https://vocab.account.gov.uk/v1/returnCode")) {
+      throw new ReturnCodeError(`Return Code: ${returnCode.code}`, redirectUri);
+    } else {
+      throw new ReturnCodeError(
+        "Access Denied: Not requested to view return code",
+        redirectUri
+      );
+    }
+  }
 };
