@@ -70,3 +70,4 @@ export const ID_TOKEN_ERRORS = [
 ];
 
 export const INVALID_ISSUER = "https://example.com/identity-provider";
+export const ONE_DAY_IN_SECONDS = 86400;
