@@ -1,3 +1,4 @@
+import { errors, importPKCS8, jwtVerify } from "jose";
 import { Config } from "../../../../config";
 import {
   ID_TOKEN_EXPIRY,
@@ -6,6 +7,9 @@ import {
   RSA_KEY_ID,
   TRUSTMARK_URL,
   SESSION_ID,
+  EC_PRIVATE_TOKEN_SIGNING_KEY,
+  INVALID_ISSUER,
+  ONE_DAY_IN_SECONDS,
 } from "../../../../constants";
 import AuthRequestParameters from "../../../../types/auth-request-parameters";
 import { createIdToken } from "../../helper/create-id-token";
@@ -21,7 +25,7 @@ describe("createIdToken tests", () => {
       levelOfConfidence: null,
     },
   };
-  const testTimestamp = 1723707024;
+  const testTimestampMs = 1723707024;
   const testClientId = "testClientId";
   const testSubClaim =
     "urn:fdc:gov.uk:2022:56P4CMsGh_02YOlWpd8PAOI-2sVlB2nsNU7mcLZYhYw=";
@@ -34,13 +38,14 @@ describe("createIdToken tests", () => {
     Config.getInstance(),
     "getIdTokenSigningAlgorithm"
   );
+  const idTokenErrorSpy = jest.spyOn(Config.getInstance(), "getIdTokenErrors");
 
   const decodeTokenPart = (part: string) =>
     JSON.parse(Buffer.from(part, "base64url").toString());
 
   beforeEach(() => {
     jest.useFakeTimers();
-    jest.setSystemTime(testTimestamp);
+    jest.setSystemTime(testTimestampMs);
   });
 
   afterEach(() => {
@@ -64,8 +69,8 @@ describe("createIdToken tests", () => {
       kid: RSA_KEY_ID,
     });
     expect(payload).toStrictEqual({
-      iat: Math.floor(testTimestamp / 1000),
-      exp: Math.floor(testTimestamp / 1000) + ID_TOKEN_EXPIRY,
+      iat: Math.floor(testTimestampMs / 1000),
+      exp: Math.floor(testTimestampMs / 1000) + ID_TOKEN_EXPIRY,
       iss: ISSUER_VALUE,
       aud: testClientId,
       sub: testSubClaim,
@@ -95,8 +100,8 @@ describe("createIdToken tests", () => {
       kid: EC_KEY_ID,
     });
     expect(payload).toStrictEqual({
-      iat: Math.floor(testTimestamp / 1000),
-      exp: Math.floor(testTimestamp / 1000) + ID_TOKEN_EXPIRY,
+      iat: Math.floor(testTimestampMs / 1000),
+      exp: Math.floor(testTimestampMs / 1000) + ID_TOKEN_EXPIRY,
       iss: ISSUER_VALUE,
       aud: testClientId,
       sub: testSubClaim,
@@ -107,5 +112,115 @@ describe("createIdToken tests", () => {
       nonce: mockAuthRequestParams.nonce,
     });
     expect(typeof tokenParts[2]).toBe("string");
+  });
+
+  it("returns an invalid header if the client config has enabled INVALID_ALG_HEADER", async () => {
+    tokenSigningAlgorithmSpy.mockReturnValue("ES256");
+    subSpy.mockReturnValue(testSubClaim);
+    clientIdSpy.mockReturnValue(testClientId);
+    idTokenErrorSpy.mockReturnValue(["INVALID_ALG_HEADER"]);
+
+    const idToken = await createIdToken(mockAuthRequestParams, testAccessToken);
+    const tokenParts = idToken.split(".");
+
+    const header = decodeTokenPart(tokenParts[0]);
+
+    expect(tokenParts.length).toBe(3);
+    expect(header).toStrictEqual({
+      alg: "HS256",
+    });
+  });
+
+  it("returns an invalid signature if the client config has enabled INVALID_SIGNATURE", async () => {
+    tokenSigningAlgorithmSpy.mockReturnValue("ES256");
+    subSpy.mockReturnValue(testSubClaim);
+    clientIdSpy.mockReturnValue(testClientId);
+    idTokenErrorSpy.mockReturnValue(["INVALID_SIGNATURE"]);
+
+    const idToken = await createIdToken(mockAuthRequestParams, testAccessToken);
+
+    const ecTokenKey = await importPKCS8(EC_PRIVATE_TOKEN_SIGNING_KEY, "ES256");
+
+    await expect(jwtVerify(idToken, ecTokenKey)).rejects.toThrow(
+      errors.JWSSignatureVerificationFailed
+    );
+  });
+
+  it("returns a token with iat in the future if the client config has enabled TOKEN_NOT_VALID_YET", async () => {
+    tokenSigningAlgorithmSpy.mockReturnValue("ES256");
+    subSpy.mockReturnValue(testSubClaim);
+    clientIdSpy.mockReturnValue(testClientId);
+    idTokenErrorSpy.mockReturnValue(["TOKEN_NOT_VALID_YET"]);
+
+    const idToken = await createIdToken(mockAuthRequestParams, testAccessToken);
+
+    const payload = decodeTokenPart(idToken.split(".")[1]);
+    expect(payload.iat).toEqual(
+      Math.floor(testTimestampMs / 1000) + ONE_DAY_IN_SECONDS
+    );
+  });
+
+  it("returns an expired token if the client config has enabled TOKEN_EXPIRED", async () => {
+    tokenSigningAlgorithmSpy.mockReturnValue("ES256");
+    subSpy.mockReturnValue(testSubClaim);
+    clientIdSpy.mockReturnValue(testClientId);
+    idTokenErrorSpy.mockReturnValue(["TOKEN_EXPIRED"]);
+
+    const idToken = await createIdToken(mockAuthRequestParams, testAccessToken);
+
+    const payload = decodeTokenPart(idToken.split(".")[1]);
+    expect(payload.exp).toEqual(
+      Math.floor(testTimestampMs / 1000) - ONE_DAY_IN_SECONDS
+    );
+  });
+
+  it("returns an invalid vot if the client config has enabled INCORRECT_VOT", async () => {
+    tokenSigningAlgorithmSpy.mockReturnValue("ES256");
+    subSpy.mockReturnValue(testSubClaim);
+    clientIdSpy.mockReturnValue(testClientId);
+    idTokenErrorSpy.mockReturnValue(["INCORRECT_VOT"]);
+
+    const idToken = await createIdToken(mockAuthRequestParams, testAccessToken);
+
+    const payload = decodeTokenPart(idToken.split(".")[1]);
+    expect(payload.vot).not.toEqual(mockAuthRequestParams.vtr.credentialTrust);
+    expect(payload.vot).toBe("Cl");
+  });
+
+  it("returns an invalid aud if the client config has enabled INVALID_AUD", async () => {
+    tokenSigningAlgorithmSpy.mockReturnValue("ES256");
+    subSpy.mockReturnValue(testSubClaim);
+    clientIdSpy.mockReturnValue(testClientId);
+    idTokenErrorSpy.mockReturnValue(["INVALID_AUD"]);
+
+    const idToken = await createIdToken(mockAuthRequestParams, testAccessToken);
+
+    const payload = decodeTokenPart(idToken.split(".")[1]);
+    expect(payload.aud).not.toEqual(testClientId);
+  });
+
+  it("returns an invalid iss if the client config has enabled INVALID_ISS", async () => {
+    tokenSigningAlgorithmSpy.mockReturnValue("ES256");
+    subSpy.mockReturnValue(testSubClaim);
+    clientIdSpy.mockReturnValue(testClientId);
+    idTokenErrorSpy.mockReturnValue(["INVALID_ISS"]);
+
+    const idToken = await createIdToken(mockAuthRequestParams, testAccessToken);
+
+    const payload = decodeTokenPart(idToken.split(".")[1]);
+    expect(payload.iss).not.toEqual(ISSUER_VALUE);
+    expect(payload.iss).toBe(INVALID_ISSUER);
+  });
+
+  it("returns an invalid nonce if the client config has enabled NONCE_NOT_MATCHING", async () => {
+    tokenSigningAlgorithmSpy.mockReturnValue("ES256");
+    subSpy.mockReturnValue(testSubClaim);
+    clientIdSpy.mockReturnValue(testClientId);
+    idTokenErrorSpy.mockReturnValue(["NONCE_NOT_MATCHING"]);
+
+    const idToken = await createIdToken(mockAuthRequestParams, testAccessToken);
+
+    const payload = decodeTokenPart(idToken.split(".")[1]);
+    expect(payload.iss).not.toEqual(mockAuthRequestParams.nonce);
   });
 });
