@@ -21,14 +21,7 @@ export const userInfoRequestValidator = async (
     return { valid: false, error: UserInfoRequestError.MISSING_TOKEN };
   }
 
-  let match;
-  try {
-    match = /^Bearer (?<token>.*)$/.exec(authorisationHeader);
-  } catch (error) {
-    logger.error("Error parsing authorisation header.", error);
-    return { valid: false, error: UserInfoRequestError.INVALID_TOKEN };
-  }
-
+  const match = /^Bearer (?<token>.*)$/.exec(authorisationHeader);
   const accessToken = match?.groups?.token;
 
   if (!accessToken) {

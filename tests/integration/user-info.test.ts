@@ -43,6 +43,22 @@ describe("/userinfo endpoint tests, invalid request", () => {
     expect(response.body).toStrictEqual({});
   });
 
+  it("returns an invalid_token response for a header without Bearer ", async () => {
+    await setupClientConfig(KNOWN_CLIENT_ID, ["openid", "email", "phone"]);
+    const app = createApp();
+    const accessToken =
+      "eyJ0eXAiOiJKV1QiLA0KICJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ.dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
+    const response = await request(app)
+      .get(USER_INFO_ENDPOINT)
+      .set(AUTHORIZATION_HEADER_KEY, accessToken);
+
+    expect(response.status).toBe(401);
+    expect(response.header[AUTHENTICATE_HEADER_KEY]).toBe(
+      'Bearer error="invalid_token", error_description="Invalid access token"'
+    );
+    expect(response.body).toStrictEqual({});
+  });
+
   it("returns an invalid_scope error for invalid scope", async () => {
     await setupClientConfig(KNOWN_CLIENT_ID, ["openid", "email", "phone"]);
     const app = createApp();
