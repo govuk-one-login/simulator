@@ -15,26 +15,21 @@ export const userInfoRequestValidator = async (
       error: UserInfoRequestError;
     }
 > => {
-  const accessToken = userInfoRequestHeaders.authorization;
-  if (!accessToken) {
+  const authorisationHeader = userInfoRequestHeaders.authorization;
+  if (!authorisationHeader) {
     logger.warn("Missing authorisation header.");
     return { valid: false, error: UserInfoRequestError.MISSING_TOKEN };
   }
 
-  let match;
-  try {
-    match = /^Bearer (?<token>.*)$/.exec(accessToken);
-  } catch (error) {
-    logger.error("Error parsing authorisation header.", error);
-    return { valid: false, error: UserInfoRequestError.INVALID_TOKEN };
-  }
+  const match = /^Bearer (?<token>.*)$/.exec(authorisationHeader);
+  const accessToken = match?.groups?.token;
 
-  if (!match?.groups?.token) {
+  if (!accessToken) {
     logger.warn("Failed to parse token in authorisation header.");
     return { valid: false, error: UserInfoRequestError.INVALID_TOKEN };
   }
 
-  const jwtResult = await signedJwtValidator(match.groups.token);
+  const jwtResult = await signedJwtValidator(accessToken);
   if (!jwtResult.valid) {
     logger.warn("Failed to verify token signature.");
     return { valid: false, error: UserInfoRequestError.INVALID_TOKEN };
@@ -63,6 +58,15 @@ export const userInfoRequestValidator = async (
       `Scopes "[${scope}]" don't match expected values "[${config_scopes}]".`
     );
     return { valid: false, error: UserInfoRequestError.INVALID_SCOPE };
+  }
+
+  const accessTokensForClient = config.getAccessTokensFromStore(
+    `${config_client_id}.${config.getSub()}`
+  );
+
+  if (!accessTokensForClient?.includes(accessToken)) {
+    logger.warn("Access token not found in access token store");
+    return { valid: false, error: UserInfoRequestError.INVALID_TOKEN };
   }
 
   return { valid: true };

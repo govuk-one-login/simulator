@@ -150,7 +150,7 @@ describe("Integration: Config POST", () => {
     );
     expect(config.getClientLoCs()).toEqual(TEST_CLIENT_LOCS);
     expect(config.getSub()).toEqual(TEST_SUB);
-    expect(config.getEmail()).toEqual("john.smith@gmail.com");
+    expect(config.getEmail()).toEqual("test@example.com");
     expect(config.getEmailVerified()).toEqual(TEST_EMAIL_VERIFIED);
     expect(config.getPhoneNumber()).toEqual(TEST_PHONE_NUMBER);
     expect(config.getPhoneNumberVerified()).toEqual(true);
@@ -195,7 +195,7 @@ describe("Integration: Config POST", () => {
     );
     expect(config.getClientLoCs()).toEqual(TEST_CLIENT_LOCS);
     expect(config.getSub()).toEqual(TEST_SUB);
-    expect(config.getEmail()).toEqual("john.smith@gmail.com");
+    expect(config.getEmail()).toEqual("test@example.com");
     expect(config.getEmailVerified()).toEqual(TEST_EMAIL_VERIFIED);
     expect(config.getPhoneNumber()).toEqual(TEST_PHONE_NUMBER);
     expect(config.getPhoneNumberVerified()).toEqual(true);
