@@ -1,4 +1,12 @@
-import { exportSPKI, JWTPayload, SignJWT, UnsecuredJWT } from "jose";
+import {
+  errors,
+  exportSPKI,
+  importPKCS8,
+  JWTPayload,
+  jwtVerify,
+  SignJWT,
+  UnsecuredJWT,
+} from "jose";
 import { createApp } from "../../src/app";
 import request from "supertest";
 import { generateKeyPairSync, randomBytes, randomUUID } from "crypto";
@@ -6,7 +14,9 @@ import { Config } from "../../src/config";
 import AuthRequestParameters from "../../src/types/auth-request-parameters";
 import {
   EC_KEY_ID,
+  EC_PRIVATE_TOKEN_SIGNING_KEY,
   EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+  INVALID_ISSUER,
   ISSUER_VALUE,
   RSA_KEY_ID,
   SESSION_ID,
@@ -30,6 +40,49 @@ const rsaKeyPair = generateKeyPairSync("rsa", {
 const knownClientId = "d76db56760ceda7cab875f085c54bd35";
 const redirectUri = "https://localhost:3000/authentication-callback";
 const knownSub = "urn:fdc:gov.uk:2022:9e374b47c4ef6de6551be5f28d97f9dd";
+const knownAuthCode = "aac8964a69b2c7c56c3bfcf108248fe1";
+const redirectUriMismatchCode = "5c255ea25c063a83a5f02242103bdc9f";
+const nonce = "bf05c36da9122a7378439924c011c51c";
+const scopes = ["openid"];
+
+const validAuthRequestParams: AuthRequestParameters = {
+  nonce,
+  redirectUri: redirectUri,
+  scopes,
+  claims: VALID_CLAIMS,
+  vtr: {
+    credentialTrust: "Cl.Cm",
+    levelOfConfidence: "P2",
+  },
+};
+const redirectUriMismatchParams: AuthRequestParameters = {
+  nonce,
+  redirectUri: "https://example.com/authentication-callback-invalid/",
+  scopes,
+  claims: [],
+  vtr: {
+    credentialTrust: "Cl.Cm",
+    levelOfConfidence: null,
+  },
+};
+
+const createValidClientAssertion = async (
+  payload: JWTPayload,
+  idTokenSigningAlgorithm: "ES256" | "RS256"
+): Promise<string> => {
+  if (idTokenSigningAlgorithm === "ES256") {
+    return await new SignJWT(payload)
+      .setProtectedHeader({
+        alg: idTokenSigningAlgorithm,
+      })
+      .sign(ecKeyPair.privateKey);
+  } else
+    return await new SignJWT(payload)
+      .setProtectedHeader({
+        alg: idTokenSigningAlgorithm,
+      })
+      .sign(rsaKeyPair.privateKey);
+};
 
 const createClientAssertionPayload = (
   payload: Record<string, unknown>,
@@ -50,11 +103,14 @@ const fakeSignature = () => randomBytes(16).toString("hex");
 
 const setupClientConfig = async (
   clientId: string,
-  signingAlgorithm: "ES256" | "RS256"
+  signingAlgorithm: "ES256" | "RS256",
+  errors: string[] = []
 ) => {
   process.env.CLIENT_ID = clientId;
   process.env.REDIRECT_URLS = redirectUri;
   process.env.SUB = knownSub;
+  process.env.ID_TOKEN_ERRORS = errors.join(",");
+  process.env.CLAIMS = VALID_CLAIMS.join(",");
   if (signingAlgorithm === "ES256") {
     const publicKey = await exportSPKI(ecKeyPair.publicKey);
     process.env.PUBLIC_KEY = publicKey;
@@ -432,52 +488,144 @@ describe("/token endpoint tests, invalid client assertion", () => {
   });
 });
 
+describe("/token endpoint, configured error responses", () => {
+  jest.spyOn(Config.getInstance(), "getIdTokenErrors");
+  let validRequest: Record<string, string>;
+
+  beforeEach(async () => {
+    validRequest = {
+      grant_type: "authorization_code",
+      code: knownAuthCode,
+      client_assertion_type:
+        "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+      redirect_uri: redirectUri,
+      client_assertion: await createValidClientAssertion(
+        {
+          iss: knownClientId,
+          sub: knownClientId,
+          aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+          jti: randomUUID(),
+          iat: Math.floor(Date.now() / 1000),
+          exp: Math.floor(Date.now() / 1000) + 3600,
+        },
+        "ES256"
+      ),
+    };
+  });
+
+  it("returns an invalid header if the client config has enabled INVALID_ALG_HEADER", async () => {
+    await setupClientConfig(knownClientId, "ES256", ["INVALID_ALG_HEADER"]);
+    jest
+      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
+      .mockReturnValue(validAuthRequestParams);
+
+    const app = createApp();
+    const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
+    expect(response.status).toBe(200);
+    const { id_token } = response.body;
+    const header = decodeTokenPart(id_token.split(".")[0]);
+    expect(header).toStrictEqual({
+      alg: "HS256",
+    });
+  });
+
+  it("returns an invalid signature if the client config has enabled INVALID_SIGNATURE", async () => {
+    await setupClientConfig(knownClientId, "ES256", ["INVALID_SIGNATURE"]);
+    jest
+      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
+      .mockReturnValue(validAuthRequestParams);
+
+    const app = createApp();
+    const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
+    const { id_token } = response.body;
+    const ecKey = await importPKCS8(EC_PRIVATE_TOKEN_SIGNING_KEY, "ES256");
+    await expect(jwtVerify(id_token, ecKey)).rejects.toThrow(
+      errors.JWSSignatureVerificationFailed
+    );
+  });
+
+  it("returns an invalid vot if the client config has enabled INCORRECT_VOT", async () => {
+    await setupClientConfig(knownClientId, "ES256", ["INCORRECT_VOT"]);
+    jest
+      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
+      .mockReturnValue(validAuthRequestParams);
+
+    const app = createApp();
+    const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
+    const { id_token } = response.body;
+    const payload = decodeTokenPart(id_token.split(".")[1]);
+    expect(payload.vot).not.toEqual(validAuthRequestParams.vtr.credentialTrust);
+    expect(payload.vot).toBe("Cl");
+  });
+
+  it("returns an invalid iat in the future if the client config has enabled TOKEN_NOT_VALID_YET", async () => {
+    await setupClientConfig(knownClientId, "ES256", ["TOKEN_NOT_VALID_YET"]);
+    jest
+      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
+      .mockReturnValue(validAuthRequestParams);
+
+    const app = createApp();
+    const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
+    const { id_token } = response.body;
+    const payload = decodeTokenPart(id_token.split(".")[1]);
+    expect(payload.iat).toBeGreaterThan(Date.now() / 1000);
+  });
+
+  it("returns an expired token if the client config has enabled TOKEN_EXPIRED", async () => {
+    await setupClientConfig(knownClientId, "ES256", ["TOKEN_EXPIRED"]);
+    jest
+      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
+      .mockReturnValue(validAuthRequestParams);
+
+    const app = createApp();
+    const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
+    const { id_token } = response.body;
+    const payload = decodeTokenPart(id_token.split(".")[1]);
+    expect(payload.iat).toBeLessThan(Date.now() / 1000);
+  });
+
+  it("returns an invalid aud if the client config has enabled INVALID_AUD", async () => {
+    await setupClientConfig(knownClientId, "ES256", ["INVALID_AUD"]);
+    jest
+      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
+      .mockReturnValue(validAuthRequestParams);
+
+    const app = createApp();
+    const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
+    const { id_token } = response.body;
+    const payload = decodeTokenPart(id_token.split(".")[1]);
+    expect(payload.aud).not.toBe(knownClientId);
+  });
+
+  it("returns an invalid iss if the client config has enabled INVALID_ISS", async () => {
+    await setupClientConfig(knownClientId, "ES256", ["INVALID_ISS"]);
+    jest
+      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
+      .mockReturnValue(validAuthRequestParams);
+
+    const app = createApp();
+    const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
+    const { id_token } = response.body;
+    const payload = decodeTokenPart(id_token.split(".")[1]);
+    expect(payload.iss).not.toBe(ISSUER_VALUE);
+    expect(payload.iss).toBe(INVALID_ISSUER);
+  });
+
+  it("returns an invalid nonce if the client config has enabled NONCE_NOT_MATCHING", async () => {
+    await setupClientConfig(knownClientId, "ES256", ["NONCE_NOT_MATCHING"]);
+    jest
+      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
+      .mockReturnValue(validAuthRequestParams);
+
+    const app = createApp();
+    const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
+    const { id_token } = response.body;
+    const payload = decodeTokenPart(id_token.split(".")[1]);
+    expect(payload.nonce).not.toBe(validAuthRequestParams.nonce);
+  });
+});
+
 describe("/token endpoint valid client_assertion", () => {
-  const knownAuthCode = "aac8964a69b2c7c56c3bfcf108248fe1";
-  const redirectUriMismatchCode = "5c255ea25c063a83a5f02242103bdc9f";
-  const nonce = "bf05c36da9122a7378439924c011c51c";
-  const scopes = ["openid"];
-
-  const validAuthRequestParams: AuthRequestParameters = {
-    nonce,
-    redirectUri: redirectUri,
-    scopes,
-    claims: VALID_CLAIMS,
-    vtr: {
-      credentialTrust: "Cl.Cm",
-      levelOfConfidence: "P2",
-    },
-  };
-
-  const redirectUriMismatchParams: AuthRequestParameters = {
-    nonce,
-    redirectUri: "https://example.com/authentication-callback-invalid/",
-    scopes,
-    claims: [],
-    vtr: {
-      credentialTrust: "Cl.Cm",
-      levelOfConfidence: null,
-    },
-  };
-
-  const createValidClientAssertion = async (
-    payload: JWTPayload,
-    idTokenSigningAlgorithm: "ES256" | "RS256"
-  ): Promise<string> => {
-    if (idTokenSigningAlgorithm === "ES256") {
-      return await new SignJWT(payload)
-        .setProtectedHeader({
-          alg: idTokenSigningAlgorithm,
-        })
-        .sign(ecKeyPair.privateKey);
-    } else
-      return await new SignJWT(payload)
-        .setProtectedHeader({
-          alg: idTokenSigningAlgorithm,
-        })
-        .sign(rsaKeyPair.privateKey);
-  };
-
   afterEach(() => {
     jest.restoreAllMocks();
   });
