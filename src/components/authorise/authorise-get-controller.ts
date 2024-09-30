@@ -20,6 +20,17 @@ export const authoriseGetController = (req: Request, res: Response): void => {
       config
     );
 
+    if (config.getAuthoriseErrors().includes("ACCESS_DENIED")) {
+      logger.warn("Client configured to return access_denied error response");
+      throw new AuthoriseRequestError({
+        errorCode: "access_denied",
+        errorDescription: "access_denied",
+        httpStatusCode: 302,
+        redirectUri: parsedAuthRequestParams.redirect_uri,
+        state: parsedAuthRequestParams.state,
+      });
+    }
+
     const authCode = generateAuthCode();
 
     config.addToAuthCodeRequestParamsStore(authCode, {
