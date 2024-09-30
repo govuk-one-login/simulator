@@ -10,6 +10,8 @@ import { isCoreIdentityError } from "./validators/core-identity-error";
 import { isIdTokenError } from "./validators/id-token-error";
 import { CoreIdentityError } from "./types/core-identity-error";
 import { IdTokenError } from "./types/id-token-error";
+import { isAuthoriseError } from "./validators/authorise-errors";
+import { AuthoriseError } from "./types/authorise-errors";
 
 export class Config {
   private static instance: Config;
@@ -69,6 +71,8 @@ CQIDAQAB
         ) ?? [],
       idTokenErrors:
         process.env.ID_TOKEN_ERRORS?.split(",").filter(isIdTokenError) ?? [],
+      authoriseErrors:
+        process.env.AUTHORISE_ERRORS?.split(",").filter(isAuthoriseError) ?? [],
     };
 
     this.authCodeRequestParamsStore = {};
@@ -240,5 +244,13 @@ CQIDAQAB
 
   public setIdTokenErrors(idTokenErrors: IdTokenError[]): void {
     this.errorConfiguration.idTokenErrors = idTokenErrors;
+  }
+
+  public getAuthoriseErrors(): AuthoriseError[] {
+    return this.errorConfiguration.authoriseErrors;
+  }
+
+  public setAuthoriseErrors(authoriseErrors: AuthoriseError[]): void {
+    this.errorConfiguration.authoriseErrors = authoriseErrors;
   }
 }
