@@ -46,6 +46,7 @@ describe("Integration: Config POST", () => {
         errorConfiguration: {
           coreIdentityErrors: ["INVALID_ALG_HEADER"],
           idTokenErrors: ["INVALID_ISS"],
+          authoriseErrors: ["ACCESS_DENIED"],
         },
       });
     expect(response.status).toEqual(200);
@@ -73,6 +74,7 @@ describe("Integration: Config POST", () => {
       "INVALID_ALG_HEADER",
     ]);
     expect(config.getIdTokenErrors()).toStrictEqual(["INVALID_ISS"]);
+    expect(config.getAuthoriseErrors()).toStrictEqual(["ACCESS_DENIED"]);
   });
 
   test("If a config value is not included, the default value stands", async () => {
@@ -114,6 +116,7 @@ describe("Integration: Config POST", () => {
     expect(config.getPhoneNumberVerified()).toEqual(true);
     expect(config.getIdTokenErrors()).toStrictEqual([]);
     expect(config.getCoreIdentityErrors()).toStrictEqual([]);
+    expect(config.getAuthoriseErrors()).toStrictEqual([]);
   });
 
   test("If no error configuration is sent, the configured errors are removed", async () => {
@@ -156,6 +159,7 @@ describe("Integration: Config POST", () => {
     expect(config.getPhoneNumberVerified()).toEqual(true);
     expect(config.getIdTokenErrors()).toStrictEqual([]);
     expect(config.getCoreIdentityErrors()).toStrictEqual([]);
+    expect(config.getAuthoriseErrors()).toStrictEqual([]);
   });
 
   test("it ignores invalid errors", async () => {
@@ -178,6 +182,7 @@ describe("Integration: Config POST", () => {
         errorConfiguration: {
           coreIdentityErrors: ["not-a-valid-error"],
           idTokenErrors: ["INVALID_ERROR"],
+          authoriseErrors: ["INVALID_CODE"],
         },
       });
     expect(response.status).toEqual(200);
@@ -201,5 +206,6 @@ describe("Integration: Config POST", () => {
     expect(config.getPhoneNumberVerified()).toEqual(true);
     expect(config.getIdTokenErrors()).toStrictEqual([]);
     expect(config.getCoreIdentityErrors()).toStrictEqual([]);
+    expect(config.getAuthoriseErrors()).toStrictEqual([]);
   });
 });
