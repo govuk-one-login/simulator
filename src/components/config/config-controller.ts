@@ -6,6 +6,7 @@ import ResponseConfiguration from "../../types/response-configuration";
 import { ErrorConfiguration } from "../../types/error-configuration";
 import { isCoreIdentityError } from "../../validators/core-identity-error";
 import { isIdTokenError } from "../../validators/id-token-error";
+import { isAuthoriseError } from "../../validators/authorise-errors";
 
 export const configController = (
   req: Request<ConfigRequest>,
@@ -96,6 +97,10 @@ const populateErrorConfiguration = (
   const idTokenErrors =
     errorConfiguration.idTokenErrors?.filter(isIdTokenError) ?? [];
 
+  const authoriseErrors =
+    errorConfiguration.authoriseErrors?.filter(isAuthoriseError) ?? [];
+
   config.setCoreIdentityErrors(coreIdentityErrors);
   config.setIdTokenErrors(idTokenErrors);
+  config.setAuthoriseErrors(authoriseErrors);
 };
