@@ -7,7 +7,6 @@ export const VALID_CLAIMS = [
   "https://vocab.account.gov.uk/v1/socialSecurityRecord",
   "https://vocab.account.gov.uk/v1/coreIdentityJWT",
   "https://vocab.account.gov.uk/v1/returnCode",
-  "https://vocab.account.gov.uk/v1/inheritedIdentityJWT",
 ];
 
 export const VALID_CREDENTIAL_TRUST_VALUES = ["Cl", "Cl.Cm"];
