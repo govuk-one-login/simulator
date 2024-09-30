@@ -104,6 +104,11 @@ iZSejbyqjUjJBAH9GHkPsiA+w1vutdd2PuPKOV05TLmV5ZM06bmLHQjMCGMiWK0G
 
 You can setup the simulator to return specific error scenarios for the Core Identity JWT and ID Token issued. Multiple error states can be enabled and these should be passed to the following environment variables as a comma separated string:
 
+
+> `AUTHORISE_ERRORS` - These will enable an error response from the `/authorize` endpoint and can have the following valid values:
+>
+> > - "ACCESS_DENIED": This error will return an `access_denied` response for all valid requests to the `/authorize` endpoint when enabled.
+
 > `ID_TOKEN_ERRORS` - This enables invalid ID Tokens to be issued by the simulator and has the following valid values:
 >
 > > - "INVALID_ISS"
