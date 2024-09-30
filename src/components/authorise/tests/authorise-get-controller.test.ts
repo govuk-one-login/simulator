@@ -411,6 +411,31 @@ describe("valid auth request", () => {
     Config.resetInstance();
   });
 
+  it("returns 302 and redirects with an access_denied error when the client has enabled ACCESS_DENIED", async () => {
+    jest
+      .spyOn(Config.getInstance(), "getAuthoriseErrors")
+      .mockReturnValue(["ACCESS_DENIED"]);
+
+    const state = "a7e4bfd39d3eaa57c27775744f22c5a2";
+    const nonce = "3eb5b04ca8e1baf7dea15b7fb7ac05a6";
+    const app = createApp();
+    const requestParams = createRequestParams({
+      client_id: knownClientId,
+      redirect_uri: knownRedirectUri,
+      response_type: "code",
+      scope: "openid email",
+      state,
+      nonce,
+    });
+    const response = await request(app).get(
+      authoriseEndpoint + "?" + requestParams
+    );
+    expect(response.status).toBe(302);
+    expect(response.header.location).toBe(
+      `${knownRedirectUri}?error=access_denied&error_description=${encodeURIComponent("Access denied by resource owner or authorization server")}&state=${state}`
+    );
+  });
+
   it("returns 302 and redirect with an auth code for a valid minimal auth request", async () => {
     const state = "a7e4bfd39d3eaa57c27775744f22c5a2";
     const nonce = "3eb5b04ca8e1baf7dea15b7fb7ac05a6";
