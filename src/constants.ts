@@ -1,6 +1,8 @@
+import { UserIdentityClaim } from "./types/user-info";
+
 export const VALID_SCOPES = ["openid", "email", "phone"];
 
-export const VALID_CLAIMS = [
+export const VALID_CLAIMS: UserIdentityClaim[] = [
   "https://vocab.account.gov.uk/v1/passport",
   "https://vocab.account.gov.uk/v1/address",
   "https://vocab.account.gov.uk/v1/drivingPermit",

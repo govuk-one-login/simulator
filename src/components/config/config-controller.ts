@@ -88,6 +88,31 @@ const populateResponseConfiguration = (
   if (responseConfiguration.phoneNumberVerified !== undefined) {
     config.setPhoneNumberVerified(responseConfiguration.phoneNumberVerified);
   }
+  if (responseConfiguration.maxLoCAchieved !== undefined) {
+    config.setMaxLoCAchieved(responseConfiguration.maxLoCAchieved);
+  }
+  if (responseConfiguration.coreIdentityVerifiableCredentials !== undefined) {
+    config.setVerifiableIdentityCredentials(
+      responseConfiguration.coreIdentityVerifiableCredentials
+    );
+  }
+  if (responseConfiguration.passportDetails !== undefined) {
+    config.setPassportDetails(responseConfiguration.passportDetails);
+  }
+  if (responseConfiguration.drivingPermitDetails !== undefined) {
+    config.setDrivingPermitDetails(responseConfiguration.drivingPermitDetails);
+  }
+  if (responseConfiguration.socialSecurityRecordDetails !== undefined) {
+    config.setSocialSecurityRecordDetails(
+      responseConfiguration.socialSecurityRecordDetails
+    );
+  }
+  if (responseConfiguration.postalAddressDetails !== undefined) {
+    config.setPostalAddressDetails(responseConfiguration.postalAddressDetails);
+  }
+  if (responseConfiguration.returnCodes !== undefined) {
+    config.setReturnCodes(responseConfiguration.returnCodes);
+  }
 };
 
 const populateErrorConfiguration = (

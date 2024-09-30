@@ -1,3 +1,5 @@
+import { UserIdentityClaim } from "../../types/user-info";
+
 const areClaimsValidMock = jest.fn();
 const areScopesValidMock = jest.fn();
 const vtrValidatorMock = jest.fn();
@@ -25,7 +27,9 @@ jest.mock("../../validators/vtr-validator", () => ({
 const clientId = "284e6ac9818525b254053711c9251fa7";
 const redirectUri = "https://example.com/authenication-callback";
 const clientLoCs = ["P0", "P2"];
-const claims = ["https://vocab.account.gov.uk/v1/passport"];
+const claims: UserIdentityClaim[] = [
+  "https://vocab.account.gov.uk/v1/passport",
+];
 const state = "6066cf5d190e2f1d5eeabaf089c01529ec47f7e3833d574f";
 const mockVtr = [
   {

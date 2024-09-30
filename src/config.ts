@@ -12,6 +12,8 @@ import { CoreIdentityError } from "./types/core-identity-error";
 import { IdTokenError } from "./types/id-token-error";
 import { isAuthoriseError } from "./validators/authorise-errors";
 import { AuthoriseError } from "./types/authorise-errors";
+import ReturnCode from "./types/return-code";
+import { UserIdentityClaim } from "./types/user-info";
 
 export class Config {
   private static instance: Config;
@@ -35,6 +37,7 @@ QD+tdKsrw7QDIYnx0IiXFnkGnizl3UtqSmXAaceTvPM2Pz84x2JiwHrp2Sml6RYL
 CQIDAQAB
 -----END PUBLIC KEY-----
 `;
+
     this.clientConfiguration = {
       clientId: process.env.CLIENT_ID ?? "HGIOgho9HIRhgoepdIOPFdIUWgewi0jw",
       publicKey: process.env.PUBLIC_KEY ?? defaultPublicKey,
@@ -45,7 +48,7 @@ CQIDAQAB
         ? process.env.REDIRECT_URLS.split(",")
         : ["http://localhost:8080/oidc/authorization-code/callback"],
       claims: process.env.CLAIMS
-        ? process.env.CLAIMS.split(",")
+        ? (process.env.CLAIMS.split(",") as UserIdentityClaim[])
         : ["https://vocab.account.gov.uk/v1/coreIdentityJWT"],
       identityVerificationSupported:
         process.env.IDENTITY_VERIFICATION_SUPPORTED !== "false",
@@ -64,6 +67,13 @@ CQIDAQAB
       emailVerified: process.env.EMAIL_VERIFIED !== "false",
       phoneNumber: process.env.PHONE_NUMBER ?? "07123456789",
       phoneNumberVerified: process.env.PHONE_NUMBER_VERIFIED !== "false",
+      maxLoCAchieved: "P2",
+      coreIdentityVerifiableCredentials: null,
+      passportDetails: null,
+      drivingPermitDetails: null,
+      socialSecurityRecordDetails: null,
+      postalAddressDetails: null,
+      returnCodes: null,
     };
 
     this.errorConfiguration = {
@@ -127,11 +137,11 @@ CQIDAQAB
     this.clientConfiguration.redirectUrls = redirectUrls;
   }
 
-  public getClaims(): string[] {
+  public getClaims(): UserIdentityClaim[] {
     return this.clientConfiguration.claims!;
   }
 
-  public setClaims(claims: string[]): void {
+  public setClaims(claims: UserIdentityClaim[]): void {
     this.clientConfiguration.claims = claims;
   }
 
@@ -200,6 +210,68 @@ CQIDAQAB
 
   public setPhoneNumberVerified(phoneNumberVerified: boolean): void {
     this.responseConfiguration.phoneNumberVerified = phoneNumberVerified;
+  }
+
+  public getMaxLoCAchieved(): string {
+    return this.responseConfiguration.maxLoCAchieved!;
+  }
+
+  public setMaxLoCAchieved(maxLoCAchieved: string): void {
+    this.responseConfiguration.maxLoCAchieved = maxLoCAchieved;
+  }
+
+  public getVerifiableIdentityCredentials(): object | null {
+    return this.responseConfiguration.coreIdentityVerifiableCredentials!;
+  }
+
+  public setVerifiableIdentityCredentials(
+    coreIdentityVerifiableCredentials: object | null
+  ): void {
+    this.responseConfiguration.coreIdentityVerifiableCredentials =
+      coreIdentityVerifiableCredentials;
+  }
+
+  public getPassportDetails(): object[] | null {
+    return this.responseConfiguration.passportDetails!;
+  }
+
+  public setPassportDetails(passportDetails: object[] | null): void {
+    this.responseConfiguration.passportDetails = passportDetails;
+  }
+
+  public getDrivingPermitDetails(): object[] | null {
+    return this.responseConfiguration.drivingPermitDetails!;
+  }
+
+  public setDrivingPermitDetails(drivingPermitDetails: object[] | null): void {
+    this.responseConfiguration.drivingPermitDetails = drivingPermitDetails;
+  }
+
+  public getSocialSecurityRecordDetails(): object[] | null {
+    return this.responseConfiguration.socialSecurityRecordDetails!;
+  }
+
+  public setSocialSecurityRecordDetails(
+    socialSecurityRecordDetails: object[] | null
+  ): void {
+    this.responseConfiguration.socialSecurityRecordDetails =
+      socialSecurityRecordDetails;
+  }
+
+  public getPostalAddressDetails(): object[] | null {
+    return this.responseConfiguration.postalAddressDetails!;
+  }
+
+  public setPostalAddressDetails(postalAddressDetails: object[] | null): void {
+    this.responseConfiguration.postalAddressDetails = postalAddressDetails;
+  }
+
+  public getReturnCodes(): ReturnCode[] | null {
+    return this.responseConfiguration.returnCodes!;
+  }
+
+  public setReturnCodes(returnCodes: ReturnCode[] | null): void {
+    this.responseConfiguration.returnCodes = returnCodes;
   }
 
   public getAuthCodeRequestParams(

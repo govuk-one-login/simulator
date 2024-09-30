@@ -1,11 +1,14 @@
 import { logger } from "../logger";
 import { Config } from "../config";
 import { VALID_CLAIMS } from "../constants";
+import { UserIdentityClaim } from "../types/user-info";
 
 export const areClaimsValid = (claims: string[], config: Config): boolean => {
   const clientClaims = config.getClaims();
 
-  const invalidClaims = claims.filter((claim) => !VALID_CLAIMS.includes(claim));
+  const invalidClaims = claims.filter(
+    (claim) => !VALID_CLAIMS.includes(claim as UserIdentityClaim)
+  );
 
   if (invalidClaims.length !== 0) {
     logger.error(
@@ -15,7 +18,7 @@ export const areClaimsValid = (claims: string[], config: Config): boolean => {
   }
 
   const unsupportedClaims = claims.filter(
-    (claim) => !clientClaims.includes(claim)
+    (claim) => !clientClaims.includes(claim as UserIdentityClaim)
   );
 
   if (unsupportedClaims.length !== 0) {

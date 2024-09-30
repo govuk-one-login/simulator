@@ -1,6 +1,10 @@
+import ReturnCode, {
+  generateReturnCodePropertyValidators,
+} from "./return-code";
 import { ValidationChain } from "express-validator";
 import { nameof } from "./util/nameof";
-import { bodyOptional } from "./util/body-helpers";
+import { bodyOptional, bodyOptionalAllowNull } from "./util/body-helpers";
+import { VALID_LOC_VALUES } from "../constants";
 
 export default interface ResponseConfiguration {
   sub?: string;
@@ -8,6 +12,13 @@ export default interface ResponseConfiguration {
   emailVerified?: boolean;
   phoneNumber?: string;
   phoneNumberVerified?: boolean;
+  maxLoCAchieved?: string;
+  coreIdentityVerifiableCredentials?: object | null;
+  passportDetails?: object[] | null;
+  drivingPermitDetails?: object[] | null;
+  socialSecurityRecordDetails?: object[] | null;
+  postalAddressDetails?: object[] | null;
+  returnCodes?: ReturnCode[] | null;
 }
 
 export const generateResponseConfigurationPropertyValidators = (
@@ -27,5 +38,41 @@ export const generateResponseConfigurationPropertyValidators = (
     bodyOptional(
       `${prefix}${nameof<ResponseConfiguration>("phoneNumberVerified")}`
     ).isBoolean({ strict: true }),
+    bodyOptional(
+      `${prefix}${nameof<ResponseConfiguration>("maxLoCAchieved")}`
+    ).isIn(VALID_LOC_VALUES),
+    bodyOptionalAllowNull(
+      `${prefix}${nameof<ResponseConfiguration>("coreIdentityVerifiableCredentials")}`
+    ).isObject(),
+    bodyOptionalAllowNull(
+      `${prefix}${nameof<ResponseConfiguration>("passportDetails")}`
+    ).isArray(),
+    bodyOptional(
+      `${prefix}${nameof<ResponseConfiguration>("passportDetails")}.*`
+    ).isObject(),
+    bodyOptionalAllowNull(
+      `${prefix}${nameof<ResponseConfiguration>("drivingPermitDetails")}`
+    ).isArray(),
+    bodyOptional(
+      `${prefix}${nameof<ResponseConfiguration>("drivingPermitDetails")}.*`
+    ).isObject(),
+    bodyOptionalAllowNull(
+      `${prefix}${nameof<ResponseConfiguration>("socialSecurityRecordDetails")}`
+    ).isArray(),
+    bodyOptional(
+      `${prefix}${nameof<ResponseConfiguration>("socialSecurityRecordDetails")}.*`
+    ).isObject(),
+    bodyOptionalAllowNull(
+      `${prefix}${nameof<ResponseConfiguration>("postalAddressDetails")}`
+    ).isArray(),
+    bodyOptional(
+      `${prefix}${nameof<ResponseConfiguration>("postalAddressDetails")}.*`
+    ).isObject(),
+    bodyOptionalAllowNull(
+      `${prefix}${nameof<ResponseConfiguration>("returnCodes")}`
+    ).isArray(),
+    ...generateReturnCodePropertyValidators(
+      `${prefix}${nameof<ResponseConfiguration>("returnCodes")}.*.`
+    ),
   ];
 };

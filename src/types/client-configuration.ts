@@ -6,6 +6,7 @@ import {
   VALID_SCOPES,
   VALID_TOKEN_SIGNING_ALGORITHMS,
 } from "../constants";
+import { UserIdentityClaim } from "./user-info";
 import { bodyOptional } from "./util/body-helpers";
 
 export default interface ClientConfiguration {
@@ -13,7 +14,7 @@ export default interface ClientConfiguration {
   publicKey?: string;
   scopes?: string[];
   redirectUrls?: string[];
-  claims?: string[];
+  claims?: UserIdentityClaim[];
   identityVerificationSupported?: boolean;
   idTokenSigningAlgorithm?: string;
   clientLoCs?: string[];
