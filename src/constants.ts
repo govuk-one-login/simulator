@@ -69,5 +69,7 @@ export const ID_TOKEN_ERRORS = [
   "INCORRECT_VOT",
 ];
 
+export const AUTHORISE_ERRORS = ["ACCESS_DENIED"];
+
 export const INVALID_ISSUER = "https://example.com/identity-provider";
 export const ONE_DAY_IN_SECONDS = 86400;
