@@ -14,6 +14,8 @@ export const VALID_CREDENTIAL_TRUST_VALUES = ["Cl", "Cl.Cm"];
 
 export const VALID_LOC_VALUES = ["P0", "P1", "P2"];
 
+export const VALID_TOKEN_SIGNING_ALGORITHMS = ["ES256", "RS256"];
+
 //Whilst we don't support all of these we do need to reject
 //requests with invalid prompt values.
 export const VALID_OIDC_PROMPTS = [

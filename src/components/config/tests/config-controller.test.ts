@@ -5,17 +5,20 @@ import { Config } from "../../../config";
 const TEST_CLIENT_ID = "test-id";
 const TEST_PUBLIC_KEY = "test-public-key";
 const TEST_SCOPES = ["scope1", "scope2"];
-const TEST_REDIRECT_URLS = ["http://redirect-url"];
-const TEST_CLAIMS = ["claim1", "claim2"];
+const TEST_REDIRECT_URLS = ["http://redirect-url.co.uk"];
+const TEST_CLAIMS = [
+  "https://vocab.account.gov.uk/v1/coreIdentityJWT",
+  "https://vocab.account.gov.uk/v1/passport",
+];
 const TEST_IDENTITY_VERIFICATION_SUPPORTED = false;
 const TEST_ID_TOKEN_SIGNING_ALGORITHM = "RS256";
-const TEST_CLIENT_LOCS = ["PCL200"];
+const TEST_CLIENT_LOCS = ["P2"];
 const TEST_SUB = "test-sub";
 const TEST_EMAIL = "email@example.com";
 const TEST_EMAIL_VERIFIED = false;
 const TEST_PHONE_NUMBER = "07777777777";
 const TEST_PHONE_NUMBER_VERIFIED = false;
-const TEST_SIMULATOR_URL = "https://test-url";
+const TEST_SIMULATOR_URL = "https://test-url.co.uk";
 
 describe("Integration: Config POST", () => {
   afterEach(() => {

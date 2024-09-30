@@ -62,7 +62,7 @@ CQIDAQAB
         "urn:fdc:gov.uk:2022:56P4CMsGh_02YOlWpd8PAOI-2sVlB2nsNU7mcLZYhYw=",
       email: process.env.EMAIL ?? "test@example.com",
       emailVerified: process.env.EMAIL_VERIFIED !== "false",
-      phoneNumber: process.env.PHONE_NUMBER || "07123456789",
+      phoneNumber: process.env.PHONE_NUMBER ?? "07123456789",
       phoneNumberVerified: process.env.PHONE_NUMBER_VERIFIED !== "false",
     };
 
@@ -96,7 +96,7 @@ CQIDAQAB
   }
 
   public getClientId(): string {
-    return this.clientConfiguration.clientId;
+    return this.clientConfiguration.clientId!;
   }
 
   public setClientId(clientId: string): void {
@@ -104,7 +104,7 @@ CQIDAQAB
   }
 
   public getPublicKey(): string {
-    return this.clientConfiguration.publicKey;
+    return this.clientConfiguration.publicKey!;
   }
 
   public setPublicKey(publicKey: string): void {
@@ -112,7 +112,7 @@ CQIDAQAB
   }
 
   public getScopes(): string[] {
-    return this.clientConfiguration.scopes;
+    return this.clientConfiguration.scopes!;
   }
 
   public setScopes(scopes: string[]): void {
@@ -120,7 +120,7 @@ CQIDAQAB
   }
 
   public getRedirectUrls(): string[] {
-    return this.clientConfiguration.redirectUrls;
+    return this.clientConfiguration.redirectUrls!;
   }
 
   public setRedirectUrls(redirectUrls: string[]): void {
@@ -128,7 +128,7 @@ CQIDAQAB
   }
 
   public getClaims(): string[] {
-    return this.clientConfiguration.claims;
+    return this.clientConfiguration.claims!;
   }
 
   public setClaims(claims: string[]): void {
@@ -136,7 +136,7 @@ CQIDAQAB
   }
 
   public getIdentityVerificationSupported(): boolean {
-    return this.clientConfiguration.identityVerificationSupported;
+    return this.clientConfiguration.identityVerificationSupported!;
   }
 
   public setIdentityVerificationSupported(
@@ -147,7 +147,7 @@ CQIDAQAB
   }
 
   public getIdTokenSigningAlgorithm(): string {
-    return this.clientConfiguration.idTokenSigningAlgorithm;
+    return this.clientConfiguration.idTokenSigningAlgorithm!;
   }
 
   public setIdTokenSigningAlgorithm(idTokenSigningAlgorithm: string): void {
@@ -155,7 +155,7 @@ CQIDAQAB
   }
 
   public getClientLoCs(): string[] {
-    return this.clientConfiguration.clientLoCs;
+    return this.clientConfiguration.clientLoCs!;
   }
 
   public setClientLoCs(clientLoCs: string[]): void {
@@ -163,7 +163,7 @@ CQIDAQAB
   }
 
   public getSub(): string {
-    return this.responseConfiguration.sub;
+    return this.responseConfiguration.sub!;
   }
 
   public setSub(sub: string): void {
@@ -171,7 +171,7 @@ CQIDAQAB
   }
 
   public getEmail(): string {
-    return this.responseConfiguration.email;
+    return this.responseConfiguration.email!;
   }
 
   public setEmail(email: string): void {
@@ -179,7 +179,7 @@ CQIDAQAB
   }
 
   public getEmailVerified(): boolean {
-    return this.responseConfiguration.emailVerified;
+    return this.responseConfiguration.emailVerified!;
   }
 
   public setEmailVerified(emailVerified: boolean): void {
@@ -187,7 +187,7 @@ CQIDAQAB
   }
 
   public getPhoneNumber(): string {
-    return this.responseConfiguration.phoneNumber;
+    return this.responseConfiguration.phoneNumber!;
   }
 
   public setPhoneNumber(phoneNumber: string): void {
@@ -195,7 +195,7 @@ CQIDAQAB
   }
 
   public getPhoneNumberVerified(): boolean {
-    return this.responseConfiguration.phoneNumberVerified;
+    return this.responseConfiguration.phoneNumberVerified!;
   }
 
   public setPhoneNumberVerified(phoneNumberVerified: boolean): void {
@@ -236,7 +236,7 @@ CQIDAQAB
   }
 
   public getCoreIdentityErrors(): CoreIdentityError[] {
-    return this.errorConfiguration.coreIdentityErrors;
+    return this.errorConfiguration.coreIdentityErrors!;
   }
 
   public setCoreIdentityErrors(coreIdentityErrors: CoreIdentityError[]): void {
@@ -244,7 +244,7 @@ CQIDAQAB
   }
 
   public getIdTokenErrors(): IdTokenError[] {
-    return this.errorConfiguration.idTokenErrors;
+    return this.errorConfiguration.idTokenErrors!;
   }
 
   public setIdTokenErrors(idTokenErrors: IdTokenError[]): void {
@@ -252,7 +252,7 @@ CQIDAQAB
   }
 
   public getAuthoriseErrors(): AuthoriseError[] {
-    return this.errorConfiguration.authoriseErrors;
+    return this.errorConfiguration.authoriseErrors!;
   }
 
   public setAuthoriseErrors(authoriseErrors: AuthoriseError[]): void {

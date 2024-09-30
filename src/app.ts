@@ -7,6 +7,8 @@ import { userInfoController } from "./components/user-info/user-info-controller"
 import { generateJWKS } from "./components/token/helper/key-helpers";
 import { openidConfigurationController } from "./components/openid-configuration/openid-configuration-controller";
 import { trustmarkController } from "./components/trustmark/trustmark-controller";
+import { generateConfigRequestPropertyValidators } from "./types/config-request";
+import { body, checkExact } from "express-validator";
 
 const createApp = (): Application => {
   const app: Express = express();
@@ -20,7 +22,14 @@ const createApp = (): Application => {
   });
   app.get("/authorize", authoriseGetController);
 
-  app.post("/config", configController);
+  app.post(
+    "/config",
+    ...generateConfigRequestPropertyValidators(),
+    checkExact(),
+    // this root object check must come after checkExact or unknown fields will be ignored - appears to be a bug
+    body().isObject(),
+    configController
+  );
   app.post("/token", tokenController);
   app.get("/userinfo", userInfoController);
   app.get("/trustmark", trustmarkController);

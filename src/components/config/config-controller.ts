@@ -7,11 +7,18 @@ import { ErrorConfiguration } from "../../types/error-configuration";
 import { isCoreIdentityError } from "../../validators/core-identity-error";
 import { isIdTokenError } from "../../validators/id-token-error";
 import { isAuthoriseError } from "../../validators/authorise-errors";
+import { validationResult } from "express-validator";
 
 export const configController = (
   req: Request<ConfigRequest>,
   res: Response
 ): void => {
+  const validationFailures = validationResult(req);
+  if (!validationFailures.isEmpty()) {
+    res.status(400).send({ errors: validationFailures.mapped() });
+    return;
+  }
+
   if (req.body.clientConfiguration !== undefined) {
     populateClientConfiguration(req.body.clientConfiguration);
   }
