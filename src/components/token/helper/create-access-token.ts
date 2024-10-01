@@ -1,9 +1,5 @@
 import { randomUUID } from "crypto";
-import {
-  ACCESS_TOKEN_EXPIRY,
-  ISSUER_VALUE,
-  SESSION_ID,
-} from "../../../constants";
+import { ACCESS_TOKEN_EXPIRY, SESSION_ID } from "../../../constants";
 import { Config } from "../../../config";
 import { logger } from "../../../logger";
 import { signToken } from "./sign-token";
@@ -38,20 +34,20 @@ export const getClaimsRequest = (
 
 const createAccessTokenClaimSet = (
   scope: string[],
-  clientConfig: Config,
+  config: Config,
   claims?: string[] | null
 ): AccessTokenClaims => {
   const iat = Math.floor(Date.now() / 1000);
   const exp = iat + ACCESS_TOKEN_EXPIRY;
   const jti = randomUUID();
   const sid = SESSION_ID;
-  const sub = clientConfig.getSub();
-  const clientId = clientConfig.getClientId();
+  const sub = config.getSub();
+  const clientId = config.getClientId();
 
   return {
     exp,
     iat,
-    iss: ISSUER_VALUE,
+    iss: config.getIssuerValue(),
     jti,
     client_id: clientId,
     sub,

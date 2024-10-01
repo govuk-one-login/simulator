@@ -1,6 +1,5 @@
 import { exportSPKI, SignJWT } from "jose";
 import { Config } from "../../config";
-import { EXPECTED_PRIVATE_KEY_JWT_AUDIENCE } from "../../constants";
 import { ParseTokenRequestError } from "../../errors/parse-token-request-error";
 import { TokenRequestError } from "../../errors/token-request-error";
 import { parseTokenRequest } from "../parse-token-request";
@@ -27,6 +26,7 @@ const rsaKeyPair = generateKeyPairSync("rsa", {
 });
 const testTimestamp = 1723707024;
 const knownClientId = "b1a80190cf07983fca7e46375385a8ed";
+const audience = "http://host.docker.internal:3000/token";
 
 describe("parseTokenRequest tests", () => {
   beforeEach(() => {
@@ -256,7 +256,7 @@ describe("parseTokenRequest tests", () => {
               iss: "clientId",
               jti: "uhedr437r4gbfqq3rd43r",
               exp: 1234567,
-              aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+              aud: audience,
             },
             "             "
           ),
@@ -287,7 +287,7 @@ describe("parseTokenRequest tests", () => {
               iss: "clientId",
               jti: "uhedr437r4gbfqq3rd43r",
               exp: 1234567,
-              aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+              aud: audience,
             }
           ),
         },
@@ -318,7 +318,7 @@ describe("parseTokenRequest tests", () => {
               sub: "clientId",
               jti: "uhedr437r4gbfqq3rd43r",
               exp: 1234567,
-              aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+              aud: audience,
             }
           ),
         },
@@ -380,7 +380,7 @@ describe("parseTokenRequest tests", () => {
               sub: "clientId",
               iss: "clientId",
               jti: "uhedr437r4gbfqq3rd43r",
-              aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+              aud: audience,
             }
           ),
         },
@@ -411,7 +411,7 @@ describe("parseTokenRequest tests", () => {
               sub: "clientId",
               iss: "clientId",
               jti: "uhedr437r4gbfqq3rd43r",
-              aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+              aud: audience,
               exp: "notANumber",
             }
           ),
@@ -443,7 +443,7 @@ describe("parseTokenRequest tests", () => {
               sub: "clientId",
               iss: "clientId",
               jti: "uhedr437r4gbfqq3rd43r",
-              aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+              aud: audience,
               exp: 12345678,
               nbf: "notANumber",
             }
@@ -476,7 +476,7 @@ describe("parseTokenRequest tests", () => {
               sub: "clientId",
               iss: "clientId",
               jti: "uhedr437r4gbfqq3rd43r",
-              aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+              aud: audience,
               exp: 12345678,
               iat: "notANumber",
             }
@@ -508,7 +508,7 @@ describe("parseTokenRequest tests", () => {
               iss: "clientId",
               jti: "uhedr437r4gbfqq3rd43r",
               exp: 1234567,
-              aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+              aud: audience,
             }
           ),
         },
@@ -540,7 +540,7 @@ describe("parseTokenRequest tests", () => {
               iss: "clientId",
               jti: "uhedr437r4gbfqq3rd43r",
               exp: 1234567,
-              aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+              aud: audience,
             }
           ),
         },
@@ -574,7 +574,7 @@ describe("parseTokenRequest tests", () => {
               iss: "clientId",
               jti: "uhedr437r4gbfqq3rd43r",
               exp: 1234567,
-              aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+              aud: audience,
             }
           ),
         },
@@ -602,7 +602,7 @@ describe("parseTokenRequest tests", () => {
       sub: clientId,
       exp: Math.floor(testTimestamp / 1000) + 300,
       iss: clientId,
-      aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+      aud: audience,
       jti: randomUUID(),
     };
 
@@ -644,7 +644,7 @@ describe("parseTokenRequest tests", () => {
       sub: knownClientId,
       exp: Math.floor(testTimestamp / 1000) - 3600,
       iss: knownClientId,
-      aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+      aud: audience,
       jti: randomUUID(),
     };
 
@@ -728,7 +728,7 @@ describe("parseTokenRequest tests", () => {
       sub: knownClientId,
       exp: Math.floor(testTimestamp / 1000) + 300,
       iss: "notTheSameClientId",
-      aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+      aud: audience,
       jti: randomUUID(),
     };
 
@@ -770,7 +770,7 @@ describe("parseTokenRequest tests", () => {
       sub: knownClientId,
       exp: Math.floor(testTimestamp / 1000) + 300,
       iss: knownClientId,
-      aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+      aud: audience,
       jti: randomUUID(),
     };
 
@@ -816,7 +816,7 @@ describe("parseTokenRequest tests", () => {
       sub: knownClientId,
       exp: Math.floor(testTimestamp / 1000) + 300,
       iss: knownClientId,
-      aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+      aud: audience,
       jti: randomUUID(),
     };
 

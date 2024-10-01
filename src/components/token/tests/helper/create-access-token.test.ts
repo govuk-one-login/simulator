@@ -6,7 +6,6 @@ import { Config } from "../../../../config";
 import {
   ACCESS_TOKEN_EXPIRY,
   EC_KEY_ID,
-  ISSUER_VALUE,
   RSA_KEY_ID,
   SESSION_ID,
   VALID_CLAIMS,
@@ -80,7 +79,7 @@ describe("createAccessToken tests", () => {
       expect(payload).toStrictEqual({
         iat: Math.floor(testTimestamp / 1000),
         exp: Math.floor(testTimestamp / 1000) + ACCESS_TOKEN_EXPIRY,
-        iss: ISSUER_VALUE,
+        iss: "http://host.docker.internal:3000/",
         jti: "1234567",
         client_id: testClientId,
         sub: testSubClaim,

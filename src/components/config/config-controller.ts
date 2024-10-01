@@ -18,6 +18,9 @@ export const configController = (
   if (req.body.responseConfiguration !== undefined) {
     populateResponseConfiguration(req.body.responseConfiguration);
   }
+  if (req.body.simulatorUrl !== undefined) {
+    Config.getInstance().setSimulatorUrl(req.body.simulatorUrl);
+  }
 
   populateErrorConfiguration(req.body.errorConfiguration);
 

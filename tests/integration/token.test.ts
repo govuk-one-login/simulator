@@ -15,12 +15,9 @@ import AuthRequestParameters from "../../src/types/auth-request-parameters";
 import {
   EC_KEY_ID,
   EC_PRIVATE_TOKEN_SIGNING_KEY,
-  EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
   INVALID_ISSUER,
-  ISSUER_VALUE,
   RSA_KEY_ID,
   SESSION_ID,
-  TRUSTMARK_URL,
   VALID_CLAIMS,
 } from "../../src/constants";
 
@@ -44,6 +41,7 @@ const knownAuthCode = "aac8964a69b2c7c56c3bfcf108248fe1";
 const redirectUriMismatchCode = "5c255ea25c063a83a5f02242103bdc9f";
 const nonce = "bf05c36da9122a7378439924c011c51c";
 const scopes = ["openid"];
+const audience = "http://host.docker.internal:3000/token";
 
 const validAuthRequestParams: AuthRequestParameters = {
   nonce,
@@ -92,7 +90,7 @@ const createClientAssertionPayload = (
     .setIssuedAt(Math.floor(Date.now() / 1000))
     .setExpirationTime(isExpired ? "-1h" : "1h")
     .setJti(randomUUID())
-    .setAudience(EXPECTED_PRIVATE_KEY_JWT_AUDIENCE)
+    .setAudience(audience)
     .encode()
     .split(".")[1];
 
@@ -277,7 +275,7 @@ describe("/token endpoint tests, invalid client assertion", () => {
       "." +
       createClientAssertionPayload({
         sub: knownClientId,
-        aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+        aud: audience,
       }) +
       "." +
       fakeSignature();
@@ -306,7 +304,7 @@ describe("/token endpoint tests, invalid client assertion", () => {
       "." +
       createClientAssertionPayload({
         iss: knownClientId,
-        aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+        aud: audience,
       }) +
       "." +
       fakeSignature();
@@ -336,7 +334,7 @@ describe("/token endpoint tests, invalid client assertion", () => {
       createClientAssertionPayload({
         iss: knownClientId,
         sub: knownClientId,
-        aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+        aud: audience,
       }) +
       "." +
       fakeSignature();
@@ -366,7 +364,7 @@ describe("/token endpoint tests, invalid client assertion", () => {
       createClientAssertionPayload({
         sub: knownClientId,
         iss: knownClientId,
-        aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+        aud: audience,
       }) +
       "." +
       fakeSignature();
@@ -397,7 +395,7 @@ describe("/token endpoint tests, invalid client assertion", () => {
         {
           iss: knownClientId,
           sub: knownClientId,
-          aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+          aud: audience,
         },
         true
       ) +
@@ -429,7 +427,7 @@ describe("/token endpoint tests, invalid client assertion", () => {
       createClientAssertionPayload({
         iss: knownClientId,
         sub: knownClientId,
-        aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+        aud: audience,
       }) +
       "." +
       fakeSignature();
@@ -503,7 +501,7 @@ describe("/token endpoint, configured error responses", () => {
         {
           iss: knownClientId,
           sub: knownClientId,
-          aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+          aud: audience,
           jti: randomUUID(),
           iat: Math.floor(Date.now() / 1000),
           exp: Math.floor(Date.now() / 1000) + 3600,
@@ -607,7 +605,7 @@ describe("/token endpoint, configured error responses", () => {
     const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
     const { id_token } = response.body;
     const payload = decodeTokenPart(id_token.split(".")[1]);
-    expect(payload.iss).not.toBe(ISSUER_VALUE);
+    expect(payload.iss).not.toBe("http://host.docker.internal:3000/");
     expect(payload.iss).toBe(INVALID_ISSUER);
   });
 
@@ -641,7 +639,7 @@ describe("/token endpoint valid client_assertion", () => {
       {
         iss: knownClientId,
         sub: knownClientId,
-        aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+        aud: audience,
         jti: randomUUID(),
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 3600,
@@ -675,7 +673,7 @@ describe("/token endpoint valid client_assertion", () => {
       {
         iss: knownClientId,
         sub: knownClientId,
-        aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+        aud: audience,
         jti: randomUUID(),
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 3600,
@@ -723,7 +721,7 @@ describe("/token endpoint valid client_assertion", () => {
         {
           iss: knownClientId,
           sub: knownClientId,
-          aud: EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
+          aud: audience,
           jti: randomUUID(),
           iat: Math.floor(Date.now() / 1000),
           exp: Math.floor(Date.now() / 1000) + 3600,
@@ -770,8 +768,10 @@ describe("/token endpoint valid client_assertion", () => {
         kid: expectedKeyId,
       });
       expect(decodedIdToken.sub).toBe(knownSub);
-      expect(decodedIdToken.iss).toBe(ISSUER_VALUE);
-      expect(decodedIdToken.vtm).toBe(TRUSTMARK_URL);
+      expect(decodedIdToken.iss).toBe("http://host.docker.internal:3000/");
+      expect(decodedIdToken.vtm).toBe(
+        "http://host.docker.internal:3000/trustmark"
+      );
       expect(decodedIdToken.aud).toBe(knownClientId);
       expect(decodedIdToken.sid).toBe(SESSION_ID);
       expect(decodedIdToken.nonce).toBe(validAuthRequestParams.nonce);

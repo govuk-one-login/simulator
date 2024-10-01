@@ -22,6 +22,8 @@ export class Config {
   private authCodeRequestParamsStore: Record<string, AuthRequestParameters>;
   private accessTokenStore: AccessTokenStore;
 
+  private simulatorUrl: string;
+
   private constructor() {
     const defaultPublicKey = `-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmXXR3EsRvUMVhEJMtQ1w
@@ -77,6 +79,9 @@ CQIDAQAB
 
     this.authCodeRequestParamsStore = {};
     this.accessTokenStore = {};
+
+    this.simulatorUrl =
+      process.env.SIMULATOR_URL ?? "http://host.docker.internal:3000";
   }
 
   public static getInstance(): Config {
@@ -252,5 +257,25 @@ CQIDAQAB
 
   public setAuthoriseErrors(authoriseErrors: AuthoriseError[]): void {
     this.errorConfiguration.authoriseErrors = authoriseErrors;
+  }
+
+  public getSimulatorUrl(): string {
+    return this.simulatorUrl;
+  }
+
+  public setSimulatorUrl(simulatorUrl: string): void {
+    this.simulatorUrl = simulatorUrl;
+  }
+
+  public getIssuerValue(): string {
+    return `${this.simulatorUrl}/`;
+  }
+
+  public getExpectedPrivateKeyJwtAudience(): string {
+    return `${this.simulatorUrl}/token`;
+  }
+
+  public getTrustmarkUrl(): string {
+    return `${this.simulatorUrl}/trustmark`;
   }
 }

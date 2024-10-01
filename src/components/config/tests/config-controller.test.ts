@@ -15,6 +15,7 @@ const TEST_EMAIL = "email@example.com";
 const TEST_EMAIL_VERIFIED = false;
 const TEST_PHONE_NUMBER = "07777777777";
 const TEST_PHONE_NUMBER_VERIFIED = false;
+const TEST_SIMULATOR_URL = "https://test-url";
 
 describe("Integration: Config POST", () => {
   afterEach(() => {
@@ -48,6 +49,7 @@ describe("Integration: Config POST", () => {
           idTokenErrors: ["INVALID_ISS"],
           authoriseErrors: ["ACCESS_DENIED"],
         },
+        simulatorUrl: TEST_SIMULATOR_URL,
       });
     expect(response.status).toEqual(200);
 
@@ -75,6 +77,7 @@ describe("Integration: Config POST", () => {
     ]);
     expect(config.getIdTokenErrors()).toStrictEqual(["INVALID_ISS"]);
     expect(config.getAuthoriseErrors()).toStrictEqual(["ACCESS_DENIED"]);
+    expect(config.getSimulatorUrl()).toStrictEqual(TEST_SIMULATOR_URL);
   });
 
   test("If a config value is not included, the default value stands", async () => {
@@ -117,6 +120,9 @@ describe("Integration: Config POST", () => {
     expect(config.getIdTokenErrors()).toStrictEqual([]);
     expect(config.getCoreIdentityErrors()).toStrictEqual([]);
     expect(config.getAuthoriseErrors()).toStrictEqual([]);
+    expect(config.getSimulatorUrl()).toStrictEqual(
+      "http://host.docker.internal:3000"
+    );
   });
 
   test("If no error configuration is sent, the configured errors are removed", async () => {
