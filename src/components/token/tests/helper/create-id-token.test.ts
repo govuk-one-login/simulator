@@ -2,8 +2,8 @@ import { errors, importPKCS8, jwtVerify } from "jose";
 import { Config } from "../../../../config";
 import {
   ID_TOKEN_EXPIRY,
-  EC_KEY_ID,
-  RSA_KEY_ID,
+  EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
+  RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
   SESSION_ID,
   EC_PRIVATE_TOKEN_SIGNING_KEY,
   INVALID_ISSUER,
@@ -64,7 +64,7 @@ describe("createIdToken tests", () => {
     expect(tokenParts.length).toBe(3);
     expect(header).toStrictEqual({
       alg: "RS256",
-      kid: RSA_KEY_ID,
+      kid: RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
     });
     expect(payload).toStrictEqual({
       iat: Math.floor(testTimestampMs / 1000),
@@ -95,7 +95,7 @@ describe("createIdToken tests", () => {
     expect(tokenParts.length).toBe(3);
     expect(header).toStrictEqual({
       alg: "ES256",
-      kid: EC_KEY_ID,
+      kid: EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
     });
     expect(payload).toStrictEqual({
       iat: Math.floor(testTimestampMs / 1000),

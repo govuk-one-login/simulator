@@ -1,9 +1,9 @@
 import { exportJWK, importPKCS8, type JSONWebKeySet, JWK, KeyLike } from "jose";
 import { createPrivateKey, createPublicKey } from "node:crypto";
 import {
-  EC_KEY_ID,
+  EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
   EC_PRIVATE_TOKEN_SIGNING_KEY,
-  RSA_KEY_ID,
+  RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
   RSA_PRIVATE_TOKEN_SIGNING_KEY,
 } from "../../../constants";
 import { Buffer } from "node:buffer";
@@ -20,21 +20,21 @@ export const getTokenSigningKey = (
 
 export const getKeyId = (tokenSigningAlgorithm: string): string => {
   if (tokenSigningAlgorithm === "ES256") {
-    return EC_KEY_ID;
+    return EC_PRIVATE_TOKEN_SIGNING_KEY_ID;
   } else {
-    return RSA_KEY_ID;
+    return RSA_PRIVATE_TOKEN_SIGNING_KEY_ID;
   }
 };
 
 export const generateJWKS = async (): Promise<JSONWebKeySet> => {
   const ecPubJwk = await publicJwkFromPrivateKey(
     EC_PRIVATE_TOKEN_SIGNING_KEY,
-    EC_KEY_ID
+    EC_PRIVATE_TOKEN_SIGNING_KEY_ID
   );
 
   const rsPubJwk = await publicJwkFromPrivateKey(
     RSA_PRIVATE_TOKEN_SIGNING_KEY,
-    RSA_KEY_ID
+    RSA_PRIVATE_TOKEN_SIGNING_KEY_ID
   );
   return {
     keys: [ecPubJwk, rsPubJwk],

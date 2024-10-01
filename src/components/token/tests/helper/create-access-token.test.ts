@@ -5,8 +5,8 @@ jest.mock("crypto", () => ({
 import { Config } from "../../../../config";
 import {
   ACCESS_TOKEN_EXPIRY,
-  EC_KEY_ID,
-  RSA_KEY_ID,
+  EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
+  RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
   SESSION_ID,
   VALID_CLAIMS,
 } from "../../../../constants";
@@ -44,11 +44,11 @@ describe("createAccessToken tests", () => {
   }>([
     {
       tokenSigningAlgorithm: "RS256",
-      expectedKeyId: RSA_KEY_ID,
+      expectedKeyId: RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
     },
     {
       tokenSigningAlgorithm: "ES256",
-      expectedKeyId: EC_KEY_ID,
+      expectedKeyId: EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
     },
   ])(
     "returns a signed jwt using $tokenSigningAlgorithm",
