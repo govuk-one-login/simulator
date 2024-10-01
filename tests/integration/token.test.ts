@@ -17,7 +17,6 @@ import {
   EC_PRIVATE_TOKEN_SIGNING_KEY,
   EXPECTED_PRIVATE_KEY_JWT_AUDIENCE,
   INVALID_ISSUER,
-  ISSUER_VALUE,
   RSA_KEY_ID,
   SESSION_ID,
   TRUSTMARK_URL,
@@ -607,7 +606,7 @@ describe("/token endpoint, configured error responses", () => {
     const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
     const { id_token } = response.body;
     const payload = decodeTokenPart(id_token.split(".")[1]);
-    expect(payload.iss).not.toBe(ISSUER_VALUE);
+    expect(payload.iss).not.toBe("http://host.docker.internal:3000/");
     expect(payload.iss).toBe(INVALID_ISSUER);
   });
 
@@ -770,8 +769,8 @@ describe("/token endpoint valid client_assertion", () => {
         kid: expectedKeyId,
       });
       expect(decodedIdToken.sub).toBe(knownSub);
-      expect(decodedIdToken.iss).toBe(ISSUER_VALUE);
       expect(decodedIdToken.vtm).toBe(TRUSTMARK_URL);
+      expect(decodedIdToken.iss).toBe("http://host.docker.internal:3000/");
       expect(decodedIdToken.aud).toBe(knownClientId);
       expect(decodedIdToken.sid).toBe(SESSION_ID);
       expect(decodedIdToken.nonce).toBe(validAuthRequestParams.nonce);

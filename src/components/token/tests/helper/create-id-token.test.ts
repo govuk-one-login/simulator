@@ -3,7 +3,6 @@ import { Config } from "../../../../config";
 import {
   ID_TOKEN_EXPIRY,
   EC_KEY_ID,
-  ISSUER_VALUE,
   RSA_KEY_ID,
   TRUSTMARK_URL,
   SESSION_ID,
@@ -71,7 +70,7 @@ describe("createIdToken tests", () => {
     expect(payload).toStrictEqual({
       iat: Math.floor(testTimestampMs / 1000),
       exp: Math.floor(testTimestampMs / 1000) + ID_TOKEN_EXPIRY,
-      iss: ISSUER_VALUE,
+      iss: "http://host.docker.internal:3000/",
       aud: testClientId,
       sub: testSubClaim,
       sid: SESSION_ID,
@@ -102,7 +101,7 @@ describe("createIdToken tests", () => {
     expect(payload).toStrictEqual({
       iat: Math.floor(testTimestampMs / 1000),
       exp: Math.floor(testTimestampMs / 1000) + ID_TOKEN_EXPIRY,
-      iss: ISSUER_VALUE,
+      iss: "http://host.docker.internal:3000/",
       aud: testClientId,
       sub: testSubClaim,
       sid: SESSION_ID,
@@ -208,7 +207,7 @@ describe("createIdToken tests", () => {
     const idToken = await createIdToken(mockAuthRequestParams, testAccessToken);
 
     const payload = decodeTokenPart(idToken.split(".")[1]);
-    expect(payload.iss).not.toEqual(ISSUER_VALUE);
+    expect(payload.iss).not.toEqual("http://host.docker.internal:3000/");
     expect(payload.iss).toBe(INVALID_ISSUER);
   });
 

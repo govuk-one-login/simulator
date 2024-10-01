@@ -1,8 +1,8 @@
 import { createLocalJWKSet, jwtVerify } from "jose";
 import { logger } from "../logger";
 import type { JWTPayload } from "jose/dist/types/types";
-import { ISSUER_VALUE } from "../constants";
 import { generateJWKS } from "../components/token/helper/key-helpers";
+import { Config } from "../config";
 
 export const signedJwtValidator = async <PayloadType = JWTPayload>(
   token: string
@@ -15,8 +15,9 @@ export const signedJwtValidator = async <PayloadType = JWTPayload>(
 > => {
   try {
     const jwks = createLocalJWKSet(await generateJWKS());
+    const config = Config.getInstance();
     const { payload } = await jwtVerify<PayloadType>(token, jwks, {
-      issuer: ISSUER_VALUE,
+      issuer: config.getIssuerValue(),
     });
 
     return {

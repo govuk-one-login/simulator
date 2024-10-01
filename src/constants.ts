@@ -29,7 +29,6 @@ export const VALID_OIDC_RESPONSE_TYPES = ["token", "code", "id_token"];
 
 export const SUPPORTED_UI_LOCALES = ["en", "cy", "cy-AR"];
 
-export const ISSUER_VALUE = "https://oidc.account.gov.uk";
 export const EXPECTED_PRIVATE_KEY_JWT_AUDIENCE =
   "https://oidc.account.gov.uk/token";
 export const TRUSTMARK_URL = "https://oidc.account.gov.uk/trustmark";

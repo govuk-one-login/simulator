@@ -1,9 +1,6 @@
 import { importPKCS8, SignJWT } from "jose";
 import { Config } from "../../src/config";
-import {
-  EC_PRIVATE_TOKEN_SIGNING_KEY,
-  ISSUER_VALUE,
-} from "../../src/constants";
+import { EC_PRIVATE_TOKEN_SIGNING_KEY } from "../../src/constants";
 import { createApp } from "../../src/app";
 import request from "supertest";
 import { UserInfo } from "../../src/types/user-info";
@@ -16,6 +13,7 @@ const INVALID_EC_PRIVATE_TOKEN_SIGNING_KEY =
   "-----BEGIN PRIVATE KEY-----MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgnEpemWfQ6m2Fxo6ENP13NkocvvrAKHc/IWbC+jSOc/uhRANCAARcsKXyN+lhvtj4KzR1QNYqHE2OWFK8W3dap/x1mO/OYN6D6f9KWLXy6+Nrnp11SB5Qj9IMUWPQUBolJLSaxhBI-----END PRIVATE KEY-----";
 const AUTHORIZATION_HEADER_KEY: string = "authorization";
 const AUTHENTICATE_HEADER_KEY: string = "www-authenticate";
+const ISSUER_VALUE = "http://host.docker.internal:3000/";
 
 describe("/userinfo endpoint tests, invalid request", () => {
   it("returns an error for missing header", async () => {
@@ -82,8 +80,9 @@ describe("/userinfo endpoint tests, invalid request", () => {
   it("returns an invalid_scope error for unexpected scope", async () => {
     await setupClientConfig(KNOWN_CLIENT_ID, ["openid", "email"]);
     const app = createApp();
+    const config = Config.getInstance();
     const accessToken = await createAccessToken(
-      ISSUER_VALUE,
+      config.getIssuerValue(),
       KNOWN_CLIENT_ID,
       ["openid", "phone"],
       EC_PRIVATE_TOKEN_SIGNING_KEY

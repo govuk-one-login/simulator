@@ -3,7 +3,6 @@ import { Config } from "../../../config";
 import {
   ID_TOKEN_EXPIRY,
   INVALID_ISSUER,
-  ISSUER_VALUE,
   ONE_DAY_IN_SECONDS,
   SESSION_ID,
   TRUSTMARK_URL,
@@ -70,7 +69,9 @@ const createIdTokenClaimSet = (
     aud: idTokenErrors.includes("INVALID_AUD")
       ? randomBytes(32).toString()
       : config.getClientId(),
-    iss: idTokenErrors.includes("INVALID_ISS") ? INVALID_ISSUER : ISSUER_VALUE,
+    iss: idTokenErrors.includes("INVALID_ISS")
+      ? INVALID_ISSUER
+      : config.getIssuerValue(),
     sid: SESSION_ID,
     vot,
     nonce: idTokenErrors.includes("NONCE_NOT_MATCHING")
