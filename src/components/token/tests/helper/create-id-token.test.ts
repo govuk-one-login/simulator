@@ -4,7 +4,6 @@ import {
   ID_TOKEN_EXPIRY,
   EC_KEY_ID,
   RSA_KEY_ID,
-  TRUSTMARK_URL,
   SESSION_ID,
   EC_PRIVATE_TOKEN_SIGNING_KEY,
   INVALID_ISSUER,
@@ -75,7 +74,7 @@ describe("createIdToken tests", () => {
       sub: testSubClaim,
       sid: SESSION_ID,
       at_hash: "oB7bgQoIL9clDcgMdS4Ydg",
-      vtm: TRUSTMARK_URL,
+      vtm: "http://host.docker.internal:3000/trustmark",
       vot: "Cl.Cm",
       nonce: mockAuthRequestParams.nonce,
     });
@@ -106,7 +105,7 @@ describe("createIdToken tests", () => {
       sub: testSubClaim,
       sid: SESSION_ID,
       at_hash: "oB7bgQoIL9clDcgMdS4Ydg",
-      vtm: TRUSTMARK_URL,
+      vtm: "http://host.docker.internal:3000/trustmark",
       vot: mockAuthRequestParams.vtr.credentialTrust,
       nonce: mockAuthRequestParams.nonce,
     });

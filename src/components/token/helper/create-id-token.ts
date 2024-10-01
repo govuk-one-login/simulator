@@ -5,7 +5,6 @@ import {
   INVALID_ISSUER,
   ONE_DAY_IN_SECONDS,
   SESSION_ID,
-  TRUSTMARK_URL,
 } from "../../../constants";
 import { logger } from "../../../logger";
 import AuthRequestParameters from "src/types/auth-request-parameters";
@@ -77,7 +76,7 @@ const createIdTokenClaimSet = (
     nonce: idTokenErrors.includes("NONCE_NOT_MATCHING")
       ? randomBytes(32).toString()
       : authRequestParams.nonce,
-    vtm: TRUSTMARK_URL,
+    vtm: config.getTrustmarkUrl(),
   };
 };
 

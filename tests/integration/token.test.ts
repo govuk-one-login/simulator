@@ -19,7 +19,6 @@ import {
   INVALID_ISSUER,
   RSA_KEY_ID,
   SESSION_ID,
-  TRUSTMARK_URL,
   VALID_CLAIMS,
 } from "../../src/constants";
 
@@ -769,8 +768,10 @@ describe("/token endpoint valid client_assertion", () => {
         kid: expectedKeyId,
       });
       expect(decodedIdToken.sub).toBe(knownSub);
-      expect(decodedIdToken.vtm).toBe(TRUSTMARK_URL);
       expect(decodedIdToken.iss).toBe("http://host.docker.internal:3000/");
+      expect(decodedIdToken.vtm).toBe(
+        "http://host.docker.internal:3000/trustmark"
+      );
       expect(decodedIdToken.aud).toBe(knownClientId);
       expect(decodedIdToken.sid).toBe(SESSION_ID);
       expect(decodedIdToken.nonce).toBe(validAuthRequestParams.nonce);
