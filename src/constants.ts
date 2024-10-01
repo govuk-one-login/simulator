@@ -50,6 +50,12 @@ export const EC_PRIVATE_TOKEN_SIGNING_KEY =
 export const EC_PRIVATE_TOKEN_SIGNING_KEY_ID =
   "b9162667-e025-4d93-8c5b-e538e6c792ac";
 
+//This is not a secret, this is the simulator's provider key used to sign Core /
+export const EC_PRIVATE_IDENTITY_SIGNING_KEY =
+  "-----BEGIN PRIVATE KEY-----MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgnBxb1WWoNKtXS/pnnRph4glqBn/hTPFc2c1F7GZZhhahRANCAAR2AfemUlLT0eo678AxK4eGWxpkk99fi5pV+i2udqcGyVRhqBBwUNfsjrH03d8zGuA5y0yae15ijY1Zg7ePAnME-----END PRIVATE KEY-----";
+export const EC_PRIVATE_IDENTITY_SIGNING_KEY_ID =
+  "1f1caabb-b0bb-45b2-93ee-f47bf098dc1d";
+
 export const CORE_IDENTITY_ERRORS = [
   "INVALID_ALG_HEADER",
   "INVALID_SIGNATURE",

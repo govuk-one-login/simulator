@@ -4,11 +4,12 @@ import { signedJwtValidator } from "./signed-jwt-validator";
 import { Config } from "../config";
 import { logger } from "../logger";
 import { VALID_SCOPES } from "../constants";
+import { UserIdentityClaim } from "../types/user-info";
 
 export const userInfoRequestValidator = async (
   userInfoRequestHeaders: IncomingHttpHeaders
 ): Promise<
-  | { valid: true }
+  | { valid: true; claims: UserIdentityClaim[] }
   | {
       valid: false;
       error: UserInfoRequestError;
@@ -37,8 +38,10 @@ export const userInfoRequestValidator = async (
   const config = Config.getInstance();
   const config_client_id = config.getClientId();
   const config_scopes = config.getScopes();
+  const config_identity_supported = config.getIdentityVerificationSupported();
+  const config_claims = config.getClaims();
 
-  const { client_id, scope } = jwtResult.payload;
+  const { client_id, scope, claims } = jwtResult.payload;
 
   if (!client_id || client_id != config_client_id) {
     logger.warn(
@@ -68,5 +71,20 @@ export const userInfoRequestValidator = async (
     return { valid: false, error: UserInfoRequestError.INVALID_TOKEN };
   }
 
-  return { valid: true };
+  if (!config_identity_supported) {
+    return { valid: true, claims: [] };
+  }
+
+  if (
+    !Array.isArray(claims) ||
+    !claims.every((s) => typeof s == "string") ||
+    claims.some((s) => !config_claims.includes(s as UserIdentityClaim))
+  ) {
+    logger.warn(
+      `Identity claims "${claims}" don't match expected values "${config_identity_supported}".`
+    );
+    return { valid: false, error: UserInfoRequestError.INVALID_REQUEST };
+  }
+
+  return { valid: true, claims: claims as UserIdentityClaim[] };
 };

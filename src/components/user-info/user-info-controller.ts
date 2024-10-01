@@ -1,8 +1,18 @@
 import { Request, Response } from "express";
-import { UserInfo } from "../../types/user-info";
+import {
+  UserIdentity,
+  UserIdentityClaim,
+  UserInfo,
+} from "../../types/user-info";
 import { userInfoRequestValidator } from "../../validators/user-info-request-validator";
 import { Config } from "../../config";
 import { UserInfoRequestError } from "../../errors/user-info-request-error";
+import { importPKCS8, JWTPayload, SignJWT } from "jose";
+import {
+  EC_PRIVATE_IDENTITY_SIGNING_KEY,
+  EC_PRIVATE_IDENTITY_SIGNING_KEY_ID,
+} from "../../constants";
+import { randomUUID } from "crypto";
 
 const AuthenticateHeaderKey: string = "www-authenticate";
 
@@ -32,6 +42,89 @@ export const userInfoController = async (
     phone_number_verified: config.getPhoneNumberVerified(),
   };
 
+  const claims = validationResult.claims;
+  tryAddClaim(
+    userInfo,
+    claims,
+    "https://vocab.account.gov.uk/v1/drivingPermit",
+    config.getDrivingPermitDetails()
+  );
+  tryAddClaim(
+    userInfo,
+    claims,
+    "https://vocab.account.gov.uk/v1/passport",
+    config.getPassportDetails()
+  );
+  tryAddClaim(
+    userInfo,
+    claims,
+    "https://vocab.account.gov.uk/v1/socialSecurityRecord",
+    config.getSocialSecurityRecordDetails()
+  );
+  tryAddClaim(
+    userInfo,
+    claims,
+    "https://vocab.account.gov.uk/v1/address",
+    config.getPostalAddressDetails()
+  );
+  tryAddClaim(
+    userInfo,
+    claims,
+    "https://vocab.account.gov.uk/v1/returnCode",
+    config.getReturnCodes()
+  );
+  await tryAddCoreIdentityJwt(userInfo, claims, config);
+
   res.status(200);
   res.send(userInfo);
+};
+
+const tryAddClaim = (
+  userInfo: UserIdentity,
+  requestedClaims: UserIdentityClaim[],
+  claim: UserIdentityClaim,
+  claimData: any
+): void => {
+  if (requestedClaims.includes(claim)) {
+    if (!claimData) {
+      return;
+    }
+
+    userInfo[claim] = claimData;
+  }
+};
+
+const tryAddCoreIdentityJwt = async (
+  userInfo: UserInfo,
+  requestedClaims: UserIdentityClaim[],
+  config: Config
+): Promise<void> => {
+  const claim: UserIdentityClaim =
+    "https://vocab.account.gov.uk/v1/coreIdentityJWT";
+  const vc = config.getVerifiableIdentityCredentials();
+
+  if (vc && requestedClaims.includes(claim)) {
+    const now = Math.floor(Date.now() / 1000);
+    const expiryOffsetSeconds = 24 * 60 * 60;
+    const coreIdentity = {
+      vot: config.getMaxLoCAchieved(),
+      vc: vc,
+      vtm: config.getTrustmarkUrl(),
+      iss: config.getIssuerValue(),
+      sub: config.getSub(),
+      nbf: now,
+      exp: now + expiryOffsetSeconds,
+      aud: config.getClientId(),
+      iat: now,
+      jti: randomUUID(),
+    };
+
+    const signingKey = await importPKCS8(EC_PRIVATE_IDENTITY_SIGNING_KEY, "EC");
+    userInfo[claim] = await new SignJWT(coreIdentity as JWTPayload)
+      .setProtectedHeader({
+        kid: EC_PRIVATE_IDENTITY_SIGNING_KEY_ID,
+        alg: "ES256",
+      })
+      .sign(signingKey);
+  }
 };
