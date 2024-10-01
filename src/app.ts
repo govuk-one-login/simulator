@@ -6,6 +6,8 @@ import { authoriseGetController } from "./components/authorise/authorise-get-con
 import { dedupeQueryParams } from "./middleware/dedupe-query-params";
 import { userInfoController } from "./components/user-info/user-info-controller";
 import { generateJWKS } from "./components/token/helper/key-helpers";
+import { openidConfigurationController } from "./components/openid-configuration/openid-configuration-controller";
+import { trustmarkController } from "./components/trustmark/trustmark-controller";
 
 const createApp = (): Application => {
   const app: Express = express();
@@ -23,7 +25,9 @@ const createApp = (): Application => {
   app.post("/config", configController);
   app.post("/token", tokenController);
   app.get("/userinfo", userInfoController);
-  app.get("/.well-known/jwks.json", async (req: Request, res: Response) => {
+  app.get("/trustmark", trustmarkController);
+  app.get("/.well-known/openid-configuration", openidConfigurationController);
+  app.get("/.well-known/jwks.json", async (_req: Request, res: Response) => {
     res.header("Content-Type", "application/json");
     res.send(JSON.stringify(await generateJWKS()));
   });
