@@ -20,15 +20,13 @@ import {
   SESSION_ID,
   VALID_CLAIMS,
 } from "../../src/constants";
+import { decodeJwtNoVerify } from "./helper/decode-jwt-no-verify";
 
 const TOKEN_ENDPOINT = "/token";
 
 const ecKeyPair = generateKeyPairSync("ec", {
   namedCurve: "P-256",
 });
-
-const decodeTokenPart = (part: string): Record<string, string> =>
-  JSON.parse(Buffer.from(part, "base64url").toString());
 
 const rsaKeyPair = generateKeyPairSync("rsa", {
   modulusLength: 2048,
@@ -521,8 +519,8 @@ describe("/token endpoint, configured error responses", () => {
     const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
     expect(response.status).toBe(200);
     const { id_token } = response.body;
-    const header = decodeTokenPart(id_token.split(".")[0]);
-    expect(header).toStrictEqual({
+    const { protectedHeader } = decodeJwtNoVerify(id_token);
+    expect(protectedHeader).toStrictEqual({
       alg: "HS256",
     });
   });
@@ -551,7 +549,7 @@ describe("/token endpoint, configured error responses", () => {
     const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
     const { id_token } = response.body;
-    const payload = decodeTokenPart(id_token.split(".")[1]);
+    const { payload } = decodeJwtNoVerify(id_token);
     expect(payload.vot).not.toEqual(validAuthRequestParams.vtr.credentialTrust);
     expect(payload.vot).toBe("Cl");
   });
@@ -565,7 +563,7 @@ describe("/token endpoint, configured error responses", () => {
     const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
     const { id_token } = response.body;
-    const payload = decodeTokenPart(id_token.split(".")[1]);
+    const { payload } = decodeJwtNoVerify(id_token);
     expect(payload.iat).toBeGreaterThan(Date.now() / 1000);
   });
 
@@ -578,7 +576,7 @@ describe("/token endpoint, configured error responses", () => {
     const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
     const { id_token } = response.body;
-    const payload = decodeTokenPart(id_token.split(".")[1]);
+    const { payload } = decodeJwtNoVerify(id_token);
     expect(payload.iat).toBeLessThan(Date.now() / 1000);
   });
 
@@ -591,7 +589,7 @@ describe("/token endpoint, configured error responses", () => {
     const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
     const { id_token } = response.body;
-    const payload = decodeTokenPart(id_token.split(".")[1]);
+    const { payload } = decodeJwtNoVerify(id_token);
     expect(payload.aud).not.toBe(knownClientId);
   });
 
@@ -604,7 +602,7 @@ describe("/token endpoint, configured error responses", () => {
     const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
     const { id_token } = response.body;
-    const payload = decodeTokenPart(id_token.split(".")[1]);
+    const { payload } = decodeJwtNoVerify(id_token);
     expect(payload.iss).not.toBe("http://host.docker.internal:3000/");
     expect(payload.iss).toBe(INVALID_ISSUER);
   });
@@ -618,7 +616,7 @@ describe("/token endpoint, configured error responses", () => {
     const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
     const { id_token } = response.body;
-    const payload = decodeTokenPart(id_token.split(".")[1]);
+    const { payload } = decodeJwtNoVerify(id_token);
     expect(payload.nonce).not.toBe(validAuthRequestParams.nonce);
   });
 });
@@ -743,39 +741,38 @@ describe("/token endpoint valid client_assertion", () => {
 
       const { access_token, expires_in, id_token, token_type } = response.body;
 
-      const [accessTokenHeader, accessTokenPayload] = access_token.split(".");
-      const [idTokenHeader, idTokenPayload] = id_token.split(".");
-
-      const decodedAccessToken = decodeTokenPart(accessTokenPayload);
-      const decodedIdToken = decodeTokenPart(idTokenPayload);
+      const decodedAccessToken = decodeJwtNoVerify(access_token);
+      const decodedIdToken = decodeJwtNoVerify(id_token);
 
       expect(expires_in).toEqual(3600);
       expect(token_type).toEqual("Bearer");
 
-      expect(decodeTokenPart(accessTokenHeader)).toStrictEqual({
+      expect(decodedAccessToken.protectedHeader).toStrictEqual({
         alg: tokenSigningAlgorithm,
         kid: expectedKeyId,
       });
-      expect(decodedAccessToken.sub).toBe(knownSub);
-      expect(decodedAccessToken.client_id).toBe(knownClientId);
-      expect(decodedAccessToken.sid).toBe(SESSION_ID);
-      expect(decodedAccessToken.scope).toStrictEqual(
+      expect(decodedAccessToken.payload.sub).toBe(knownSub);
+      expect(decodedAccessToken.payload.client_id).toBe(knownClientId);
+      expect(decodedAccessToken.payload.sid).toBe(SESSION_ID);
+      expect(decodedAccessToken.payload.scope).toStrictEqual(
         validAuthRequestParams.scopes
       );
-      expect(decodedAccessToken.claims).toEqual(VALID_CLAIMS);
-      expect(decodeTokenPart(idTokenHeader)).toStrictEqual({
+      expect(decodedAccessToken.payload.claims).toEqual(VALID_CLAIMS);
+      expect(decodedIdToken.protectedHeader).toStrictEqual({
         alg: tokenSigningAlgorithm,
         kid: expectedKeyId,
       });
-      expect(decodedIdToken.sub).toBe(knownSub);
-      expect(decodedIdToken.iss).toBe("http://host.docker.internal:3000/");
-      expect(decodedIdToken.vtm).toBe(
+      expect(decodedIdToken.payload.sub).toBe(knownSub);
+      expect(decodedIdToken.payload.iss).toBe(
+        "http://host.docker.internal:3000/"
+      );
+      expect(decodedIdToken.payload.vtm).toBe(
         "http://host.docker.internal:3000/trustmark"
       );
-      expect(decodedIdToken.aud).toBe(knownClientId);
-      expect(decodedIdToken.sid).toBe(SESSION_ID);
-      expect(decodedIdToken.nonce).toBe(validAuthRequestParams.nonce);
-      expect(decodedIdToken.vot).toBe(
+      expect(decodedIdToken.payload.aud).toBe(knownClientId);
+      expect(decodedIdToken.payload.sid).toBe(SESSION_ID);
+      expect(decodedIdToken.payload.nonce).toBe(validAuthRequestParams.nonce);
+      expect(decodedIdToken.payload.vot).toBe(
         validAuthRequestParams.vtr.credentialTrust
       );
     }
