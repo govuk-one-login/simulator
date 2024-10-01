@@ -12,7 +12,6 @@ import {
   JWTPayload,
 } from "jose";
 import { Config } from "../config";
-import { EXPECTED_PRIVATE_KEY_JWT_AUDIENCE } from "../constants";
 
 export const parseTokenRequest = async (
   tokenRequestBody: Record<string, string>,
@@ -116,17 +115,17 @@ export const parseTokenRequest = async (
   if (
     (typeof parsedClientAssertion.payload.aud === "string" &&
       parsedClientAssertion.payload.aud !==
-        EXPECTED_PRIVATE_KEY_JWT_AUDIENCE) ||
+        config.getExpectedPrivateKeyJwtAudience()) ||
     (Array.isArray(parsedClientAssertion.payload.aud) &&
       !parsedClientAssertion.payload.aud.includes(
-        EXPECTED_PRIVATE_KEY_JWT_AUDIENCE
+        config.getExpectedPrivateKeyJwtAudience()
       ))
   ) {
     //We need to error here to match the validation in the token handler
     //This matches the validation here https://github.com/govuk-one-login/authentication-api/blob/dc42596ab02184f80c30f327a7dcd0f76146e619/orchestration-shared/src/main/java/uk/gov/di/orchestration/shared/services/ClientSignatureValidationService.java#L103 where the audience is validated in the client signature
     // validation service
     logger.warn(
-      `Invalid audience in client JWT assertion: Expected: ${EXPECTED_PRIVATE_KEY_JWT_AUDIENCE}, Received: ${parsedClientAssertion.payload.aud}`
+      `Invalid audience in client JWT assertion: Expected: ${config.getExpectedPrivateKeyJwtAudience()}, Received: ${parsedClientAssertion.payload.aud}`
     );
 
     throw new TokenRequestError({
