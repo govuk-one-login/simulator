@@ -394,6 +394,35 @@ describe("/userinfo endpoint", () => {
       expect(response.body).toStrictEqual({});
     });
 
+    it("returns expected user info for valid token with null claims", async () => {
+      await setupClientConfig(KNOWN_CLIENT_ID, ["openid", "email", "phone"]);
+      const accessToken = await createAccessToken(
+        ISSUER_VALUE,
+        KNOWN_CLIENT_ID,
+        ["openid", "email", "phone"],
+        EC_PRIVATE_TOKEN_SIGNING_KEY,
+        undefined,
+        null
+      );
+      addAccessTokenToStore(KNOWN_CLIENT_ID, KNOWN_SUB_CLAIM, accessToken);
+      const app = createApp();
+      const response = await request(app)
+        .get(USER_INFO_ENDPOINT)
+        .set(AUTHORIZATION_HEADER_KEY, `Bearer ${accessToken}`);
+
+      const expectedUserInfo: UserInfo = {
+        email: "test@example.com",
+        email_verified: true,
+        phone_number: "07123456789",
+        phone_number_verified: true,
+        sub: KNOWN_SUB_CLAIM,
+      };
+
+      expect(response.status).toBe(200);
+      expect(response.header[AUTHENTICATE_HEADER_KEY]).toBeUndefined();
+      expect(response.body).toStrictEqual(expectedUserInfo);
+    });
+
     it("returns expected user info for valid token with supported claims", async () => {
       await setupClientConfig(
         KNOWN_CLIENT_ID,
@@ -488,7 +517,7 @@ async function createAccessToken(
   scopes: string[],
   privateKey: string,
   expiry?: Date,
-  claims?: UserIdentityClaim[]
+  claims?: UserIdentityClaim[] | null
 ): Promise<string> {
   let signedJwtBuilder = new SignJWT({
     client_id: clientId,

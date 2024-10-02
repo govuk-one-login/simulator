@@ -71,7 +71,12 @@ export const userInfoRequestValidator = async (
     return { valid: false, error: UserInfoRequestError.INVALID_TOKEN };
   }
 
-  if (!config_identity_supported) {
+  const claimsPresent = claims != null;
+  if (!claimsPresent) {
+    logger.info("No identity claims in AccessToken");
+  }
+
+  if (!config_identity_supported || !claimsPresent) {
     return { valid: true, claims: [] };
   }
 
