@@ -13,6 +13,7 @@ import {
   EC_PRIVATE_IDENTITY_SIGNING_KEY_ID,
 } from "../../constants";
 import { randomUUID } from "crypto";
+import { logger } from "../../logger";
 
 const AuthenticateHeaderKey: string = "www-authenticate";
 
@@ -23,6 +24,9 @@ export const userInfoController = async (
   const validationResult = await userInfoRequestValidator(req.headers);
 
   if (!validationResult.valid) {
+    logger.error(
+      `Access token failed validation with error: "${validationResult.error.error_code}".`
+    );
     res.status(UserInfoRequestError.HTTP_STATUS_CODE);
     res.header(
       AuthenticateHeaderKey,
@@ -31,6 +35,8 @@ export const userInfoController = async (
     res.send();
     return;
   }
+
+  logger.info("Successfully validated access token.");
 
   const config = Config.getInstance();
 
@@ -87,6 +93,9 @@ const tryAddClaim = (
 ): void => {
   if (requestedClaims.includes(claim)) {
     if (!claimData) {
+      logger.warn(
+        `Claim "${claim}" present in access token but not configured - ignored.`
+      );
       return;
     }
 
@@ -103,7 +112,14 @@ const tryAddCoreIdentityJwt = async (
     "https://vocab.account.gov.uk/v1/coreIdentityJWT";
   const vc = config.getVerifiableIdentityCredentials();
 
-  if (vc && requestedClaims.includes(claim)) {
+  if (requestedClaims.includes(claim)) {
+    if (!vc) {
+      logger.warn(
+        `Claim "${claim}" present in access token but vc not configured - ignored.`
+      );
+      return;
+    }
+
     const now = Math.floor(Date.now() / 1000);
     const expiryOffsetSeconds = 24 * 60 * 60;
     const coreIdentity = {

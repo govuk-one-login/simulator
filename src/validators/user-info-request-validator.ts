@@ -67,18 +67,21 @@ export const userInfoRequestValidator = async (
   );
 
   if (!accessTokensForClient?.includes(accessToken)) {
-    logger.warn("Access token not found in access token store");
+    logger.warn("Access token not found in access token store.");
     return { valid: false, error: UserInfoRequestError.INVALID_TOKEN };
   }
 
-  const claimsPresent = claims != null;
-  if (!claimsPresent) {
-    logger.info("No identity claims in AccessToken");
-  }
-
-  if (!config_identity_supported || !claimsPresent) {
+  if (!config_identity_supported) {
+    logger.info("Identity not supported - ignoring claims.");
     return { valid: true, claims: [] };
   }
+
+  if (claims == null || (Array.isArray(claims) && claims.length == 0)) {
+    logger.info("No identity claims in access token.");
+    return { valid: true, claims: [] };
+  }
+
+  logger.info("Identity claims present in access token.");
 
   if (
     !Array.isArray(claims) ||
