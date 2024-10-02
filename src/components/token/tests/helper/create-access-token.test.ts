@@ -116,18 +116,4 @@ describe("createAccessToken tests", () => {
 
     expect(payload).not.toHaveProperty("claims");
   });
-
-  // TODO: ATO-1051: only the valid claims should be returned back, not all requested claims
-  it("contains all requested claims if level of confidence is not null", async () => {
-    const vtr: VectorOfTrust = {
-      credentialTrust: "Cl",
-      levelOfConfidence: "P0",
-    };
-    const accessToken = await createAccessToken(["openid"], vtr, VALID_CLAIMS);
-    const tokenParts = accessToken.split(".");
-
-    const payload = decodeTokenPart(tokenParts[1]);
-
-    expect(payload.claims).toStrictEqual(VALID_CLAIMS);
-  });
 });
