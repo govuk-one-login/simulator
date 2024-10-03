@@ -268,7 +268,17 @@ const parseClientAssertion = (
 
   if (
     !header.alg ||
-    !["RS256", "RS384", "RS512", "ES256", "ES384", "ES512"].includes(header.alg)
+    ![
+      "RS256",
+      "RS384",
+      "RS512",
+      "ES256",
+      "ES384",
+      "ES512",
+      "PS256",
+      "PS384",
+      "PS512",
+    ].includes(header.alg)
   ) {
     throw new ParseTokenRequestError(
       "Invalid client_assertion JWT: The client assertion JWT must be RSA or ECDSA-signed (RS256, RS384, RS512, PS256, PS384, PS512, ES256, ES384 or ES512)"

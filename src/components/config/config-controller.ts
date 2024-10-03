@@ -91,6 +91,7 @@ const populateErrorConfiguration = (
   if (!errorConfiguration) {
     config.setCoreIdentityErrors([]);
     config.setIdTokenErrors([]);
+    config.setAuthoriseErrors([]);
     return;
   }
 
