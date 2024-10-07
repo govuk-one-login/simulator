@@ -121,6 +121,7 @@ const tryAddCoreIdentityJwt = async (
 
     const now = Math.floor(Date.now() / 1000);
     const expiryOffsetSeconds = 24 * 60 * 60;
+    const config = Config.getInstance();
     const coreIdentity = {
       vot: config.getMaxLoCAchieved(),
       vc: vc,
@@ -136,7 +137,7 @@ const tryAddCoreIdentityJwt = async (
     const signingKey = await importPKCS8(EC_PRIVATE_IDENTITY_SIGNING_KEY, "EC");
     userInfo[claim] = await new SignJWT(coreIdentity as JWTPayload)
       .setProtectedHeader({
-        kid: EC_PRIVATE_IDENTITY_SIGNING_KEY_ID,
+        kid: `${config.getDidController()}#${EC_PRIVATE_IDENTITY_SIGNING_KEY_ID}`,
         alg: "ES256",
       })
       .sign(signingKey);

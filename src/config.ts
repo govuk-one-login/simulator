@@ -350,4 +350,8 @@ CQIDAQAB
   public getTrustmarkUrl(): string {
     return `${this.simulatorUrl}/trustmark`;
   }
+
+  public getDidController(): string {
+    return `did:web:${new URL(this.simulatorUrl).host.replace(":", encodeURIComponent(":"))}`;
+  }
 }
