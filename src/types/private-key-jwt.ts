@@ -1,7 +1,7 @@
-import { JWSHeaderParameters } from "jose";
+import { ProtectedHeaderParameters } from "jose";
 
 export type PrivateKeyJwt = {
-  header: JWSHeaderParameters;
+  header: ClientAssertionHeader;
   payload: ClientAssertionClaims;
   signature: string;
   clientId: string;
@@ -17,3 +17,7 @@ type ClientAssertionClaims = {
   jti?: string;
   iat?: number;
 };
+
+export interface ClientAssertionHeader extends ProtectedHeaderParameters {
+  alg: string;
+}
