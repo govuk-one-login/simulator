@@ -2,7 +2,7 @@ import { ParseTokenRequestError } from "../errors/parse-token-request-error";
 import { TokenRequestError } from "../errors/token-request-error";
 import { logger } from "../logger";
 import { TokenRequest } from "../types/token-request";
-import { PrivateKeyJwt } from "../types/private-key-jwt";
+import { ClientAssertionHeader, PrivateKeyJwt } from "../types/private-key-jwt";
 import {
   decodeJwt,
   decodeProtectedHeader,
@@ -21,7 +21,6 @@ export const parseTokenRequest = async (
   clientAssertion: PrivateKeyJwt;
 }> => {
   const clientPublicKey = config.getPublicKey();
-  const tokenSigningAlgorithm = config.getIdTokenSigningAlgorithm();
 
   if (!tokenRequestBody.grant_type) {
     logger.error("Token Request missing grant_type");
@@ -154,7 +153,7 @@ export const parseTokenRequest = async (
   if (
     !(await isSignatureValid(
       clientPublicKey,
-      tokenSigningAlgorithm,
+      parsedClientAssertion.header.alg,
       parsedClientAssertion.token
     ))
   ) {
@@ -292,7 +291,7 @@ const parseClientAssertion = (
   }
 
   return {
-    header,
+    header: header as ClientAssertionHeader,
     payload: {
       exp: payload.exp,
       sub: payload.sub,
