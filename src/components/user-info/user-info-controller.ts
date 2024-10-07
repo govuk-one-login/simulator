@@ -12,7 +12,6 @@ import {
   EC_PRIVATE_IDENTITY_SIGNING_KEY,
   EC_PRIVATE_IDENTITY_SIGNING_KEY_ID,
 } from "../../constants";
-import { randomUUID } from "crypto";
 import { logger } from "../../logger";
 
 const AuthenticateHeaderKey: string = "www-authenticate";
@@ -132,7 +131,6 @@ const tryAddCoreIdentityJwt = async (
       exp: now + expiryOffsetSeconds,
       aud: config.getClientId(),
       iat: now,
-      jti: randomUUID(),
     };
 
     const signingKey = await importPKCS8(EC_PRIVATE_IDENTITY_SIGNING_KEY, "EC");
