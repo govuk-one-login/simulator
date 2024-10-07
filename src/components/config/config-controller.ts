@@ -7,11 +7,18 @@ import { ErrorConfiguration } from "../../types/error-configuration";
 import { isCoreIdentityError } from "../../validators/core-identity-error";
 import { isIdTokenError } from "../../validators/id-token-error";
 import { isAuthoriseError } from "../../validators/authorise-errors";
+import { validationResult } from "express-validator";
 
 export const configController = (
   req: Request<ConfigRequest>,
   res: Response
 ): void => {
+  const validationFailures = validationResult(req);
+  if (!validationFailures.isEmpty()) {
+    res.status(400).send({ errors: validationFailures.mapped() });
+    return;
+  }
+
   if (req.body.clientConfiguration !== undefined) {
     populateClientConfiguration(req.body.clientConfiguration);
   }
@@ -80,6 +87,31 @@ const populateResponseConfiguration = (
   }
   if (responseConfiguration.phoneNumberVerified !== undefined) {
     config.setPhoneNumberVerified(responseConfiguration.phoneNumberVerified);
+  }
+  if (responseConfiguration.maxLoCAchieved !== undefined) {
+    config.setMaxLoCAchieved(responseConfiguration.maxLoCAchieved);
+  }
+  if (responseConfiguration.coreIdentityVerifiableCredentials !== undefined) {
+    config.setVerifiableIdentityCredentials(
+      responseConfiguration.coreIdentityVerifiableCredentials
+    );
+  }
+  if (responseConfiguration.passportDetails !== undefined) {
+    config.setPassportDetails(responseConfiguration.passportDetails);
+  }
+  if (responseConfiguration.drivingPermitDetails !== undefined) {
+    config.setDrivingPermitDetails(responseConfiguration.drivingPermitDetails);
+  }
+  if (responseConfiguration.socialSecurityRecordDetails !== undefined) {
+    config.setSocialSecurityRecordDetails(
+      responseConfiguration.socialSecurityRecordDetails
+    );
+  }
+  if (responseConfiguration.postalAddressDetails !== undefined) {
+    config.setPostalAddressDetails(responseConfiguration.postalAddressDetails);
+  }
+  if (responseConfiguration.returnCodes !== undefined) {
+    config.setReturnCodes(responseConfiguration.returnCodes);
   }
 };
 

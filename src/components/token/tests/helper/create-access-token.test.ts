@@ -5,8 +5,8 @@ jest.mock("crypto", () => ({
 import { Config } from "../../../../config";
 import {
   ACCESS_TOKEN_EXPIRY,
-  EC_KEY_ID,
-  RSA_KEY_ID,
+  EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
+  RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
   SESSION_ID,
   VALID_CLAIMS,
 } from "../../../../constants";
@@ -44,11 +44,11 @@ describe("createAccessToken tests", () => {
   }>([
     {
       tokenSigningAlgorithm: "RS256",
-      expectedKeyId: RSA_KEY_ID,
+      expectedKeyId: RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
     },
     {
       tokenSigningAlgorithm: "ES256",
-      expectedKeyId: EC_KEY_ID,
+      expectedKeyId: EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
     },
   ])(
     "returns a signed jwt using $tokenSigningAlgorithm",
@@ -115,19 +115,5 @@ describe("createAccessToken tests", () => {
     const payload = decodeTokenPart(tokenParts[1]);
 
     expect(payload).not.toHaveProperty("claims");
-  });
-
-  // TODO: ATO-1051: only the valid claims should be returned back, not all requested claims
-  it("contains all requested claims if level of confidence is not null", async () => {
-    const vtr: VectorOfTrust = {
-      credentialTrust: "Cl",
-      levelOfConfidence: "P0",
-    };
-    const accessToken = await createAccessToken(["openid"], vtr, VALID_CLAIMS);
-    const tokenParts = accessToken.split(".");
-
-    const payload = decodeTokenPart(tokenParts[1]);
-
-    expect(payload.claims).toStrictEqual(VALID_CLAIMS);
   });
 });

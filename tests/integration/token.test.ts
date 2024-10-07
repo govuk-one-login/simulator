@@ -13,10 +13,10 @@ import { generateKeyPairSync, randomBytes, randomUUID } from "crypto";
 import { Config } from "../../src/config";
 import AuthRequestParameters from "../../src/types/auth-request-parameters";
 import {
-  EC_KEY_ID,
+  EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
   EC_PRIVATE_TOKEN_SIGNING_KEY,
   INVALID_ISSUER,
-  RSA_KEY_ID,
+  RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
   SESSION_ID,
   VALID_CLAIMS,
 } from "../../src/constants";
@@ -703,11 +703,11 @@ describe("/token endpoint valid client_assertion", () => {
   }>([
     {
       tokenSigningAlgorithm: "RS256",
-      expectedKeyId: RSA_KEY_ID,
+      expectedKeyId: RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
     },
     {
       tokenSigningAlgorithm: "ES256",
-      expectedKeyId: EC_KEY_ID,
+      expectedKeyId: EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
     },
   ])(
     "returns a valid access_token and id_token for a valid token request with a $tokenSigningAlgorithm signed client assertion",

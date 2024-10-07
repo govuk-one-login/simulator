@@ -12,6 +12,8 @@ import { CoreIdentityError } from "./types/core-identity-error";
 import { IdTokenError } from "./types/id-token-error";
 import { isAuthoriseError } from "./validators/authorise-errors";
 import { AuthoriseError } from "./types/authorise-errors";
+import ReturnCode from "./types/return-code";
+import { UserIdentityClaim } from "./types/user-info";
 
 export class Config {
   private static instance: Config;
@@ -35,6 +37,7 @@ QD+tdKsrw7QDIYnx0IiXFnkGnizl3UtqSmXAaceTvPM2Pz84x2JiwHrp2Sml6RYL
 CQIDAQAB
 -----END PUBLIC KEY-----
 `;
+
     this.clientConfiguration = {
       clientId: process.env.CLIENT_ID ?? "HGIOgho9HIRhgoepdIOPFdIUWgewi0jw",
       publicKey: process.env.PUBLIC_KEY ?? defaultPublicKey,
@@ -45,7 +48,7 @@ CQIDAQAB
         ? process.env.REDIRECT_URLS.split(",")
         : ["http://localhost:8080/oidc/authorization-code/callback"],
       claims: process.env.CLAIMS
-        ? process.env.CLAIMS.split(",")
+        ? (process.env.CLAIMS.split(",") as UserIdentityClaim[])
         : ["https://vocab.account.gov.uk/v1/coreIdentityJWT"],
       identityVerificationSupported:
         process.env.IDENTITY_VERIFICATION_SUPPORTED !== "false",
@@ -62,8 +65,15 @@ CQIDAQAB
         "urn:fdc:gov.uk:2022:56P4CMsGh_02YOlWpd8PAOI-2sVlB2nsNU7mcLZYhYw=",
       email: process.env.EMAIL ?? "test@example.com",
       emailVerified: process.env.EMAIL_VERIFIED !== "false",
-      phoneNumber: process.env.PHONE_NUMBER || "07123456789",
+      phoneNumber: process.env.PHONE_NUMBER ?? "07123456789",
       phoneNumberVerified: process.env.PHONE_NUMBER_VERIFIED !== "false",
+      maxLoCAchieved: "P2",
+      coreIdentityVerifiableCredentials: null,
+      passportDetails: null,
+      drivingPermitDetails: null,
+      socialSecurityRecordDetails: null,
+      postalAddressDetails: null,
+      returnCodes: null,
     };
 
     this.errorConfiguration = {
@@ -96,7 +106,7 @@ CQIDAQAB
   }
 
   public getClientId(): string {
-    return this.clientConfiguration.clientId;
+    return this.clientConfiguration.clientId!;
   }
 
   public setClientId(clientId: string): void {
@@ -104,7 +114,7 @@ CQIDAQAB
   }
 
   public getPublicKey(): string {
-    return this.clientConfiguration.publicKey;
+    return this.clientConfiguration.publicKey!;
   }
 
   public setPublicKey(publicKey: string): void {
@@ -112,7 +122,7 @@ CQIDAQAB
   }
 
   public getScopes(): string[] {
-    return this.clientConfiguration.scopes;
+    return this.clientConfiguration.scopes!;
   }
 
   public setScopes(scopes: string[]): void {
@@ -120,23 +130,23 @@ CQIDAQAB
   }
 
   public getRedirectUrls(): string[] {
-    return this.clientConfiguration.redirectUrls;
+    return this.clientConfiguration.redirectUrls!;
   }
 
   public setRedirectUrls(redirectUrls: string[]): void {
     this.clientConfiguration.redirectUrls = redirectUrls;
   }
 
-  public getClaims(): string[] {
-    return this.clientConfiguration.claims;
+  public getClaims(): UserIdentityClaim[] {
+    return this.clientConfiguration.claims!;
   }
 
-  public setClaims(claims: string[]): void {
+  public setClaims(claims: UserIdentityClaim[]): void {
     this.clientConfiguration.claims = claims;
   }
 
   public getIdentityVerificationSupported(): boolean {
-    return this.clientConfiguration.identityVerificationSupported;
+    return this.clientConfiguration.identityVerificationSupported!;
   }
 
   public setIdentityVerificationSupported(
@@ -147,7 +157,7 @@ CQIDAQAB
   }
 
   public getIdTokenSigningAlgorithm(): string {
-    return this.clientConfiguration.idTokenSigningAlgorithm;
+    return this.clientConfiguration.idTokenSigningAlgorithm!;
   }
 
   public setIdTokenSigningAlgorithm(idTokenSigningAlgorithm: string): void {
@@ -155,7 +165,7 @@ CQIDAQAB
   }
 
   public getClientLoCs(): string[] {
-    return this.clientConfiguration.clientLoCs;
+    return this.clientConfiguration.clientLoCs!;
   }
 
   public setClientLoCs(clientLoCs: string[]): void {
@@ -163,7 +173,7 @@ CQIDAQAB
   }
 
   public getSub(): string {
-    return this.responseConfiguration.sub;
+    return this.responseConfiguration.sub!;
   }
 
   public setSub(sub: string): void {
@@ -171,7 +181,7 @@ CQIDAQAB
   }
 
   public getEmail(): string {
-    return this.responseConfiguration.email;
+    return this.responseConfiguration.email!;
   }
 
   public setEmail(email: string): void {
@@ -179,7 +189,7 @@ CQIDAQAB
   }
 
   public getEmailVerified(): boolean {
-    return this.responseConfiguration.emailVerified;
+    return this.responseConfiguration.emailVerified!;
   }
 
   public setEmailVerified(emailVerified: boolean): void {
@@ -187,7 +197,7 @@ CQIDAQAB
   }
 
   public getPhoneNumber(): string {
-    return this.responseConfiguration.phoneNumber;
+    return this.responseConfiguration.phoneNumber!;
   }
 
   public setPhoneNumber(phoneNumber: string): void {
@@ -195,11 +205,73 @@ CQIDAQAB
   }
 
   public getPhoneNumberVerified(): boolean {
-    return this.responseConfiguration.phoneNumberVerified;
+    return this.responseConfiguration.phoneNumberVerified!;
   }
 
   public setPhoneNumberVerified(phoneNumberVerified: boolean): void {
     this.responseConfiguration.phoneNumberVerified = phoneNumberVerified;
+  }
+
+  public getMaxLoCAchieved(): string {
+    return this.responseConfiguration.maxLoCAchieved!;
+  }
+
+  public setMaxLoCAchieved(maxLoCAchieved: string): void {
+    this.responseConfiguration.maxLoCAchieved = maxLoCAchieved;
+  }
+
+  public getVerifiableIdentityCredentials(): object | null {
+    return this.responseConfiguration.coreIdentityVerifiableCredentials!;
+  }
+
+  public setVerifiableIdentityCredentials(
+    coreIdentityVerifiableCredentials: object | null
+  ): void {
+    this.responseConfiguration.coreIdentityVerifiableCredentials =
+      coreIdentityVerifiableCredentials;
+  }
+
+  public getPassportDetails(): object[] | null {
+    return this.responseConfiguration.passportDetails!;
+  }
+
+  public setPassportDetails(passportDetails: object[] | null): void {
+    this.responseConfiguration.passportDetails = passportDetails;
+  }
+
+  public getDrivingPermitDetails(): object[] | null {
+    return this.responseConfiguration.drivingPermitDetails!;
+  }
+
+  public setDrivingPermitDetails(drivingPermitDetails: object[] | null): void {
+    this.responseConfiguration.drivingPermitDetails = drivingPermitDetails;
+  }
+
+  public getSocialSecurityRecordDetails(): object[] | null {
+    return this.responseConfiguration.socialSecurityRecordDetails!;
+  }
+
+  public setSocialSecurityRecordDetails(
+    socialSecurityRecordDetails: object[] | null
+  ): void {
+    this.responseConfiguration.socialSecurityRecordDetails =
+      socialSecurityRecordDetails;
+  }
+
+  public getPostalAddressDetails(): object[] | null {
+    return this.responseConfiguration.postalAddressDetails!;
+  }
+
+  public setPostalAddressDetails(postalAddressDetails: object[] | null): void {
+    this.responseConfiguration.postalAddressDetails = postalAddressDetails;
+  }
+
+  public getReturnCodes(): ReturnCode[] | null {
+    return this.responseConfiguration.returnCodes!;
+  }
+
+  public setReturnCodes(returnCodes: ReturnCode[] | null): void {
+    this.responseConfiguration.returnCodes = returnCodes;
   }
 
   public getAuthCodeRequestParams(
@@ -236,7 +308,7 @@ CQIDAQAB
   }
 
   public getCoreIdentityErrors(): CoreIdentityError[] {
-    return this.errorConfiguration.coreIdentityErrors;
+    return this.errorConfiguration.coreIdentityErrors!;
   }
 
   public setCoreIdentityErrors(coreIdentityErrors: CoreIdentityError[]): void {
@@ -244,7 +316,7 @@ CQIDAQAB
   }
 
   public getIdTokenErrors(): IdTokenError[] {
-    return this.errorConfiguration.idTokenErrors;
+    return this.errorConfiguration.idTokenErrors!;
   }
 
   public setIdTokenErrors(idTokenErrors: IdTokenError[]): void {
@@ -252,7 +324,7 @@ CQIDAQAB
   }
 
   public getAuthoriseErrors(): AuthoriseError[] {
-    return this.errorConfiguration.authoriseErrors;
+    return this.errorConfiguration.authoriseErrors!;
   }
 
   public setAuthoriseErrors(authoriseErrors: AuthoriseError[]): void {

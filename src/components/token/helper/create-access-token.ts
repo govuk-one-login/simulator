@@ -1,5 +1,9 @@
 import { randomUUID } from "crypto";
-import { ACCESS_TOKEN_EXPIRY, SESSION_ID } from "../../../constants";
+import {
+  ACCESS_TOKEN_EXPIRY,
+  NON_IDENTITY_LOC_VALUES,
+  SESSION_ID,
+} from "../../../constants";
 import { Config } from "../../../config";
 import { logger } from "../../../logger";
 import { signToken } from "./sign-token";
@@ -26,7 +30,12 @@ export const getClaimsRequest = (
   vtr: VectorOfTrust,
   claims?: string[] | null
 ): string[] | null => {
-  if (vtr.levelOfConfidence && claims) {
+  // Currently this is a deviation from the implementation in production.
+  // We include the claims for a P0 LoC but not for a null LoC.
+  // There is a ticket to changes this behavior in production.
+  // See: https://govukverify.atlassian.net/browse/ATO-1051
+  // TODO: Remove this comment when ATO-1051 is completed.
+  if (!NON_IDENTITY_LOC_VALUES.includes(vtr.levelOfConfidence) && claims) {
     return claims;
   }
   return null;
