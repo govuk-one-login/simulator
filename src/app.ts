@@ -9,6 +9,7 @@ import { openidConfigurationController } from "./components/openid-configuration
 import { trustmarkController } from "./components/trustmark/trustmark-controller";
 import { generateConfigRequestPropertyValidators } from "./types/config-request";
 import { body, checkExact } from "express-validator";
+import { didController } from "./components/did/did-controller";
 
 const createApp = (): Application => {
   const app: Express = express();
@@ -38,6 +39,7 @@ const createApp = (): Application => {
     res.header("Content-Type", "application/json");
     res.send(JSON.stringify(await generateJWKS()));
   });
+  app.get("/.well-known/did.json", didController);
 
   return app;
 };
