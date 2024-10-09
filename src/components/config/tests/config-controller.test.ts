@@ -123,9 +123,7 @@ describe("Integration: Config POST", () => {
     expect(config.getIdTokenErrors()).toStrictEqual([]);
     expect(config.getCoreIdentityErrors()).toStrictEqual([]);
     expect(config.getAuthoriseErrors()).toStrictEqual([]);
-    expect(config.getSimulatorUrl()).toStrictEqual(
-      "http://host.docker.internal:3000"
-    );
+    expect(config.getSimulatorUrl()).toStrictEqual("http://localhost:3000");
   });
 
   test("If no error configuration is sent, the configured errors are removed", async () => {

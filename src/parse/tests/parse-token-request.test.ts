@@ -26,7 +26,7 @@ const rsaKeyPair = generateKeyPairSync("rsa", {
 });
 const testTimestamp = 1723707024;
 const knownClientId = "b1a80190cf07983fca7e46375385a8ed";
-const audience = "http://host.docker.internal:3000/token";
+const audience = "http://localhost:3000/token";
 
 describe("parseTokenRequest tests", () => {
   beforeEach(() => {
