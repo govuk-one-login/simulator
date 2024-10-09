@@ -13,6 +13,9 @@ import {
   EC_PRIVATE_IDENTITY_SIGNING_KEY_ID,
 } from "../../constants";
 import { logger } from "../../logger";
+import { randomBytes } from "crypto";
+import { makeHeaderInvalid } from "../utils/make-header-invalid";
+import { fakeSignature } from "../utils/fake-signature";
 
 const AuthenticateHeaderKey: string = "www-authenticate";
 
@@ -110,6 +113,7 @@ const tryAddCoreIdentityJwt = async (
   const claim: UserIdentityClaim =
     "https://vocab.account.gov.uk/v1/coreIdentityJWT";
   const vc = config.getVerifiableIdentityCredentials();
+  const coreIdentityErrors = config.getCoreIdentityErrors();
 
   if (requestedClaims.includes(claim)) {
     if (!vc) {
@@ -119,26 +123,42 @@ const tryAddCoreIdentityJwt = async (
       return;
     }
 
-    const now = Math.floor(Date.now() / 1000);
-    const expiryOffsetSeconds = 24 * 60 * 60;
+    const timeNowSeconds = Math.floor(Date.now() / 1000);
+    const oneDayTimeOffsetSeconds = 24 * 60 * 60;
     const coreIdentity = {
       vot: config.getMaxLoCAchieved(),
       vc: vc,
       vtm: config.getTrustmarkUrl(),
-      iss: config.getIssuerValue(),
-      sub: config.getSub(),
-      nbf: now,
-      exp: now + expiryOffsetSeconds,
-      aud: config.getClientId(),
-      iat: now,
+      iss: coreIdentityErrors.includes("INVALID_ISS")
+        ? randomBytes(32).toString()
+        : config.getIssuerValue(),
+      sub: coreIdentityErrors.includes("INCORRECT_SUB")
+        ? randomBytes(32).toString()
+        : config.getSub(),
+      nbf: timeNowSeconds,
+      exp: coreIdentityErrors.includes("TOKEN_EXPIRED")
+        ? timeNowSeconds - oneDayTimeOffsetSeconds
+        : timeNowSeconds + oneDayTimeOffsetSeconds,
+      aud: coreIdentityErrors.includes("INVALID_AUD")
+        ? randomBytes(32).toString()
+        : config.getClientId(),
+      iat: timeNowSeconds,
     };
 
     const signingKey = await importPKCS8(EC_PRIVATE_IDENTITY_SIGNING_KEY, "EC");
-    userInfo[claim] = await new SignJWT(coreIdentity as JWTPayload)
+    let coreIdentityJwt = await new SignJWT(coreIdentity as JWTPayload)
       .setProtectedHeader({
         kid: EC_PRIVATE_IDENTITY_SIGNING_KEY_ID,
         alg: "ES256",
       })
       .sign(signingKey);
+    coreIdentityJwt = !coreIdentityErrors.includes("INVALID_ALG_HEADER")
+      ? coreIdentityJwt
+      : makeHeaderInvalid(coreIdentityJwt);
+
+    coreIdentityJwt = !coreIdentityErrors.includes("INVALID_SIGNATURE")
+      ? coreIdentityJwt
+      : fakeSignature(coreIdentityJwt);
+    userInfo[claim] = coreIdentityJwt;
   }
 };
