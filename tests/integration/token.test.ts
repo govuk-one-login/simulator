@@ -39,7 +39,7 @@ const knownAuthCode = "aac8964a69b2c7c56c3bfcf108248fe1";
 const redirectUriMismatchCode = "5c255ea25c063a83a5f02242103bdc9f";
 const nonce = "bf05c36da9122a7378439924c011c51c";
 const scopes = ["openid"];
-const audience = "http://host.docker.internal:3000/token";
+const audience = "http://localhost:3000/token";
 
 const validAuthRequestParams: AuthRequestParameters = {
   nonce,
@@ -603,7 +603,7 @@ describe("/token endpoint, configured error responses", () => {
     const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
     const { id_token } = response.body;
     const { payload } = decodeJwtNoVerify(id_token);
-    expect(payload.iss).not.toBe("http://host.docker.internal:3000/");
+    expect(payload.iss).not.toBe("http://localhost:3000/");
     expect(payload.iss).toBe(INVALID_ISSUER);
   });
 
@@ -763,11 +763,9 @@ describe("/token endpoint valid client_assertion", () => {
         kid: expectedKeyId,
       });
       expect(decodedIdToken.payload.sub).toBe(knownSub);
-      expect(decodedIdToken.payload.iss).toBe(
-        "http://host.docker.internal:3000/"
-      );
+      expect(decodedIdToken.payload.iss).toBe("http://localhost:3000/");
       expect(decodedIdToken.payload.vtm).toBe(
-        "http://host.docker.internal:3000/trustmark"
+        "http://localhost:3000/trustmark"
       );
       expect(decodedIdToken.payload.aud).toBe(knownClientId);
       expect(decodedIdToken.payload.sid).toBe(SESSION_ID);

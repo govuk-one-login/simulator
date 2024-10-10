@@ -90,8 +90,7 @@ CQIDAQAB
     this.authCodeRequestParamsStore = {};
     this.accessTokenStore = {};
 
-    this.simulatorUrl =
-      process.env.SIMULATOR_URL ?? "http://host.docker.internal:3000";
+    this.simulatorUrl = process.env.SIMULATOR_URL ?? "http://localhost:3000";
   }
 
   public static getInstance(): Config {

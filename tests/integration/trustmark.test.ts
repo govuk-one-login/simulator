@@ -8,8 +8,8 @@ describe("/trustmark endpoint test", () => {
 
     expect(response.status).toEqual(200);
     expect(response.body).toEqual({
-      idp: "http://host.docker.internal:3000/",
-      trustmark_provider: "http://host.docker.internal:3000/",
+      idp: "http://localhost:3000/",
+      trustmark_provider: "http://localhost:3000/",
       C: ["Cl", "Cl.Cm"],
       P: ["P0", "P1", "P2"],
     });
