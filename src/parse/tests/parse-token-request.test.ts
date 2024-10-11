@@ -4,6 +4,7 @@ import { ParseTokenRequestError } from "../../errors/parse-token-request-error";
 import { TokenRequestError } from "../../errors/token-request-error";
 import { parseTokenRequest } from "../parse-token-request";
 import { generateKeyPairSync, randomUUID } from "crypto";
+import { logger } from "../../logger";
 
 const fakeClientAssertion = (
   header: Record<string, string>,
@@ -20,6 +21,7 @@ const config = Config.getInstance();
 const publicKeySpy = jest.spyOn(config, "getPublicKey");
 const idTokenSigningSpy = jest.spyOn(config, "getIdTokenSigningAlgorithm");
 const clientIdSpy = jest.spyOn(config, "getClientId");
+const infoLoggerSpy = jest.spyOn(logger, "info");
 
 const rsaKeyPair = generateKeyPairSync("rsa", {
   modulusLength: 2048,
@@ -852,5 +854,65 @@ describe("parseTokenRequest tests", () => {
         signature: clientAssertion.split(".")[2],
       },
     });
+  });
+
+  it("returns a parsed tokenRequest and clientAssertion for a valid request when no affixes on public key", async () => {
+    clientIdSpy.mockReturnValue(knownClientId);
+    const publicKey = await exportSPKI(rsaKeyPair.publicKey);
+    const publicKeyMissingAffexes = publicKey
+      .replace("-----BEGIN PUBLIC KEY-----", "")
+      .replace("-----END PUBLIC KEY-----", "");
+    publicKeySpy.mockReturnValue(publicKeyMissingAffexes);
+    idTokenSigningSpy.mockReturnValue("RS256");
+
+    const header = {
+      alg: "RS256",
+    };
+    const payload = {
+      sub: knownClientId,
+      exp: Math.floor(testTimestamp / 1000) + 300,
+      iss: knownClientId,
+      aud: audience,
+      jti: randomUUID(),
+    };
+
+    const clientAssertion = await new SignJWT(payload)
+      .setProtectedHeader(header)
+      .sign(rsaKeyPair.privateKey);
+
+    const tokenRequest = {
+      grant_type: "authorization_code",
+      code: "123456",
+      redirect_uri: "https://example.com/authentication-callback/",
+      client_assertion_type:
+        "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+      client_assertion: clientAssertion,
+    };
+
+    const parsedTokenRequest = await parseTokenRequest(tokenRequest, config);
+
+    expect(parsedTokenRequest).toStrictEqual({
+      tokenRequest: {
+        grant_type: "authorization_code",
+        code: "123456",
+        redirectUri: "https://example.com/authentication-callback/",
+        client_assertion_type:
+          "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+        client_assertion: clientAssertion,
+      },
+      clientAssertion: {
+        header,
+        payload,
+        token: clientAssertion,
+        clientId: knownClientId,
+        signature: clientAssertion.split(".")[2],
+      },
+    });
+    expect(infoLoggerSpy).toHaveBeenCalledWith(
+      "Public key does not have expected prefix. Adding prefix."
+    );
+    expect(infoLoggerSpy).toHaveBeenCalledWith(
+      "Public key does not have expected suffix. Adding suffix."
+    );
   });
 });
