@@ -3,6 +3,10 @@
 ## Local Setup
 
 To run the stub locally, you can simply run `docker compose up --build`.
+
+If you would like to run it alongside an RP running locally in Docker, you'll need to turn on Docker host networking.
+This requires v4.34 or higher of Docker Desktop. In Docker Desktop, go into Settings -> Resources -> Network, and tick
+`Enable host networking`. In your docker compose file for the RP, add `network_mode: host` under the service that you're running.
 <br />
 
 ### Development environment setup:
