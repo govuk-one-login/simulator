@@ -10,10 +10,10 @@ describe("/.well-known/openid-configuration endpoint test", () => {
 
     expect(response.status).toEqual(200);
     expect(response.body).toEqual({
-      authorization_endpoint: "http://host.docker.internal:3000/authorize",
-      token_endpoint: "http://host.docker.internal:3000/token",
-      issuer: "http://host.docker.internal:3000/",
-      jwks_uri: "http://host.docker.internal:3000/.well-known/jwks.json",
+      authorization_endpoint: "http://localhost:3000/authorize",
+      token_endpoint: "http://localhost:3000/token",
+      issuer: "http://localhost:3000/",
+      jwks_uri: "http://localhost:3000/.well-known/jwks.json",
       scopes_supported: ["openid", "email", "phone"],
       response_types_supported: ["code"],
       grant_types_supported: ["authorization_code"],
@@ -34,9 +34,9 @@ describe("/.well-known/openid-configuration endpoint test", () => {
       op_policy_uri: "https://signin.account.gov.uk/privacy-notice",
       op_tos_uri: "https://signin.account.gov.uk/terms-and-conditions",
       request_parameter_supported: true,
-      trustmarks: "http://host.docker.internal:3000/trustmark",
+      trustmarks: "http://localhost:3000/trustmark",
       subject_types_supported: ["public", "pairwise"],
-      userinfo_endpoint: "http://host.docker.internal:3000/userinfo",
+      userinfo_endpoint: "http://localhost:3000/userinfo",
       id_token_signing_alg_values_supported: ["ES256", "RS256"],
       claim_types_supported: ["normal"],
       claims_supported: [

@@ -79,7 +79,7 @@ describe("createAccessToken tests", () => {
       expect(payload).toStrictEqual({
         iat: Math.floor(testTimestamp / 1000),
         exp: Math.floor(testTimestamp / 1000) + ACCESS_TOKEN_EXPIRY,
-        iss: "http://host.docker.internal:3000/",
+        iss: "http://localhost:3000/",
         jti: "1234567",
         client_id: testClientId,
         sub: testSubClaim,

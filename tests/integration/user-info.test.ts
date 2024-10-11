@@ -17,8 +17,8 @@ const EC_PUBLIC_IDENTITY_SIGNING_KEY =
   "-----BEGIN PUBLIC KEY-----MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEdgH3plJS09HqOu/AMSuHhlsaZJPfX4uaVfotrnanBslUYagQcFDX7I6x9N3fMxrgOctMmnteYo2NWYO3jwJzBA==-----END PUBLIC KEY-----";
 const AUTHORIZATION_HEADER_KEY: string = "authorization";
 const AUTHENTICATE_HEADER_KEY: string = "www-authenticate";
-const ISSUER_VALUE = "http://host.docker.internal:3000/";
-const TRUSTMARK_VALUE = "http://host.docker.internal:3000/trustmark";
+const ISSUER_VALUE = "http://localhost:3000/";
+const TRUSTMARK_VALUE = "http://localhost:3000/trustmark";
 const EXAMPLE_VERIFIABLE_CREDENTIAL: object = {
   type: ["VerifiableCredential"],
   credentialSubject: {
