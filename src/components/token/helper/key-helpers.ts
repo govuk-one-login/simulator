@@ -5,6 +5,7 @@ import {
   EC_PRIVATE_TOKEN_SIGNING_KEY,
   RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
   RSA_PRIVATE_TOKEN_SIGNING_KEY,
+  EC_PRIVATE_IDENTITY_SIGNING_KEY,
 } from "../../../constants";
 import { Buffer } from "node:buffer";
 
@@ -27,12 +28,12 @@ export const getKeyId = (tokenSigningAlgorithm: string): string => {
 };
 
 export const generateJWKS = async (): Promise<JSONWebKeySet> => {
-  const ecPubJwk = await publicJwkFromPrivateKey(
+  const ecPubJwk = await publicJwkWithKidFromPrivateKey(
     EC_PRIVATE_TOKEN_SIGNING_KEY,
     EC_PRIVATE_TOKEN_SIGNING_KEY_ID
   );
 
-  const rsPubJwk = await publicJwkFromPrivateKey(
+  const rsPubJwk = await publicJwkWithKidFromPrivateKey(
     RSA_PRIVATE_TOKEN_SIGNING_KEY,
     RSA_PRIVATE_TOKEN_SIGNING_KEY_ID
   );
@@ -41,10 +42,16 @@ export const generateJWKS = async (): Promise<JSONWebKeySet> => {
   };
 };
 
-async function publicJwkFromPrivateKey(
-  privateKeyString: string,
-  kid: string
-): Promise<JWK> {
+export const generateDidJwks = async (): Promise<JWK> => {
+  const didPublicJwk = await publicJwkFromPrivateKey(
+    EC_PRIVATE_IDENTITY_SIGNING_KEY
+  );
+  didPublicJwk.alg = "ES256";
+
+  return didPublicJwk;
+};
+
+async function publicJwkFromPrivateKey(privateKeyString: string): Promise<JWK> {
   const privateKey = createPrivateKey({
     key: Buffer.from(
       privateKeyString.replace(/-----(?:BEGIN|END) PRIVATE KEY-----|\s/g, ""),
@@ -54,7 +61,14 @@ async function publicJwkFromPrivateKey(
     format: "der",
   });
   const publicKey = createPublicKey(privateKey);
-  const jwk = await exportJWK(publicKey);
+  return await exportJWK(publicKey);
+}
+
+async function publicJwkWithKidFromPrivateKey(
+  privateKeyString: string,
+  kid: string
+): Promise<JWK> {
+  const jwk = await publicJwkFromPrivateKey(privateKeyString);
   jwk.kid = kid;
   return jwk;
 }
