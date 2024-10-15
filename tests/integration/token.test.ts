@@ -13,20 +13,15 @@ import { generateKeyPairSync, randomBytes, randomUUID } from "crypto";
 import { Config } from "../../src/config";
 import AuthRequestParameters from "../../src/types/auth-request-parameters";
 import {
-  EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
-  EC_PRIVATE_TOKEN_SIGNING_KEY,
   INVALID_ISSUER,
   RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
   SESSION_ID,
   VALID_CLAIMS,
+  RSA_PRIVATE_TOKEN_SIGNING_KEY,
 } from "../../src/constants";
 import { decodeJwtNoVerify } from "./helper/decode-jwt-no-verify";
 
 const TOKEN_ENDPOINT = "/token";
-
-const ecKeyPair = generateKeyPairSync("ec", {
-  namedCurve: "P-256",
-});
 
 const rsaKeyPair = generateKeyPairSync("rsa", {
   modulusLength: 2048,
@@ -63,21 +58,13 @@ const redirectUriMismatchParams: AuthRequestParameters = {
 };
 
 const createValidClientAssertion = async (
-  payload: JWTPayload,
-  idTokenSigningAlgorithm: "ES256" | "RS256"
+  payload: JWTPayload
 ): Promise<string> => {
-  if (idTokenSigningAlgorithm === "ES256") {
-    return await new SignJWT(payload)
-      .setProtectedHeader({
-        alg: idTokenSigningAlgorithm,
-      })
-      .sign(ecKeyPair.privateKey);
-  } else
-    return await new SignJWT(payload)
-      .setProtectedHeader({
-        alg: idTokenSigningAlgorithm,
-      })
-      .sign(rsaKeyPair.privateKey);
+  return await new SignJWT(payload)
+    .setProtectedHeader({
+      alg: "RS256",
+    })
+    .sign(rsaKeyPair.privateKey);
 };
 
 const createClientAssertionPayload = (
@@ -92,30 +79,20 @@ const createClientAssertionPayload = (
     .encode()
     .split(".")[1];
 
-const createClientAssertionHeader = (signingAlgorithm: string) =>
-  Buffer.from(JSON.stringify({ alg: signingAlgorithm })).toString("base64url");
+const createClientAssertionHeader = (alg?: string) =>
+  Buffer.from(JSON.stringify({ alg: alg ?? "RS256" })).toString("base64url");
 
 const fakeSignature = () => randomBytes(16).toString("hex");
 
-const setupClientConfig = async (
-  clientId: string,
-  signingAlgorithm: "ES256" | "RS256",
-  errors: string[] = []
-) => {
+const setupClientConfig = async (clientId: string, errors: string[] = []) => {
   process.env.CLIENT_ID = clientId;
   process.env.REDIRECT_URLS = redirectUri;
   process.env.SUB = knownSub;
   process.env.ID_TOKEN_ERRORS = errors.join(",");
   process.env.CLAIMS = VALID_CLAIMS.join(",");
-  if (signingAlgorithm === "ES256") {
-    const publicKey = await exportSPKI(ecKeyPair.publicKey);
-    process.env.PUBLIC_KEY = publicKey;
-    process.env.ID_TOKEN_SIGNING_ALGORITHM = signingAlgorithm;
-  } else if (signingAlgorithm === "RS256") {
-    const publicKey = await exportSPKI(rsaKeyPair.publicKey);
-    process.env.PUBLIC_KEY = publicKey;
-    process.env.ID_TOKEN_SIGNING_ALGORITHM = signingAlgorithm;
-  }
+  const publicKey = await exportSPKI(rsaKeyPair.publicKey);
+  process.env.PUBLIC_KEY = publicKey;
+  process.env.ID_TOKEN_SIGNING_ALGORITHM = "RS256";
   Config.resetInstance();
 };
 
@@ -266,10 +243,10 @@ describe("/token endpoint tests, invalid request", () => {
 
 describe("/token endpoint tests, invalid client assertion", () => {
   it("returns an invalid_request if client_assertion is missing iss", async () => {
-    await setupClientConfig(knownClientId, "ES256");
+    await setupClientConfig(knownClientId);
 
     const clientAssertion =
-      createClientAssertionHeader("ES256") +
+      createClientAssertionHeader() +
       "." +
       createClientAssertionPayload({
         sub: knownClientId,
@@ -295,10 +272,10 @@ describe("/token endpoint tests, invalid client assertion", () => {
   });
 
   it("returns an invalid_request if client_assertion is missing sub", async () => {
-    await setupClientConfig(knownClientId, "ES256");
+    await setupClientConfig(knownClientId);
 
     const clientAssertion =
-      createClientAssertionHeader("ES256") +
+      createClientAssertionHeader() +
       "." +
       createClientAssertionPayload({
         iss: knownClientId,
@@ -323,11 +300,11 @@ describe("/token endpoint tests, invalid client assertion", () => {
     });
   });
 
-  it("returns an invalid_request if signing alg in header is not ES256 or RS256", async () => {
-    await setupClientConfig(knownClientId, "ES256");
+  it("returns an invalid_request if signing alg in header is not RS256", async () => {
+    await setupClientConfig(knownClientId);
 
     const clientAssertion =
-      createClientAssertionHeader("HS256") +
+      createClientAssertionHeader("fake-alg") +
       "." +
       createClientAssertionPayload({
         iss: knownClientId,
@@ -354,10 +331,10 @@ describe("/token endpoint tests, invalid client assertion", () => {
   });
 
   it("returns an invalid_client for an unknown client_id", async () => {
-    await setupClientConfig(randomUUID(), "ES256");
+    await setupClientConfig(randomUUID());
 
     const clientAssertion =
-      createClientAssertionHeader("ES256") +
+      createClientAssertionHeader() +
       "." +
       createClientAssertionPayload({
         sub: knownClientId,
@@ -384,10 +361,10 @@ describe("/token endpoint tests, invalid client assertion", () => {
   });
 
   it("returns an invalid_grant for an expired client assertion ", async () => {
-    await setupClientConfig(knownClientId, "ES256");
+    await setupClientConfig(knownClientId);
 
     const clientAssertion =
-      createClientAssertionHeader("ES256") +
+      createClientAssertionHeader() +
       "." +
       createClientAssertionPayload(
         {
@@ -417,10 +394,10 @@ describe("/token endpoint tests, invalid client assertion", () => {
   });
 
   it("returns an invalid_client for an invalid signature", async () => {
-    await setupClientConfig(knownClientId, "ES256");
+    await setupClientConfig(knownClientId);
 
     const clientAssertion =
-      createClientAssertionHeader("ES256") +
+      createClientAssertionHeader() +
       "." +
       createClientAssertionPayload({
         iss: knownClientId,
@@ -447,14 +424,14 @@ describe("/token endpoint tests, invalid client assertion", () => {
   });
 
   it("returns an invalid signature for an unknown audience in client_assertion", async () => {
-    await setupClientConfig(knownClientId, "ES256");
+    await setupClientConfig(knownClientId);
 
     jest
       .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
       .mockReturnValue(undefined);
 
     const clientAssertion =
-      createClientAssertionHeader("ES256") +
+      createClientAssertionHeader() +
       "." +
       createClientAssertionPayload({
         iss: knownClientId,
@@ -495,22 +472,19 @@ describe("/token endpoint, configured error responses", () => {
       client_assertion_type:
         "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
       redirect_uri: redirectUri,
-      client_assertion: await createValidClientAssertion(
-        {
-          iss: knownClientId,
-          sub: knownClientId,
-          aud: audience,
-          jti: randomUUID(),
-          iat: Math.floor(Date.now() / 1000),
-          exp: Math.floor(Date.now() / 1000) + 3600,
-        },
-        "ES256"
-      ),
+      client_assertion: await createValidClientAssertion({
+        iss: knownClientId,
+        sub: knownClientId,
+        aud: audience,
+        jti: randomUUID(),
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 3600,
+      }),
     };
   });
 
   it("returns an invalid header if the client config has enabled INVALID_ALG_HEADER", async () => {
-    await setupClientConfig(knownClientId, "ES256", ["INVALID_ALG_HEADER"]);
+    await setupClientConfig(knownClientId, ["INVALID_ALG_HEADER"]);
     jest
       .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
       .mockReturnValue(validAuthRequestParams);
@@ -526,7 +500,7 @@ describe("/token endpoint, configured error responses", () => {
   });
 
   it("returns an invalid signature if the client config has enabled INVALID_SIGNATURE", async () => {
-    await setupClientConfig(knownClientId, "ES256", ["INVALID_SIGNATURE"]);
+    await setupClientConfig(knownClientId, ["INVALID_SIGNATURE"]);
     jest
       .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
       .mockReturnValue(validAuthRequestParams);
@@ -534,14 +508,14 @@ describe("/token endpoint, configured error responses", () => {
     const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
     const { id_token } = response.body;
-    const ecKey = await importPKCS8(EC_PRIVATE_TOKEN_SIGNING_KEY, "ES256");
-    await expect(jwtVerify(id_token, ecKey)).rejects.toThrow(
+    const rsaKey = await importPKCS8(RSA_PRIVATE_TOKEN_SIGNING_KEY, "RS256");
+    await expect(jwtVerify(id_token, rsaKey)).rejects.toThrow(
       errors.JWSSignatureVerificationFailed
     );
   });
 
   it("returns an invalid vot if the client config has enabled INCORRECT_VOT", async () => {
-    await setupClientConfig(knownClientId, "ES256", ["INCORRECT_VOT"]);
+    await setupClientConfig(knownClientId, ["INCORRECT_VOT"]);
     jest
       .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
       .mockReturnValue(validAuthRequestParams);
@@ -555,7 +529,7 @@ describe("/token endpoint, configured error responses", () => {
   });
 
   it("returns an invalid iat in the future if the client config has enabled TOKEN_NOT_VALID_YET", async () => {
-    await setupClientConfig(knownClientId, "ES256", ["TOKEN_NOT_VALID_YET"]);
+    await setupClientConfig(knownClientId, ["TOKEN_NOT_VALID_YET"]);
     jest
       .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
       .mockReturnValue(validAuthRequestParams);
@@ -568,7 +542,7 @@ describe("/token endpoint, configured error responses", () => {
   });
 
   it("returns an expired token if the client config has enabled TOKEN_EXPIRED", async () => {
-    await setupClientConfig(knownClientId, "ES256", ["TOKEN_EXPIRED"]);
+    await setupClientConfig(knownClientId, ["TOKEN_EXPIRED"]);
     jest
       .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
       .mockReturnValue(validAuthRequestParams);
@@ -581,7 +555,7 @@ describe("/token endpoint, configured error responses", () => {
   });
 
   it("returns an invalid aud if the client config has enabled INVALID_AUD", async () => {
-    await setupClientConfig(knownClientId, "ES256", ["INVALID_AUD"]);
+    await setupClientConfig(knownClientId, ["INVALID_AUD"]);
     jest
       .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
       .mockReturnValue(validAuthRequestParams);
@@ -594,7 +568,7 @@ describe("/token endpoint, configured error responses", () => {
   });
 
   it("returns an invalid iss if the client config has enabled INVALID_ISS", async () => {
-    await setupClientConfig(knownClientId, "ES256", ["INVALID_ISS"]);
+    await setupClientConfig(knownClientId, ["INVALID_ISS"]);
     jest
       .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
       .mockReturnValue(validAuthRequestParams);
@@ -608,7 +582,7 @@ describe("/token endpoint, configured error responses", () => {
   });
 
   it("returns an invalid nonce if the client config has enabled NONCE_NOT_MATCHING", async () => {
-    await setupClientConfig(knownClientId, "ES256", ["NONCE_NOT_MATCHING"]);
+    await setupClientConfig(knownClientId, ["NONCE_NOT_MATCHING"]);
     jest
       .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
       .mockReturnValue(validAuthRequestParams);
@@ -627,23 +601,20 @@ describe("/token endpoint valid client_assertion", () => {
   });
 
   it("returns an invalid_grant error when there are no auth request params for auth code", async () => {
-    await setupClientConfig(knownClientId, "ES256");
+    await setupClientConfig(knownClientId);
 
     jest
       .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
       .mockReturnValue(undefined);
 
-    const clientAssertion = await createValidClientAssertion(
-      {
-        iss: knownClientId,
-        sub: knownClientId,
-        aud: audience,
-        jti: randomUUID(),
-        iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor(Date.now() / 1000) + 3600,
-      },
-      "ES256"
-    );
+    const clientAssertion = await createValidClientAssertion({
+      iss: knownClientId,
+      sub: knownClientId,
+      aud: audience,
+      jti: randomUUID(),
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + 3600,
+    });
 
     const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send({
@@ -662,22 +633,19 @@ describe("/token endpoint valid client_assertion", () => {
   });
 
   it("returns an invalid_grant error if the request redirect uri does not match the auth code params", async () => {
-    await setupClientConfig(knownClientId, "ES256");
+    await setupClientConfig(knownClientId);
     jest
       .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
       .mockReturnValue(redirectUriMismatchParams);
 
-    const clientAssertion = await createValidClientAssertion(
-      {
-        iss: knownClientId,
-        sub: knownClientId,
-        aud: audience,
-        jti: randomUUID(),
-        iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor(Date.now() / 1000) + 3600,
-      },
-      "ES256"
-    );
+    const clientAssertion = await createValidClientAssertion({
+      iss: knownClientId,
+      sub: knownClientId,
+      aud: audience,
+      jti: randomUUID(),
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + 3600,
+    });
 
     const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send({
@@ -695,84 +663,64 @@ describe("/token endpoint valid client_assertion", () => {
     });
   });
 
-  test.each<{
-    tokenSigningAlgorithm: "RS256" | "ES256";
-    expectedKeyId: string;
-  }>([
-    {
-      tokenSigningAlgorithm: "RS256",
-      expectedKeyId: RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
-    },
-    {
-      tokenSigningAlgorithm: "ES256",
-      expectedKeyId: EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
-    },
-  ])(
-    "returns a valid access_token and id_token for a valid token request with a $tokenSigningAlgorithm signed client assertion",
-    async ({ tokenSigningAlgorithm, expectedKeyId }) => {
-      await setupClientConfig(knownClientId, tokenSigningAlgorithm);
-      jest
-        .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-        .mockReturnValue(validAuthRequestParams);
+  test("returns a valid access_token and id_token for a valid token request with a $tokenSigningAlgorithm signed client assertion", async () => {
+    await setupClientConfig(knownClientId);
+    jest
+      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
+      .mockReturnValue(validAuthRequestParams);
 
-      const clientAssertion = await createValidClientAssertion(
-        {
-          iss: knownClientId,
-          sub: knownClientId,
-          aud: audience,
-          jti: randomUUID(),
-          iat: Math.floor(Date.now() / 1000),
-          exp: Math.floor(Date.now() / 1000) + 3600,
-        },
-        tokenSigningAlgorithm
-      );
+    const clientAssertion = await createValidClientAssertion({
+      iss: knownClientId,
+      sub: knownClientId,
+      aud: audience,
+      jti: randomUUID(),
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + 3600,
+    });
 
-      const app = createApp();
-      const response = await request(app).post(TOKEN_ENDPOINT).send({
-        grant_type: "authorization_code",
-        code: knownAuthCode,
-        client_assertion_type:
-          "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-        redirect_uri: redirectUri,
-        client_assertion: clientAssertion,
-      });
+    const app = createApp();
+    const response = await request(app).post(TOKEN_ENDPOINT).send({
+      grant_type: "authorization_code",
+      code: knownAuthCode,
+      client_assertion_type:
+        "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+      redirect_uri: redirectUri,
+      client_assertion: clientAssertion,
+    });
 
-      expect(response.status).toEqual(200);
+    expect(response.status).toEqual(200);
 
-      const { access_token, expires_in, id_token, token_type } = response.body;
+    const { access_token, expires_in, id_token, token_type } = response.body;
 
-      const decodedAccessToken = decodeJwtNoVerify(access_token);
-      const decodedIdToken = decodeJwtNoVerify(id_token);
+    const decodedAccessToken = decodeJwtNoVerify(access_token);
+    const decodedIdToken = decodeJwtNoVerify(id_token);
 
-      expect(expires_in).toEqual(3600);
-      expect(token_type).toEqual("Bearer");
+    expect(expires_in).toEqual(3600);
+    expect(token_type).toEqual("Bearer");
 
-      expect(decodedAccessToken.protectedHeader).toStrictEqual({
-        alg: tokenSigningAlgorithm,
-        kid: expectedKeyId,
-      });
-      expect(decodedAccessToken.payload.sub).toBe(knownSub);
-      expect(decodedAccessToken.payload.client_id).toBe(knownClientId);
-      expect(decodedAccessToken.payload.sid).toBe(SESSION_ID);
-      expect(decodedAccessToken.payload.scope).toStrictEqual(
-        validAuthRequestParams.scopes
-      );
-      expect(decodedAccessToken.payload.claims).toEqual(VALID_CLAIMS);
-      expect(decodedIdToken.protectedHeader).toStrictEqual({
-        alg: tokenSigningAlgorithm,
-        kid: expectedKeyId,
-      });
-      expect(decodedIdToken.payload.sub).toBe(knownSub);
-      expect(decodedIdToken.payload.iss).toBe("http://localhost:3000/");
-      expect(decodedIdToken.payload.vtm).toBe(
-        "http://localhost:3000/trustmark"
-      );
-      expect(decodedIdToken.payload.aud).toBe(knownClientId);
-      expect(decodedIdToken.payload.sid).toBe(SESSION_ID);
-      expect(decodedIdToken.payload.nonce).toBe(validAuthRequestParams.nonce);
-      expect(decodedIdToken.payload.vot).toBe(
-        validAuthRequestParams.vtr.credentialTrust
-      );
-    }
-  );
+    expect(decodedAccessToken.protectedHeader).toStrictEqual({
+      alg: "RS256",
+      kid: RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
+    });
+    expect(decodedAccessToken.payload.sub).toBe(knownSub);
+    expect(decodedAccessToken.payload.client_id).toBe(knownClientId);
+    expect(decodedAccessToken.payload.sid).toBe(SESSION_ID);
+    expect(decodedAccessToken.payload.scope).toStrictEqual(
+      validAuthRequestParams.scopes
+    );
+    expect(decodedAccessToken.payload.claims).toEqual(VALID_CLAIMS);
+    expect(decodedIdToken.protectedHeader).toStrictEqual({
+      alg: "RS256",
+      kid: RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
+    });
+    expect(decodedIdToken.payload.sub).toBe(knownSub);
+    expect(decodedIdToken.payload.iss).toBe("http://localhost:3000/");
+    expect(decodedIdToken.payload.vtm).toBe("http://localhost:3000/trustmark");
+    expect(decodedIdToken.payload.aud).toBe(knownClientId);
+    expect(decodedIdToken.payload.sid).toBe(SESSION_ID);
+    expect(decodedIdToken.payload.nonce).toBe(validAuthRequestParams.nonce);
+    expect(decodedIdToken.payload.vot).toBe(
+      validAuthRequestParams.vtr.credentialTrust
+    );
+  });
 });
