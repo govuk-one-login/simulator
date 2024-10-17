@@ -19,7 +19,7 @@ content-type: application/json
 		]
 	},
 	"responseConfiguration": {
-		"email": "person2@example.com",
+		"email": "person123@example.com",
 		"emailVerified": true,
 		"phoneNumber": "07890123456",
 		"phoneNumberVerified": true,
