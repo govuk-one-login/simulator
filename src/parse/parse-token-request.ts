@@ -20,7 +20,9 @@ export const parseTokenRequest = async (
   tokenRequest: TokenRequest;
   clientAssertion: PrivateKeyJwt;
 }> => {
-  const clientPublicKey = config.getPublicKey();
+  const clientPublicKey = addAffixesToPublicKeyIfNotPresent(
+    config.getPublicKey()
+  );
 
   if (!tokenRequestBody.grant_type) {
     logger.error("Token Request missing grant_type");
@@ -304,6 +306,19 @@ const parseClientAssertion = (
     clientId: payload.sub,
     token: clientAssertion,
   };
+};
+
+const addAffixesToPublicKeyIfNotPresent = (publicKey: string) => {
+  let publicKeyWithAffixes = publicKey;
+  if (!publicKey.startsWith("-----BEGIN PUBLIC KEY-----")) {
+    logger.info("Public key does not have expected prefix. Adding prefix.");
+    publicKeyWithAffixes = "-----BEGIN PUBLIC KEY-----" + publicKeyWithAffixes;
+  }
+  if (!publicKey.endsWith("-----END PUBLIC KEY-----")) {
+    logger.info("Public key does not have expected suffix. Adding suffix.");
+    publicKeyWithAffixes = publicKeyWithAffixes + "-----END PUBLIC KEY-----";
+  }
+  return publicKeyWithAffixes;
 };
 
 const isPrivateKeyJwtExpired = (exp: number): boolean => {
