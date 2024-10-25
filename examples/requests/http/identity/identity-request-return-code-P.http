@@ -23,7 +23,7 @@ content-type: application/json
 		"emailVerified": true,
 		"phoneNumber": "07890123456",
 		"phoneNumberVerified": true,
-		"maxLoCAchieved": "P2",
+		"maxLoCAchieved": "P1",
 		"coreIdentityVerifiableCredentials": {
 			"type": ["VerifiableCredential", "IdentityCheckCredential"],
 			"credentialSubject": {
