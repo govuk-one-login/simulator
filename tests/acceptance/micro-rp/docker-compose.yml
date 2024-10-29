@@ -1,0 +1,9 @@
+services:
+  micro-rp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    restart: on-failure
+    network_mode: host
