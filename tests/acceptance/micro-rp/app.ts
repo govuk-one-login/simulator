@@ -1,33 +1,24 @@
 import express, { Request, Response } from "express";
-import { logger } from "../../../src/logger";
-import { Config } from "../../../src/config";
 import { randomUUID } from "crypto";
 import { importPKCS8, SignJWT } from "jose";
 
 const app = express();
-const port = 3001
-const config = Config.getInstance();
+const port = 3001;
+const simulatorUrl = "http://localhost:3000";
+const clientId = "HGIOgho9HIRhgoepdIOPFdIUWgewi0jw";
 
 app.get("/callback", async (req: Request, res: Response) => {
-    const tokenResponse = await makeTokenRequest(req.params["code"]);
-    const userInfoResponse = await makeUserInfoRequest(tokenResponse["access_token"]);
-
-    res.send(`
-    <html>
-    <head><title>Example - GOV.UK - User Info</title></title>
-    <body>
-        <span>${JSON.stringify(userInfoResponse)}</span>
-    </body>
-    </html>
-    `);
-})
-
-app.listen(port, () => {
-    logger.info(`Micro RP listening on port ${port}`);
+  const tokenResponse = await makeTokenRequest(req.query["code"] as string);
+  const userInfoResponse = await makeUserInfoRequest(
+    tokenResponse["access_token"]
+  );
+  res.send(userInfoResponse);
 });
 
+app.listen(port);
+
 const makeTokenRequest = async (code: string): Promise<TokenResponse> => {
-    const privateKey = `-----BEGIN PRIVATE KEY-----
+  const privateKey = `-----BEGIN PRIVATE KEY-----
 MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQCZddHcSxG9QxWE
 Qky1DXB7EmN9DTRDQxDsBF9KE3ncGc5AQ8WdL8jye0F12Qp0Ter68xMjvbDoW/dK
 wwz5yJHYsgd0RB8qCwu3o8Y1xXWQboYb/edJbemxbzDrlDd+bLzU/Xvjyp7MOtV9
@@ -54,38 +45,51 @@ df6adXwKBKAiwz0k9hks9ivK2C6QN10csT8eLx5djQKBgQCiVnIJ3JcjNXHlygCW
 eZG4zLcylZXusOv3VYBJKypBLVI74buoFfrvMcV/lQrI3Yo+6V95rNYGm+2MVxIc
 iZSejbyqjUjJBAH9GHkPsiA+w1vutdd2PuPKOV05TLmV5ZM06bmLHQjMCGMiWK0G
 8qVxFvr2NWRDB3otAjxVHR/ZQA==
------END PRIVATE KEY-----`
-    const tokenUri = `${config.getSimulatorUrl()}/token`;
-    const claims = {
-        aud: tokenUri,
-        iss: config.getClientId(),
-        sub: config.getSub(),
-        exp: (Date.now() / 1000) + 5 * 60,
-        iat: Date.now() / 1000,
-        jti: randomUUID()
-    }
-    const tokenSigningKey = await importPKCS8(privateKey, "RSA");
-    const jwt = await new SignJWT(claims).sign(tokenSigningKey);
-    const body = {
-        code: code,
-        redirect_uri: "http://localhost:3001/callback",
-        client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-        client_assertion: jwt,
-        grant_type: "authorization_code"
-    };
-    const response = await fetch(tokenUri, { "method": "POST", "body": new URLSearchParams(body).toString() } );
-    return await response.json();
-}
+-----END PRIVATE KEY-----`;
+  const tokenUri = `${simulatorUrl}/token`;
+  const claims = {
+    aud: tokenUri,
+    iss: clientId,
+    sub: clientId,
+    exp: Date.now() / 1000 + 5 * 60,
+    iat: Date.now() / 1000,
+    jti: randomUUID(),
+  };
+  const tokenSigningKey = await importPKCS8(privateKey, "RSA");
+  const jwt = await new SignJWT(claims)
+    .setProtectedHeader({
+      alg: "RS256",
+    })
+    .sign(tokenSigningKey);
+  const body = {
+    code: code,
+    redirect_uri: "http://localhost:3001/callback",
+    client_assertion_type:
+      "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+    client_assertion: jwt,
+    grant_type: "authorization_code",
+  };
+  const response = await fetch(tokenUri, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams(body).toString(),
+  });
+  return response.json();
+};
 
 const makeUserInfoRequest = async (accessToken: string) => {
-    const userInfoResponse = await fetch(`${config.getSimulatorUrl()}/userinfo`, { headers: { "Authorization": `Bearer ${accessToken}` } })
+  const userInfoResponse = await fetch(`${simulatorUrl}/userinfo`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
 
-    return await userInfoResponse.json();
-}
+  return userInfoResponse.json();
+};
 
 interface TokenResponse {
-    access_token: string,
-    token_type: string,
-    expires_in: number,
-    id_token: string
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+  id_token: string;
 }

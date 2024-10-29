@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "target": "es2022",
+    "strict": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "typeRoots": ["@types", "node_modules/@types"]
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules"]
+}
