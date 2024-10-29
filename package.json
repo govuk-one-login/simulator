@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "build": "npx tsc",
-    "start": "node dist/server.js",
+    "start": "node dist/src/server.js",
+    "start:micro-rp": "node dist/tests/acceptance/micro-rp/app.js",
     "check:lint": "eslint . --ext .ts,.js",
     "check:pretty": "prettier --check \"*/**/*.{ts,json}\"",
     "check": "npm run check:lint && npm run check:pretty",
