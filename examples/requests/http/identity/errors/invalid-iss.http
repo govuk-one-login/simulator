@@ -22,7 +22,7 @@ content-type: application/json
 		"coreIdentityErrors": ["INVALID_ISS"]
 	},
 	"responseConfiguration": {
-		"maxLoCAchieved": "P1",
+		"maxLoCAchieved": "P2",
 		"coreIdentityVerifiableCredentials": {
 			"type": ["VerifiableCredential", "IdentityCheckCredential"],
 			"credentialSubject": {
