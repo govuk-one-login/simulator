@@ -67,6 +67,11 @@ const populateClientConfiguration = (
   if (clientConfiguration.clientLoCs !== undefined) {
     config.setClientLoCs(clientConfiguration.clientLoCs);
   }
+  if (clientConfiguration.postLogoutRedirectUrls !== undefined) {
+    config.setPostLogoutRedirectUrls(
+      clientConfiguration.postLogoutRedirectUrls
+    );
+  }
 };
 
 const populateResponseConfiguration = (

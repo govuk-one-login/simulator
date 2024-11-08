@@ -6,6 +6,7 @@ const TEST_CLIENT_ID = "test-id";
 const TEST_PUBLIC_KEY = "test-public-key";
 const TEST_SCOPES = ["scope1", "scope2"];
 const TEST_REDIRECT_URLS = ["http://redirect-url.co.uk"];
+const TEST_POST_LOGOUT_REDIRECT_URLS = ["http://example.com/post-logout"];
 const TEST_CLAIMS = [
   "https://vocab.account.gov.uk/v1/coreIdentityJWT",
   "https://vocab.account.gov.uk/v1/passport",
@@ -39,6 +40,7 @@ describe("Integration: Config POST", () => {
           identityVerificationSupported: TEST_IDENTITY_VERIFICATION_SUPPORTED,
           idTokenSigningAlgorithm: TEST_ID_TOKEN_SIGNING_ALGORITHM,
           clientLoCs: TEST_CLIENT_LOCS,
+          postLogoutRedirectUrls: TEST_POST_LOGOUT_REDIRECT_URLS,
         },
         responseConfiguration: {
           sub: TEST_SUB,
@@ -62,6 +64,9 @@ describe("Integration: Config POST", () => {
     expect(config.getPublicKey()).toEqual(TEST_PUBLIC_KEY);
     expect(config.getScopes()).toEqual(TEST_SCOPES);
     expect(config.getRedirectUrls()).toEqual(TEST_REDIRECT_URLS);
+    expect(config.getPostLogoutRedirectUrls()).toEqual(
+      TEST_POST_LOGOUT_REDIRECT_URLS
+    );
     expect(config.getClaims()).toEqual(TEST_CLAIMS);
     expect(config.getIdentityVerificationSupported()).toEqual(
       TEST_IDENTITY_VERIFICATION_SUPPORTED
@@ -109,6 +114,9 @@ describe("Integration: Config POST", () => {
     expect(config.getPublicKey()).toEqual(TEST_PUBLIC_KEY);
     expect(config.getScopes()).toEqual(["openid", "email", "phone"]);
     expect(config.getRedirectUrls()).toEqual(TEST_REDIRECT_URLS);
+    expect(config.getPostLogoutRedirectUrls()).toEqual([
+      "http://localhost:8080/signed-out",
+    ]);
     expect(config.getClaims()).toEqual(TEST_CLAIMS);
     expect(config.getIdentityVerificationSupported()).toEqual(true);
     expect(config.getIdTokenSigningAlgorithm()).toEqual(
