@@ -220,4 +220,21 @@ describe("vtrValidator tests", () => {
       },
     ]);
   });
+
+  it("handles an omitted LOC but any credential trust", () => {
+    levelOfConfidenceSpy.mockReturnValue(["P0"]);
+
+    expect(
+      vtrValidator('["Cl.Cm", "Cl"]', config, state, redirectUri)
+    ).toStrictEqual([
+      {
+        levelOfConfidence: null,
+        credentialTrust: "Cl.Cm",
+      },
+      {
+        levelOfConfidence: null,
+        credentialTrust: "Cl",
+      },
+    ]);
+  });
 });
