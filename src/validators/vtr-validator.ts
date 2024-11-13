@@ -97,11 +97,12 @@ const parseSingleVtr = (singleVtr: string): VectorOfTrust => {
     levelOfConfidence: providedLevelsOfConfidence[0] ?? null,
   };
 
-  if (
-    (parsedVtr.levelOfConfidence !== null ||
-      parsedVtr.levelOfConfidence !== "P0") &&
-    parsedVtr.credentialTrust !== "Cl.Cm"
-  ) {
+  const credentialTrustIsNotMedium = parsedVtr.credentialTrust !== "Cl.Cm";
+  const identityBeenRequested =
+    parsedVtr.levelOfConfidence === "P1" ||
+    parsedVtr.levelOfConfidence === "P2";
+
+  if (identityBeenRequested && credentialTrustIsNotMedium) {
     throw new Error(
       "Non zero identity confidence must require at least Cl.Cm credential trust"
     );

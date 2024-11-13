@@ -203,4 +203,21 @@ describe("vtrValidator tests", () => {
       },
     ]);
   });
+
+  it("allows P0 with any credential trust level", () => {
+    levelOfConfidenceSpy.mockReturnValue(["P0"]);
+
+    expect(
+      vtrValidator('["Cl.Cm.P0", "Cl.P0"]', config, state, redirectUri)
+    ).toStrictEqual([
+      {
+        levelOfConfidence: "P0",
+        credentialTrust: "Cl.Cm",
+      },
+      {
+        levelOfConfidence: "P0",
+        credentialTrust: "Cl",
+      },
+    ]);
+  });
 });
