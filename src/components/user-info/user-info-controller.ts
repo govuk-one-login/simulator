@@ -44,11 +44,17 @@ export const userInfoController = async (
 
   const userInfo: UserInfo = {
     sub: config.getSub(),
-    email: config.getEmail(),
-    email_verified: config.getEmailVerified(),
-    phone_number: config.getPhoneNumber(),
-    phone_number_verified: config.getPhoneNumberVerified(),
   };
+
+  if (validationResult.scopes.includes("email")) {
+    userInfo.email = config.getEmail();
+    userInfo.email_verified = config.getEmailVerified();
+  }
+
+  if (validationResult.scopes.includes("phone")) {
+    userInfo.phone_number = config.getPhoneNumber();
+    userInfo.phone_number_verified = config.getPhoneNumberVerified();
+  }
 
   const claims = validationResult.claims;
   tryAddClaim(

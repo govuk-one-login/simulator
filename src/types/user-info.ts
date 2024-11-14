@@ -2,10 +2,10 @@ import ReturnCode from "./return-code";
 
 export interface UserInfo extends UserIdentity {
   sub: string;
-  email: string;
-  email_verified: boolean;
-  phone_number: string;
-  phone_number_verified: boolean;
+  email?: string;
+  email_verified?: boolean;
+  phone_number?: string;
+  phone_number_verified?: boolean;
 }
 
 export interface UserIdentity {
@@ -18,3 +18,5 @@ export interface UserIdentity {
 }
 
 export type UserIdentityClaim = keyof UserIdentity;
+
+export type UserScope = "openid" | "email" | "phone";
