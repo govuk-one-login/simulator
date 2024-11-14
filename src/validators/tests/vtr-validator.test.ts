@@ -203,4 +203,38 @@ describe("vtrValidator tests", () => {
       },
     ]);
   });
+
+  it("allows P0 with any credential trust level", () => {
+    levelOfConfidenceSpy.mockReturnValue(["P0"]);
+
+    expect(
+      vtrValidator('["Cl.Cm.P0", "Cl.P0"]', config, state, redirectUri)
+    ).toStrictEqual([
+      {
+        levelOfConfidence: "P0",
+        credentialTrust: "Cl.Cm",
+      },
+      {
+        levelOfConfidence: "P0",
+        credentialTrust: "Cl",
+      },
+    ]);
+  });
+
+  it("handles an omitted LOC but any credential trust", () => {
+    levelOfConfidenceSpy.mockReturnValue(["P0"]);
+
+    expect(
+      vtrValidator('["Cl.Cm", "Cl"]', config, state, redirectUri)
+    ).toStrictEqual([
+      {
+        levelOfConfidence: null,
+        credentialTrust: "Cl.Cm",
+      },
+      {
+        levelOfConfidence: null,
+        credentialTrust: "Cl",
+      },
+    ]);
+  });
 });

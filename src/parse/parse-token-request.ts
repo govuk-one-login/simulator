@@ -20,7 +20,9 @@ export const parseTokenRequest = async (
   tokenRequest: TokenRequest;
   clientAssertion: PrivateKeyJwt;
 }> => {
-  const clientPublicKey = config.getPublicKey();
+  const clientPublicKey = addAffixesToPublicKeyIfNotPresent(
+    config.getPublicKey()
+  );
 
   if (!tokenRequestBody.grant_type) {
     logger.error("Token Request missing grant_type");
@@ -267,17 +269,7 @@ const parseClientAssertion = (
 
   if (
     !header.alg ||
-    ![
-      "RS256",
-      "RS384",
-      "RS512",
-      "ES256",
-      "ES384",
-      "ES512",
-      "PS256",
-      "PS384",
-      "PS512",
-    ].includes(header.alg)
+    !["RS256", "RS384", "RS512", "PS256", "PS384", "PS512"].includes(header.alg)
   ) {
     throw new ParseTokenRequestError(
       "Invalid client_assertion JWT: The client assertion JWT must be RSA or ECDSA-signed (RS256, RS384, RS512, PS256, PS384, PS512, ES256, ES384 or ES512)"
@@ -304,6 +296,19 @@ const parseClientAssertion = (
     clientId: payload.sub,
     token: clientAssertion,
   };
+};
+
+const addAffixesToPublicKeyIfNotPresent = (publicKey: string) => {
+  let publicKeyWithAffixes = publicKey;
+  if (!publicKey.startsWith("-----BEGIN PUBLIC KEY-----")) {
+    logger.info("Public key does not have expected prefix. Adding prefix.");
+    publicKeyWithAffixes = "-----BEGIN PUBLIC KEY-----" + publicKeyWithAffixes;
+  }
+  if (!publicKey.endsWith("-----END PUBLIC KEY-----")) {
+    logger.info("Public key does not have expected suffix. Adding suffix.");
+    publicKeyWithAffixes = publicKeyWithAffixes + "-----END PUBLIC KEY-----";
+  }
+  return publicKeyWithAffixes;
 };
 
 const isPrivateKeyJwtExpired = (exp: number): boolean => {
