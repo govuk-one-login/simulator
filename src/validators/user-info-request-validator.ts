@@ -4,12 +4,12 @@ import { signedJwtValidator } from "./signed-jwt-validator";
 import { Config } from "../config";
 import { logger } from "../logger";
 import { VALID_SCOPES } from "../constants";
-import { UserIdentityClaim } from "../types/user-info";
+import { UserIdentityClaim, UserScope } from "../types/user-info";
 
 export const userInfoRequestValidator = async (
   userInfoRequestHeaders: IncomingHttpHeaders
 ): Promise<
-  | { valid: true; claims: UserIdentityClaim[] }
+  | { valid: true; claims: UserIdentityClaim[]; scopes: UserScope[] }
   | {
       valid: false;
       error: UserInfoRequestError;
@@ -73,12 +73,12 @@ export const userInfoRequestValidator = async (
 
   if (!config_identity_supported) {
     logger.info("Identity not supported - ignoring claims.");
-    return { valid: true, claims: [] };
+    return { valid: true, claims: [], scopes: scope as UserScope[] };
   }
 
   if (claims == null || (Array.isArray(claims) && claims.length == 0)) {
     logger.info("No identity claims in access token.");
-    return { valid: true, claims: [] };
+    return { valid: true, claims: [], scopes: scope as UserScope[] };
   }
 
   logger.info("Identity claims present in access token.");
@@ -94,5 +94,9 @@ export const userInfoRequestValidator = async (
     return { valid: false, error: UserInfoRequestError.INVALID_REQUEST };
   }
 
-  return { valid: true, claims: claims as UserIdentityClaim[] };
+  return {
+    valid: true,
+    claims: claims as UserIdentityClaim[],
+    scopes: scope as UserScope[],
+  };
 };
