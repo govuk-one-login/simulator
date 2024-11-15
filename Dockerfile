@@ -9,6 +9,7 @@ WORKDIR /app
 COPY --chown=node:node --from=base /app/package*.json ./
 COPY --chown=node:node --from=base /app/node_modules/ node_modules
 COPY --chown=node:node --from=base /app/dist/ dist
+COPY --chown=node:node --from=base /app/examples/ examples
 
 ENV NODE_ENV "production"
 ENV PORT 3000
