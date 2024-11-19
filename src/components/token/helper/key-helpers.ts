@@ -64,7 +64,7 @@ async function publicJwkFromPrivateKey(privateKeyString: string): Promise<JWK> {
   return await exportJWK(publicKey);
 }
 
-async function publicJwkWithKidFromPrivateKey(
+export async function publicJwkWithKidFromPrivateKey(
   privateKeyString: string,
   kid: string
 ): Promise<JWK> {

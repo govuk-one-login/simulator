@@ -18,6 +18,7 @@ export default interface ClientConfiguration {
   identityVerificationSupported?: boolean;
   idTokenSigningAlgorithm?: string;
   clientLoCs?: string[];
+  postLogoutRedirectUrls?: string[];
 }
 
 export const generateClientConfigurationPropertyValidators = (
@@ -52,5 +53,8 @@ export const generateClientConfigurationPropertyValidators = (
     bodyOptional(
       `${prefix}${nameof<ClientConfiguration>("clientLoCs")}.*`
     ).isIn(VALID_LOC_VALUES),
+    bodyOptional(
+      `${prefix}${nameof<ClientConfiguration>("postLogoutRedirectUrls")}.*`
+    ).isURL(),
   ];
 };

@@ -1,7 +1,7 @@
 import crypto from "crypto";
-import { createApp } from "../../../app";
+import { createApp } from "./../../src/app";
 import request from "supertest";
-import { Config } from "../../../config";
+import { Config } from "./../../src/config";
 
 const authoriseEndpoint = "/authorize";
 const knownClientId = "43c729a8f8a8bed3441a872039d45180";

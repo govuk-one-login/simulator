@@ -47,6 +47,9 @@ CQIDAQAB
       redirectUrls: process.env.REDIRECT_URLS
         ? process.env.REDIRECT_URLS.split(",")
         : ["http://localhost:8080/oidc/authorization-code/callback"],
+      postLogoutRedirectUrls: process.env.POST_LOGOUT_REDIRECT_URLS
+        ? process.env.POST_LOGOUT_REDIRECT_URLS.split(",")
+        : ["http://localhost:8080/signed-out"],
       claims: process.env.CLAIMS
         ? (process.env.CLAIMS.split(",") as UserIdentityClaim[])
         : ["https://vocab.account.gov.uk/v1/coreIdentityJWT"],
@@ -134,6 +137,14 @@ CQIDAQAB
 
   public setRedirectUrls(redirectUrls: string[]): void {
     this.clientConfiguration.redirectUrls = redirectUrls;
+  }
+
+  public getPostLogoutRedirectUrls(): string[] {
+    return this.clientConfiguration.postLogoutRedirectUrls as string[];
+  }
+
+  public setPostLogoutRedirectUrls(postLogoutRedirectUrls: string[]): void {
+    this.clientConfiguration.postLogoutRedirectUrls = postLogoutRedirectUrls;
   }
 
   public getClaims(): UserIdentityClaim[] {
