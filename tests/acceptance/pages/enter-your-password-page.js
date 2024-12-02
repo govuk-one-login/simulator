@@ -12,8 +12,8 @@ module.exports = class EnterYourPasswordPage extends BasePage {
         await this.clearFieldAndEnter(this.passwordField, password);
     }
 
-    enterPasswordAndContinue = async (emailAddress) => {
-        await this.enterPassword(emailAddress);
+    enterPasswordAndContinue = async (password) => {
+        await this.enterPassword(password);
         await this.findAndClickContinue();
     }
 }

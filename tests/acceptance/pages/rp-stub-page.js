@@ -1,9 +1,15 @@
-const { By } = require("selenium-webdriver");
 const BasePage = require("./base-page.js");
+const { By } = require("selenium-webdriver");
 
 module.exports = class RpStubPage extends BasePage {
     constructor(page) {
         super(page);
+    }
+
+    goToRpStubAndContinue = async () => {
+        await this.page.get(this.RP_URL.toString());
+        await this.waitForThisText("Request Object");
+        await this.findAndClickContinue();
     }
 
     goToRpStub = async () => {

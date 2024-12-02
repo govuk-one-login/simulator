@@ -11,9 +11,13 @@ jobs:
     env:
       TEST_USER_SUB: ${{ secrets.TEST_USER_SUB }}
       TEST_USER_PHONE_NUMBER_VERIFIED: ${{ secrets.TEST_USER_PHONE_NUMBER_VERIFIED }}
+      TEST_USER_PHONE_NUMBER: ${{ secrets.TEST_USER_PHONE_NUMBER }}
       TEST_USER_EMAIL_VERIFIED: ${{ secrets.TEST_USER_EMAIL_VERIFIED }}
       TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
       TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+      TEST_USER_PHONE_VERIFY_CODE: ${{ secrets.TEST_USER_PHONE_VERIFY_CODE }}
+      TEST_USER_PASSPORT: ${{ secrets.TEST_USER_PASSPORT }}
+      TEST_USER_ADDRESS: ${{ secrets.TEST_USER_ADDRESS }}
     services:
       selenium:
         image: selenium/standalone-chrome:latest

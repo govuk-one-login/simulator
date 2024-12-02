@@ -1,0 +1,26 @@
+export const ADDRESS = [
+    {
+        uprn: "10022812929",
+        subBuildingName: "FLAT 5",
+        buildingName: "WEST LEA",
+        buildingNumber: "16",
+        dependentStreetName: "KINGS PARK",
+        streetName: "HIGH STREET",
+        doubleDependentAddressLocality: "EREWASH",
+        dependentAddressLocality: "LONG EATON",
+        addressLocality: "GREAT MISSENDEN",
+        postalCode: "HP16 0AL",
+        addressCountry: "GB",
+        validFrom: "2022-01-01",
+    },
+    {
+        uprn: "10002345923",
+        buildingName: "SAWLEY MARINA",
+        streetName: "INGWORTH ROAD",
+        dependentAddressLocality: "LONG EATON",
+        addressLocality: "NOTTINGHAM",
+        postalCode: "BH12 1JY",
+        addressCountry: "GB",
+        validUntil: "2022-01-01",
+    },
+]
