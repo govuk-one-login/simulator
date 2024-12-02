@@ -13,7 +13,8 @@ const TEST_USER_INFO_REQUEST = {
     sub: process.env.TEST_USER_SUB,
     email: process.env.TEST_USER_EMAIL,
     emailVerified: process.env.TEST_USER_EMAIL_VERIFIED === "true",
-    phoneNumberVerified: process.env.TEST_USER_PHONE_NUMBER_VERIFIED === "true"
+    phoneNumberVerified: process.env.TEST_USER_PHONE_NUMBER_VERIFIED === "true",
+    phoneNumber: ""
 };
 
 Then("the user is taken to the {string} page", async function (pageTitle){
@@ -57,6 +58,6 @@ When("the simulator is sent the configuration", async function () {
 })
 
 Then("the simulator returns the expected user info", async function () {
-    const authorizeResponse = await fetch('http://localhost:3000/authorize?vtr=%5B%22Cl%22%5D&scope=openid+email&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A3001%2Fcallback&state=QL1o9IKHyfTr4BpTCiMeROYKyd-8-k6vytO8OaUZspI&prompt=none&nonce=61SGsT-UYLpgIS2DmBKP-JUkMiqJx1jhe6mk8RpWjRQ&client_id=HGIOgho9HIRhgoepdIOPFdIUWgewi0jw');
+    const authorizeResponse = await fetch('http://localhost:3000/authorize?vtr=%5B%22Cl%22%5D&scope=openid+email+phone&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A3001%2Fcallback&state=QL1o9IKHyfTr4BpTCiMeROYKyd-8-k6vytO8OaUZspI&prompt=none&nonce=61SGsT-UYLpgIS2DmBKP-JUkMiqJx1jhe6mk8RpWjRQ&client_id=HGIOgho9HIRhgoepdIOPFdIUWgewi0jw');
     equal(await authorizeResponse.text(), JSON.stringify(TEST_USER_INFO_RESPONSE));
 });
