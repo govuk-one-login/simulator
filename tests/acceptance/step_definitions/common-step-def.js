@@ -4,9 +4,9 @@ const { equal } = require("node:assert");
 
 const TEST_USER_INFO_RESPONSE = {
     sub: process.env.TEST_USER_SUB,
-    email: process.env.TEST_USER_EMAIL,
+    phone_number_verified: process.env.TEST_USER_PHONE_NUMBER_VERIFIED === "true",
     email_verified: process.env.TEST_USER_EMAIL_VERIFIED === "true",
-    phone_number_verified: process.env.TEST_USER_PHONE_NUMBER_VERIFIED === "true"
+    email: process.env.TEST_USER_EMAIL,
 };
 
 const TEST_USER_INFO_REQUEST = {
@@ -58,5 +58,5 @@ When("the simulator is sent the configuration", async function () {
 
 Then("the simulator returns the expected user info", async function () {
     const authorizeResponse = await fetch('http://localhost:3000/authorize?vtr=%5B%22Cl%22%5D&scope=openid+email&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A3001%2Fcallback&state=QL1o9IKHyfTr4BpTCiMeROYKyd-8-k6vytO8OaUZspI&prompt=none&nonce=61SGsT-UYLpgIS2DmBKP-JUkMiqJx1jhe6mk8RpWjRQ&client_id=HGIOgho9HIRhgoepdIOPFdIUWgewi0jw');
-    equal(authorizeResponse.text(), JSON.stringify(TEST_USER_INFO_RESPONSE));
+    equal(await authorizeResponse.text(), JSON.stringify(TEST_USER_INFO_RESPONSE));
 });

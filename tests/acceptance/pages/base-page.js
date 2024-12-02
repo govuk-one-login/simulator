@@ -66,6 +66,8 @@ module.exports = class BasePage {
 
     elementWithIdContainsText = async (elementId, text) => {
         await this.waitForReadyStateComplete();
+        const element = await this.page.findElement(By.xpath(`//*[@id='${elementId}']`));
+        console.log(await element.getText());
         await this.page.findElement(By.xpath(`//*[contains(text(), '${text}') and @id='${elementId}']`));
     }
 }
