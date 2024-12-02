@@ -52,7 +52,7 @@ export const userInfoController = async (
   }
 
   if (validationResult.scopes.includes("phone")) {
-    userInfo.phone_number = config.getPhoneNumber();
+    userInfo.phone_number = config.getPhoneNumber() ?? undefined;
     userInfo.phone_number_verified = config.getPhoneNumberVerified();
   }
 
