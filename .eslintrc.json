@@ -27,7 +27,8 @@
       "error",
       { "blankLine": "any", "prev": "*", "next": "*" }
     ],
-    "object-curly-spacing": ["error", "always"]
+    "object-curly-spacing": ["error", "always"],
+    "@typescript-eslint/no-require-imports": ["off"]
   },
   "settings": {
     "import/resolver": {

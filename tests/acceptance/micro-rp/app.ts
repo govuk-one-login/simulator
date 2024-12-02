@@ -4,29 +4,18 @@ import { importPKCS8, SignJWT } from "jose";
 
 const app = express();
 const port = 3001;
-const simulatorUrl =  "http://localhost:3000";
+const simulatorUrl = "http://localhost:3000";
 const clientId = "HGIOgho9HIRhgoepdIOPFdIUWgewi0jw";
-const sub = "urn:fdc:gov.uk:2022:56P4CMsGh_02YOlWpd8PAOI-2sVlB2nsNU7mcLZYhYw=";
 
 app.get("/callback", async (req: Request, res: Response) => {
-  const tokenResponse = await makeTokenRequest(req.params["code"]);
+  const tokenResponse = await makeTokenRequest(req.query["code"] as string);
   const userInfoResponse = await makeUserInfoRequest(
     tokenResponse["access_token"]
   );
-
-  res.send(`
-    <html>
-    <head><title>Example - GOV.UK - User Info</title></title>
-    <body>
-        <span>${JSON.stringify(userInfoResponse)}</span>
-    </body>
-    </html>
-    `);
+  res.send(userInfoResponse);
 });
 
-app.listen(port, () => {
-  console.log(`Micro RP listening on port ${port}`);
-});
+app.listen(port);
 
 const makeTokenRequest = async (code: string): Promise<TokenResponse> => {
   const privateKey = `-----BEGIN PRIVATE KEY-----
@@ -61,17 +50,17 @@ iZSejbyqjUjJBAH9GHkPsiA+w1vutdd2PuPKOV05TLmV5ZM06bmLHQjMCGMiWK0G
   const claims = {
     aud: tokenUri,
     iss: clientId,
-    sub: sub,
+    sub: clientId,
     exp: Date.now() / 1000 + 5 * 60,
     iat: Date.now() / 1000,
     jti: randomUUID(),
   };
   const tokenSigningKey = await importPKCS8(privateKey, "RSA");
   const jwt = await new SignJWT(claims)
-      .setProtectedHeader({
-        alg: "RS256",
-      })
-      .sign(tokenSigningKey);
+    .setProtectedHeader({
+      alg: "RS256",
+    })
+    .sign(tokenSigningKey);
   const body = {
     code: code,
     redirect_uri: "http://localhost:3001/callback",
@@ -82,6 +71,9 @@ iZSejbyqjUjJBAH9GHkPsiA+w1vutdd2PuPKOV05TLmV5ZM06bmLHQjMCGMiWK0G
   };
   const response = await fetch(tokenUri, {
     method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
     body: new URLSearchParams(body).toString(),
   });
   return response.json();

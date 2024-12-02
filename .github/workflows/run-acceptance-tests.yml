@@ -1,0 +1,71 @@
+name: Run Acceptance Tests
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  push:
+
+jobs:
+  run-acceptance-tests:
+    runs-on: ubuntu-latest
+    env:
+      TEST_USER_SUB: ${{ secrets.TEST_USER_SUB }}
+      TEST_USER_PHONE_NUMBER_VERIFIED: ${{ secrets.TEST_USER_PHONE_NUMBER_VERIFIED }}
+      TEST_USER_EMAIL_VERIFIED: ${{ secrets.TEST_USER_EMAIL_VERIFIED }}
+      TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+      TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+    services:
+      selenium:
+        image: selenium/standalone-chrome:latest
+        options: --shm-size=2gb
+        ports:
+          - 4444:4444
+      simulator:
+        image: ghcr.io/govuk-one-login/simulator:latest
+        env:
+          REDIRECT_URLS: "http://localhost:3001/callback"
+        ports:
+          - 3000:3000
+    steps:
+      - name: Pull repository
+        uses: actions/checkout@v4
+      - name: Set up micro RP
+        run: cd tests/acceptance/micro-rp && docker compose up --build -d
+      - name: Get Node.js version
+        run: |
+          version=$(grep -oP -m1 'node:\K.*(?=@)' Dockerfile)
+          echo "NODE_VERSION=$version" >> $GITHUB_ENV
+      - name: Using Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Get NPM version
+        run: echo "Using npm:$(npm -version)"
+      - name: Install dependencies
+        run: npm install
+      - name: Run acceptance tests
+        run: npm run acceptance-test
+      - name: Print simulator logs
+        if: ${{ failure() }}
+        run: docker logs "${{ job.services.simulator.id }}"
+      - name: Print micro rp logs
+        if: ${{ failure() }}
+        run: docker logs micro-rp-micro-rp-1
+      - name: Notify on failure
+        if: ${{ failure() }}
+        uses: slackapi/slack-github-action@v1.26.0
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.slack-webhook-url }}
+          SLACK_WEBHOOK_TYPE: "INCOMING_WEBHOOK"
+        with:
+          payload: |
+            {
+              "channel_id": "${{ secrets.slack-channel-id }}",
+              "github_repo": "${{ github.repository }}",
+              "message": "Acceptance tests have failed",
+              "aws_account": "N/A",
+              "level": "ERROR"
+            }
+      - name: Stop Docker
+        if: ${{ always() }}
+        run: cd tests/acceptance/micro-rp && docker compose down
