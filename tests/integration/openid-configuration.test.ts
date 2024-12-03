@@ -37,6 +37,7 @@ describe("/.well-known/openid-configuration endpoint test", () => {
       trustmarks: "http://localhost:3000/trustmark",
       subject_types_supported: ["public", "pairwise"],
       userinfo_endpoint: "http://localhost:3000/userinfo",
+      end_session_endpoint: "http://localhost:3000/logout",
       id_token_signing_alg_values_supported: ["ES256", "RS256"],
       claim_types_supported: ["normal"],
       claims_supported: [
