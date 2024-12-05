@@ -9,7 +9,7 @@ import { importPKCS8, SignJWT } from "jose";
 import { Config } from "../../src/config";
 
 const LOGOUT_ENDPOINT = "/logout";
-const DEFAULT_LOGGED_OUT_URL = "http://localhost:3000/signed-out";
+const DEFAULT_LOGGED_OUT_URL = "https://gov.uk";
 const DEFAULT_CLIENT_ID = "HGIOgho9HIRhgoepdIOPFdIUWgewi0jw";
 
 const fakeIdToken = async (

@@ -18,7 +18,7 @@ export const logoutController = async (
   logger.info("Logout request received");
   const config = Config.getInstance();
 
-  const defaultLogoutUrl = `${config.getSimulatorUrl()}/signed-out`;
+  const defaultLogoutUrl = "https://gov.uk";
 
   if (Object.keys(queryParams).length === 0) {
     return res.redirect(defaultLogoutUrl);
