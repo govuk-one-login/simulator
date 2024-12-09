@@ -52,7 +52,11 @@ CQIDAQAB
         : ["http://localhost:8080/signed-out"],
       claims: process.env.CLAIMS
         ? (process.env.CLAIMS.split(",") as UserIdentityClaim[])
-        : ["https://vocab.account.gov.uk/v1/coreIdentityJWT"],
+        : [
+            "https://vocab.account.gov.uk/v1/coreIdentityJWT",
+            "https://vocab.account.gov.uk/v1/address",
+            "https://vocab.account.gov.uk/v1/returnCode",
+          ],
       identityVerificationSupported:
         process.env.IDENTITY_VERIFICATION_SUPPORTED !== "false",
       idTokenSigningAlgorithm:
@@ -71,12 +75,47 @@ CQIDAQAB
       phoneNumber: process.env.PHONE_NUMBER ?? "07123456789",
       phoneNumberVerified: process.env.PHONE_NUMBER_VERIFIED !== "false",
       maxLoCAchieved: "P2",
-      coreIdentityVerifiableCredentials: null,
+      coreIdentityVerifiableCredentials: {
+        type: ["VerifiableCredential", "IdentityCheckCredential"],
+        credentialSubject: {
+          name: [
+            {
+              nameParts: [
+                {
+                  value: "GEOFFREY",
+                  type: "GivenName",
+                },
+                {
+                  value: "HEARNSHAW",
+                  type: "FamilyName",
+                },
+              ],
+            },
+          ],
+          birthDate: [
+            {
+              value: "1955-04-19",
+            },
+          ],
+        },
+      },
       passportDetails: null,
       drivingPermitDetails: null,
       socialSecurityRecordDetails: null,
-      postalAddressDetails: null,
-      returnCodes: null,
+      postalAddressDetails: [
+        {
+          addressCountry: "GB",
+          buildingName: "",
+          streetName: "FRAMPTON ROAD",
+          postalCode: "GL1 5QB",
+          buildingNumber: "26",
+          addressLocality: "GLOUCESTER",
+          validFrom: "2000-01-01",
+          uprn: 100120472196,
+          subBuildingName: "",
+        },
+      ],
+      returnCodes: [],
     };
 
     this.errorConfiguration = {
