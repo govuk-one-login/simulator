@@ -11,6 +11,7 @@ import { generateConfigRequestPropertyValidators } from "./types/config-request"
 import { body, checkExact } from "express-validator";
 import { didController } from "./components/did/did-controller";
 import { logoutController } from "./components/logout/logout-controller";
+import { getConfigController } from "./components/config/get-config-controller";
 
 const createApp = (): Application => {
   const app: Express = express();
@@ -32,6 +33,7 @@ const createApp = (): Application => {
     body().isObject(),
     configController
   );
+  app.get("/config", getConfigController);
   app.post("/token", tokenController);
   app.get("/userinfo", userInfoController);
   app.get("/trustmark", trustmarkController);
