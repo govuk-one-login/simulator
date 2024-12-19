@@ -146,6 +146,10 @@ CQIDAQAB
     Config.instance = new Config();
   }
 
+  public getClientConfiguration(): ClientConfiguration {
+    return this.clientConfiguration;
+  }
+
   public getClientId(): string {
     return this.clientConfiguration.clientId!;
   }
@@ -219,6 +223,10 @@ CQIDAQAB
 
   public setClientLoCs(clientLoCs: string[]): void {
     this.clientConfiguration.clientLoCs = clientLoCs;
+  }
+
+  public getResponseConfiguration(): ResponseConfiguration {
+    return this.responseConfiguration;
   }
 
   public getSub(): string {
@@ -354,6 +362,10 @@ CQIDAQAB
       ...(this.accessTokenStore[clientIdSub] ?? []),
       accessToken,
     ];
+  }
+
+  public getErrorConfiguration(): ErrorConfiguration {
+    return this.errorConfiguration;
   }
 
   public getCoreIdentityErrors(): CoreIdentityError[] {
