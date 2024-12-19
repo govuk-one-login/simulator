@@ -112,6 +112,9 @@ Parameters provided as environment variables that are parsed as an array should 
 
 Where values are not provided for the configuration, [default values](#default-configuration-values) will be used. Some provided configuration fields may be ignored if they are not valid.
 
+### Getting the configuration:
+To get the current configuration of the simulator, a GET request can be made to the `/config` endpoint. This returns the client configuration, response configuration and error configuration, as well as the url the simulator is running on, in the body of the response.
+
 ### Client Configuration
 
 The table below describes the different fields for the client configuration. When updating the client config using the `/config` endpoint, the following JSON structure is required in the request body:
