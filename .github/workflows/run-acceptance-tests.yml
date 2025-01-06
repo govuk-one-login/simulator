@@ -28,6 +28,7 @@ jobs:
         image: ghcr.io/govuk-one-login/simulator:latest
         env:
           REDIRECT_URLS: "http://localhost:3001/callback"
+          CLAIMS: "https://vocab.account.gov.uk/v1/coreIdentityJWT,https://vocab.account.gov.uk/v1/address,https://vocab.account.gov.uk/v1/passport"
         ports:
           - 3000:3000
     steps:
@@ -59,14 +60,14 @@ jobs:
         if: ${{ failure() }}
         uses: slackapi/slack-github-action@v1.26.0
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.slack-webhook-url }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: "INCOMING_WEBHOOK"
         with:
           payload: |
             {
-              "channel_id": "${{ secrets.slack-channel-id }}",
+              "channel_id": "${{ secrets.SLACK_CHANNEL_ID }}",
               "github_repo": "${{ github.repository }}",
-              "message": "Acceptance tests have failed",
+              "message": "Simulator acceptance tests have failed",
               "aws_account": "N/A",
               "level": "ERROR"
             }
