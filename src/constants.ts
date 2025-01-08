@@ -26,6 +26,7 @@ export const VALID_OIDC_PROMPTS = [
   "login",
   "consent",
   "select_account",
+  "create",
 ];
 
 //We only support the code response_type, but
