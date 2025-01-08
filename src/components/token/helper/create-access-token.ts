@@ -8,7 +8,7 @@ import { Config } from "../../../config";
 import { logger } from "../../../logger";
 import { signToken } from "./sign-token";
 import { AccessTokenClaims } from "../../../types/access-token-claims";
-import { VectorOfTrust } from "src/types/vector-of-trust";
+import { VectorOfTrust } from "../../../types/vector-of-trust";
 
 export const createAccessToken = async (
   scope: string[],
