@@ -18,7 +18,7 @@ const defaultAuthRequest = {
   nonce: "987654321",
   scope: ["openid"],
   claims: [validClaim],
-  vtr: [],
+  vtr: '["Cl.Cm"]',
   prompt: [],
   ui_locales: [],
   max_age: 123,
@@ -179,6 +179,26 @@ describe("validateAuthRequestQueryParams tests", () => {
       new AuthoriseRequestError({
         errorCode: "invalid_request",
         errorDescription: "Request vtr not valid",
+        httpStatusCode: 302,
+        redirectUri: defaultAuthRequest.redirect_uri,
+        state: defaultAuthRequest.state,
+      })
+    );
+  });
+
+  it("throws an invalid request error for max_age less than -1", () => {
+    expect(() =>
+      validateAuthRequestQueryParams(
+        {
+          ...defaultAuthRequest,
+          max_age: -100,
+        },
+        config
+      )
+    ).toThrow(
+      new AuthoriseRequestError({
+        errorCode: "invalid_request",
+        errorDescription: "Max age is negative in query params",
         httpStatusCode: 302,
         redirectUri: defaultAuthRequest.redirect_uri,
         state: defaultAuthRequest.state,

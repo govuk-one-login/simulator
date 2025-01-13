@@ -95,4 +95,15 @@ export const validateAuthRequestQueryParams = (
     queryParams.state,
     queryParams.redirect_uri
   );
+
+  if (queryParams.max_age && queryParams.max_age < -1) {
+    logger.error("Negative max_age in authorise request");
+    throw new AuthoriseRequestError({
+      errorCode: "invalid_request",
+      errorDescription: "Max age is negative in query params",
+      httpStatusCode: 302,
+      redirectUri: queryParams.redirect_uri,
+      state: queryParams.state,
+    });
+  }
 };
