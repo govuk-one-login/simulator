@@ -9,4 +9,5 @@ export type IdTokenClaims = {
   nonce: string;
   vtm: string;
   sid: string;
+  auth_time: number;
 };
