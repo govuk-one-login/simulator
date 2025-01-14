@@ -77,6 +77,7 @@ describe("createIdToken tests", () => {
       vtm: "http://localhost:3000/trustmark",
       vot: "Cl.Cm",
       nonce: mockAuthRequestParams.nonce,
+      auth_time: Math.floor(testTimestampMs / 1000),
     });
     expect(typeof tokenParts[2]).toBe("string");
   });
@@ -108,6 +109,7 @@ describe("createIdToken tests", () => {
       vtm: "http://localhost:3000/trustmark",
       vot: mockAuthRequestParams.vtr.credentialTrust,
       nonce: mockAuthRequestParams.nonce,
+      auth_time: Math.floor(testTimestampMs / 1000),
     });
     expect(typeof tokenParts[2]).toBe("string");
   });

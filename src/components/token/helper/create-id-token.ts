@@ -77,6 +77,7 @@ const createIdTokenClaimSet = (
       ? randomBytes(32).toString()
       : authRequestParams.nonce,
     vtm: config.getTrustmarkUrl(),
+    auth_time: timeNow,
   };
 };
 

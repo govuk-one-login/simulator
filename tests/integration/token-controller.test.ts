@@ -18,10 +18,14 @@ import {
   SESSION_ID,
   VALID_CLAIMS,
   RSA_PRIVATE_TOKEN_SIGNING_KEY,
+  ID_TOKEN_EXPIRY,
 } from "../../src/constants";
 import { decodeJwtNoVerify } from "./helper/decode-jwt-no-verify";
 
 const TOKEN_ENDPOINT = "/token";
+
+const TIME_NOW = 1736789549;
+jest.useFakeTimers().setSystemTime(TIME_NOW);
 
 const rsaKeyPair = generateKeyPairSync("rsa", {
   modulusLength: 2048,
@@ -72,7 +76,7 @@ const createClientAssertionPayload = (
   isExpired = false
 ) =>
   new UnsecuredJWT(payload)
-    .setIssuedAt(Math.floor(Date.now() / 1000))
+    .setIssuedAt(Math.floor(TIME_NOW / 1000))
     .setExpirationTime(isExpired ? "-1h" : "1h")
     .setJti(randomUUID())
     .setAudience(audience)
@@ -438,8 +442,8 @@ describe("/token endpoint tests, invalid client assertion", () => {
         sub: knownClientId,
         aud: "https://identity-provider.example.com/token",
         jti: randomUUID(),
-        iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor(Date.now() / 1000) + 3600,
+        iat: Math.floor(TIME_NOW / 1000),
+        exp: Math.floor(TIME_NOW / 1000) + 3600,
       }) +
       "." +
       fakeSignature();
@@ -477,8 +481,8 @@ describe("/token endpoint, configured error responses", () => {
         sub: knownClientId,
         aud: audience,
         jti: randomUUID(),
-        iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor(Date.now() / 1000) + 3600,
+        iat: Math.floor(TIME_NOW / 1000),
+        exp: Math.floor(TIME_NOW / 1000) + 3600,
       }),
     };
   });
@@ -538,7 +542,7 @@ describe("/token endpoint, configured error responses", () => {
     const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
     const { id_token } = response.body;
     const { payload } = decodeJwtNoVerify(id_token);
-    expect(payload.iat).toBeGreaterThan(Date.now() / 1000);
+    expect(payload.iat).toBe(Math.floor(TIME_NOW / 1000) + 86400);
   });
 
   it("returns an expired token if the client config has enabled TOKEN_EXPIRED", async () => {
@@ -551,7 +555,7 @@ describe("/token endpoint, configured error responses", () => {
     const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
     const { id_token } = response.body;
     const { payload } = decodeJwtNoVerify(id_token);
-    expect(payload.iat).toBeLessThan(Date.now() / 1000);
+    expect(payload.iat).toBe(Math.floor(TIME_NOW / 1000));
   });
 
   it("returns an invalid aud if the client config has enabled INVALID_AUD", async () => {
@@ -612,8 +616,8 @@ describe("/token endpoint valid client_assertion", () => {
       sub: knownClientId,
       aud: audience,
       jti: randomUUID(),
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 3600,
+      iat: Math.floor(TIME_NOW / 1000),
+      exp: Math.floor(TIME_NOW / 1000) + 3600,
     });
 
     const app = createApp();
@@ -643,8 +647,8 @@ describe("/token endpoint valid client_assertion", () => {
       sub: knownClientId,
       aud: audience,
       jti: randomUUID(),
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 3600,
+      iat: Math.floor(TIME_NOW / 1000),
+      exp: Math.floor(TIME_NOW / 1000) + 3600,
     });
 
     const app = createApp();
@@ -674,8 +678,8 @@ describe("/token endpoint valid client_assertion", () => {
       sub: knownClientId,
       aud: audience,
       jti: randomUUID(),
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 3600,
+      iat: Math.floor(TIME_NOW / 1000),
+      exp: Math.floor(TIME_NOW / 1000) + 3600,
     });
 
     const app = createApp();
@@ -722,5 +726,10 @@ describe("/token endpoint valid client_assertion", () => {
     expect(decodedIdToken.payload.vot).toBe(
       validAuthRequestParams.vtr.credentialTrust
     );
+    expect(decodedIdToken.payload.iat).toBe(Math.floor(TIME_NOW / 1000));
+    expect(decodedIdToken.payload.exp).toBe(
+      Math.floor(TIME_NOW / 1000) + ID_TOKEN_EXPIRY
+    );
+    expect(decodedIdToken.payload.auth_time).toBe(Math.floor(TIME_NOW / 1000));
   });
 });
