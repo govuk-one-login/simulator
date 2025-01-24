@@ -20,6 +20,28 @@ describe("vtrValidator tests", () => {
     ]);
   });
 
+  it("returns the default credential trust and level of confidence when vtr is an empty string", () => {
+    levelOfConfidenceSpy.mockReturnValue(["P0", "P2"]);
+
+    expect(vtrValidator("", config, state, redirectUri)).toStrictEqual([
+      {
+        levelOfConfidence: null,
+        credentialTrust: "Cl.Cm",
+      },
+    ]);
+  });
+
+  it("returns the default credential trust and level of confidence when vtr is a stringified empty list", () => {
+    levelOfConfidenceSpy.mockReturnValue(["P0", "P2"]);
+
+    expect(vtrValidator("[]", config, state, redirectUri)).toStrictEqual([
+      {
+        levelOfConfidence: null,
+        credentialTrust: "Cl.Cm",
+      },
+    ]);
+  });
+
   it("throws an error when a vtr includes more than 1 identity component", () => {
     levelOfConfidenceSpy.mockReturnValue(["P0", "P2"]);
 

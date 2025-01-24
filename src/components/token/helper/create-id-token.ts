@@ -7,7 +7,7 @@ import {
   SESSION_ID,
 } from "../../../constants";
 import { logger } from "../../../logger";
-import AuthRequestParameters from "src/types/auth-request-parameters";
+import AuthRequestParameters from "../../../types/auth-request-parameters";
 import { signToken } from "./sign-token";
 import { IdTokenClaims } from "../../../types/id-token-claims";
 import { fakeSignature } from "../../../components/utils/fake-signature";

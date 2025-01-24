@@ -4,6 +4,13 @@ import { logger } from "../logger";
 import { VALID_CREDENTIAL_TRUST_VALUES, VALID_LOC_VALUES } from "../constants";
 import { VectorOfTrust } from "../types/vector-of-trust";
 
+export const DEFAULT_VTR: VectorOfTrust[] = [
+  {
+    levelOfConfidence: null,
+    credentialTrust: "Cl.Cm",
+  },
+];
+
 export const vtrValidator = (
   vtr: string | undefined,
   config: Config,
@@ -12,12 +19,7 @@ export const vtrValidator = (
 ): VectorOfTrust[] => {
   if (!vtr) {
     logger.info("No vtr value provided, attaching default credential trust");
-    return [
-      {
-        levelOfConfidence: null,
-        credentialTrust: "Cl.Cm",
-      },
-    ];
+    return DEFAULT_VTR;
   }
 
   let vtrSet: string[];
@@ -29,6 +31,11 @@ export const vtrValidator = (
   } catch (error) {
     logger.error("Error parsing vtr value: " + (error as Error).message);
     throw generateInvalidVtrError(redirectUri, state);
+  }
+
+  if (vtrSet.length == 0) {
+    logger.info("No vtr value provided, attaching default credential trust");
+    return DEFAULT_VTR;
   }
 
   const clientLevelsOfConfidence = config.getClientLoCs();
