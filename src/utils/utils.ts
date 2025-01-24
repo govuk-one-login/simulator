@@ -60,6 +60,9 @@ export const transformRequestObject = (
   const payload = requestObject.payload;
   const response_type = payload.response_type;
   const scope = (payload.scope as string).split(" ");
+  if (!scope.includes("openid")) {
+    throw new Error('Missing required scope: "openid"');
+  }
   const client_id = payload.client_id;
   const redirect_uri = payload.redirect_uri;
   const state = payload.state;

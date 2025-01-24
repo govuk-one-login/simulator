@@ -659,6 +659,27 @@ describe("Auth requests using request objects", () => {
         })
       );
     });
+    it('returns a 500 response when request object missing required scope "openid"', async () => {
+      const app = createApp();
+      const requestParams = createRequestParams({
+        client_id: knownClientId,
+        redirect_uri: knownRedirectUri,
+        response_type: "code",
+        scope: "openid email",
+        request: await encodedJwtWithParams({
+          scope: "email",
+        }),
+      });
+      const response = await request(app).get(
+        authoriseEndpoint + "?" + requestParams
+      );
+      expect(response.status).toBe(500);
+      expect(response.text).toBe(
+        JSON.stringify({
+          message: "Internal Server Error",
+        })
+      );
+    });
   });
 
   describe("/authorize GET controller: invalid request redirecting errors", () => {
