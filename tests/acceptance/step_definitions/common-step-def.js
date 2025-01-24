@@ -21,7 +21,6 @@ const TEST_USER_INFO_REQUEST = {
 };
 
 const TEST_USER_INFO_IDENTITY_REQUEST = { ...TEST_USER_INFO_REQUEST,
-    coreIdentityVerifiableCredentials: "STUB_IDENTITY",
     passportDetails: PASSPORT,
     postalAddressDetails: ADDRESS,
 }
@@ -32,7 +31,6 @@ const TEST_USER_INFO_IDENTITY_RESPONSE = {
     email_verified: process.env.TEST_USER_EMAIL_VERIFIED === "true",
     phone_number_verified: process.env.TEST_USER_PHONE_NUMBER_VERIFIED === "true",
     phone_number: process.env.TEST_USER_PHONE_NUMBER,
-    'https:\\/\\/vocab.account.gov.uk\\/v1\\/coreIdentityJWT': "STUB_IDENTITY",
     "https:\\/\\/vocab.account.gov.uk\\/v1\\/address": ADDRESS,
     email: process.env.TEST_USER_EMAIL,
 }
@@ -107,13 +105,7 @@ Then("the simulator returns the expected auth only user info", async function ()
 });
 
 Then("the simulator returns the expected identity user info", async function () {
-    const authorizeResponse = await fetch('http://localhost:3000/authorize?vtr=%5B%22P2.Cl.Cm%22%5D&scope=openid+email+phone&claims=%7B%22userinfo%22%3A%7B%22https%3A%5C%2F%5C%2Fvocab.account.gov.uk%5C%2Fv1%5C%2Fpassport%22%3A%7B%22essential%22%3Atrue%7D%2C%22https%3A%5C%2F%5C%2Fvocab.account.gov.uk%5C%2Fv1%5C%2FcoreIdentityJWT%22%3A%7B%22essential%22%3Atrue%7D%2C%22https%3A%5C%2F%5C%2Fvocab.account.gov.uk%5C%2Fv1%5C%2Faddress%22%3A%7B%22essential%22%3Atrue%7D%7D%7D&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A3001%2Fcallback&state=QL1o9IKHyfTr4BpTCiMeROYKyd-8-k6vytO8OaUZspI&prompt=none&nonce=61SGsT-UYLpgIS2DmBKP-JUkMiqJx1jhe6mk8RpWjRQ&client_id=HGIOgho9HIRhgoepdIOPFdIUWgewi0jw');
-    const expectedResponse = Object.keys(TEST_USER_INFO_IDENTITY_RESPONSE).reduce((acc, key) => {
-        const newKey = key.replace(/\\\\\//g, '/');
-        acc[newKey] = TEST_USER_INFO_IDENTITY_RESPONSE[key];
-        return acc;
-    });
-    console.log(expectedResponse);
-    console.log(authorizeResponse.json());
+    const authorizeResponse = await fetch('http://localhost:3000/authorize?vtr=%5B%22P2.Cl.Cm%22%5D&scope=openid+email+phone&claims=%7B%22userinfo%22%3A%7B%22https%3A%5C%2F%5C%2Fvocab.account.gov.uk%5C%2Fv1%5C%2Fpassport%22%3A%7B%22essential%22%3Atrue%7D%2C%22https%3A%5C%2F%5C%2Fvocab.account.gov.uk%5C%2Fv1%5C%2Faddress%22%3A%7B%22essential%22%3Atrue%7D%7D%7D&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A3001%2Fcallback&state=QL1o9IKHyfTr4BpTCiMeROYKyd-8-k6vytO8OaUZspI&prompt=none&nonce=61SGsT-UYLpgIS2DmBKP-JUkMiqJx1jhe6mk8RpWjRQ&client_id=HGIOgho9HIRhgoepdIOPFdIUWgewi0jw');
+    const expectedResponse = Object.fromEntries(Object.entries(TEST_USER_INFO_IDENTITY_RESPONSE).map(([k, v]) => [k.replaceAll("\\/", "/"), v]));
     deepStrictEqual(await authorizeResponse.json(), expectedResponse);
 });

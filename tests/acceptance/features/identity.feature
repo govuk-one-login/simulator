@@ -1,6 +1,6 @@
 Feature: Identity
   Scenario: User successfully gets identity response
-    Given the user comes from the stub relying party with options: "loc-P2"
+    Given the user comes from the stub relying party with options: "loc-P2,claims-core-identity"
     Then the user is taken to the "Create your GOV.UK One Login or sign in" page
     When the user selects sign in
     Then the user is taken to the "Enter your email" page
