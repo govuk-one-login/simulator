@@ -11,10 +11,6 @@ export const validateAuthRequestQueryParams = (
   queryParams: AuthRequest,
   config: Config
 ): void => {
-  if (config.getClientId() !== queryParams.client_id) {
-    throw new BadRequestError("Invalid request");
-  }
-
   if (!config.getRedirectUrls().includes(queryParams.redirect_uri)) {
     logger.warn(
       "Redirect URI not valid for client: " + queryParams.redirect_uri

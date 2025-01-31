@@ -34,6 +34,13 @@ export const authoriseController = async (
       throw new MethodNotAllowedError(req.method);
     }
 
+    if (parsedAuthRequest.client_id !== config.getClientId()) {
+      logger.warn("No Client found for ClientID");
+      throw new BadRequestError(
+        `No Client found for ClientID: ${parsedAuthRequest.client_id}`
+      );
+    }
+
     if (!parsedAuthRequest.requestObject) {
       logger.info("Validating request query params");
       validateAuthRequestQueryParams(parsedAuthRequest, config);

@@ -58,7 +58,7 @@ describe("Auth requests using query params", () => {
       expect(response.text).toBe("Invalid Request");
     });
 
-    it("returns an Missing Parameters response for a no redirect uri", async () => {
+    it("returns an Missing Parameters response for no redirect uri", async () => {
       const app = createApp();
       const requestParams = createRequestParams({
         client_id: knownClientId,

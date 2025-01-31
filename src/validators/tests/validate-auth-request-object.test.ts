@@ -32,20 +32,6 @@ describe("Validate auth request object tests", () => {
   beforeEach(() => {
     (jwtVerify as jest.Mock).mockImplementation();
   });
-
-  it("it throws a generic error if the clientId does not match the config", async () => {
-    const authRequest = {
-      ...defaultAuthRequest,
-      client_id: "notInConfig",
-    };
-
-    await expect(
-      validateAuthRequestObject(authRequest, config)
-    ).rejects.toThrow(
-      new BadRequestError("No Client found with given ClientID")
-    );
-  });
-
   it("throw parse request error when signature check fails", async () => {
     (jwtVerify as jest.Mock).mockImplementation(() => {
       throw new Error();

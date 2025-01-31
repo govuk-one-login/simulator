@@ -25,18 +25,6 @@ const defaultAuthRequest = {
 };
 
 describe("validateAuthRequestQueryParams tests", () => {
-  it("throws a bad request error if the client id does not match the config ", () => {
-    expect(() =>
-      validateAuthRequestQueryParams(
-        {
-          ...defaultAuthRequest,
-          client_id: "not-in-config",
-        },
-        config
-      )
-    ).toThrow(new BadRequestError("Invalid request"));
-  });
-
   it("throws a bad request error if the redirect_uri is not in the config", () => {
     expect(() =>
       validateAuthRequestQueryParams(

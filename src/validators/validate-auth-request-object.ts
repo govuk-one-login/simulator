@@ -19,10 +19,6 @@ export const validateAuthRequestObject = async (
   authRequest: AuthRequest,
   config: Config
 ): Promise<void> => {
-  if (config.getClientId() !== authRequest.client_id) {
-    throw new BadRequestError("No Client found with given ClientID");
-  }
-
   const requestObject = authRequest.requestObject!;
   await validateJwtSignature(requestObject, config.getPublicKey());
 
