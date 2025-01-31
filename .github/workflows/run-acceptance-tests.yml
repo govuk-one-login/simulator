@@ -1,0 +1,66 @@
+name: Run Acceptance Tests
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+
+jobs:
+  run-acceptance-tests:
+    runs-on: ubuntu-latest
+    env:
+      TEST_USER_SUB: ${{ secrets.TEST_USER_SUB }}
+      TEST_USER_PHONE_NUMBER_VERIFIED: ${{ secrets.TEST_USER_PHONE_NUMBER_VERIFIED }}
+      TEST_USER_PHONE_NUMBER: ${{ secrets.TEST_USER_PHONE_NUMBER }}
+      TEST_USER_EMAIL_VERIFIED: ${{ secrets.TEST_USER_EMAIL_VERIFIED }}
+      TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+      TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+      TEST_USER_PHONE_VERIFY_CODE: ${{ secrets.TEST_USER_PHONE_VERIFY_CODE }}
+      TEST_USER_PASSPORT: ${{ secrets.TEST_USER_PASSPORT }}
+      TEST_USER_ADDRESS: ${{ secrets.TEST_USER_ADDRESS }}
+    services:
+      selenium:
+        image: selenium/standalone-chrome:latest
+        options: --shm-size=2gb
+        ports:
+          - 4444:4444
+      simulator:
+        image: ghcr.io/govuk-one-login/simulator:latest
+        env:
+          REDIRECT_URLS: "http://localhost:3001/callback"
+          CLAIMS: "https://vocab.account.gov.uk/v1/coreIdentityJWT,https://vocab.account.gov.uk/v1/address,https://vocab.account.gov.uk/v1/passport"
+        ports:
+          - 3000:3000
+    steps:
+      - name: Pull repository
+        uses: actions/checkout@v4
+      - name: Set up micro RP
+        run: cd tests/acceptance/micro-rp && docker compose up --build -d
+      - name: Get Node.js version
+        run: |
+          version=$(grep -oP -m1 'node:\K.*(?=@)' Dockerfile)
+          echo "NODE_VERSION=$version" >> $GITHUB_ENV
+      - name: Using Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Get NPM version
+        run: echo "Using npm:$(npm -version)"
+      - name: Install dependencies
+        run: npm install
+      - name: Run acceptance tests
+        run: npm run acceptance-test
+      - name: Notify on failure
+        if: ${{ failure() }}
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
+          payload: |
+            channel_id: "${{ secrets.SLACK_CHANNEL_ID }}"
+            github_repo: "${{ github.repository }}"
+            message: "Simulator acceptance tests have failed"
+            aws_account: "N/A"
+            level: "ERROR"
+      - name: Stop Docker
+        if: ${{ always() }}
+        run: cd tests/acceptance/micro-rp && docker compose down

@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
+    "acceptance-test": "mkdir -p reports && cucumber-js --config ./tests/acceptance/cucumber.js",
     "build": "npx tsc",
     "start": "node dist/server.js",
     "start:micro-rp": "node dist/tests/acceptance/micro-rp/app.js",
