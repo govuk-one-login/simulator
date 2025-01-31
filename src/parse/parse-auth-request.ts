@@ -57,9 +57,12 @@ export const parseAuthRequest = (
     );
   }
 
-  if (authRequest.response_type === null || authRequest.response_type === "") {
+  if (
+    authRequest.response_type &&
+    !isResponseTypeValid(authRequest.response_type)
+  ) {
     throw new ParseAuthRequestError(
-      "Invalid Request: Invalid response_type parameter ",
+      "Invalid Request: Invalid response_type parameter",
       authRequest.client_id,
       authRequest.redirect_uri
     );

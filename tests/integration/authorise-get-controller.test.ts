@@ -32,7 +32,7 @@ describe("Auth requests using query params", () => {
       expect(response.text).toBe("Request is missing parameters");
     });
 
-    it("returns an Missing Parameters response for an no client_id", async () => {
+    it("returns an Missing Parameters response for no client_id", async () => {
       const app = createApp();
       const requestParams = createRequestParams({
         state: "51994f8e382a5c6ffa19d2518b190696",
@@ -42,18 +42,6 @@ describe("Auth requests using query params", () => {
       );
       expect(response.status).toBe(400);
       expect(response.text).toBe("Request is missing parameters");
-    });
-
-    it("returns an invalid request response for no response_type", async () => {
-      const app = createApp();
-      const requestParams = createRequestParams({
-        client_id: knownClientId,
-      });
-      const response = await request(app).get(
-        authoriseEndpoint + "?" + requestParams
-      );
-      expect(response.status).toBe(400);
-      expect(response.text).toBe("Invalid Request");
     });
 
     it("returns invalid request for a non-oidc prompt", async () => {

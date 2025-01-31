@@ -40,22 +40,6 @@ describe("parseAuthRequest tests", () => {
       );
     });
 
-    it("throws a parse request error for no response_type", () => {
-      expect(() =>
-        parseAuthRequest({
-          redirect_uri: redirectUri,
-          client_id: clientId,
-          state: state,
-          nonce: "8b5376320b7d9307627a5ad9512da4f84555d96fe9517365",
-          scope: "openid email phone",
-          claims:
-            '{"userinfo":{"https:\\/\\/vocab.account.gov.uk\\/v1\\/passport":{"essential":true},"https:\\/\\/vocab.account.gov.uk\\/v1\\/coreIdentityJWT":{"essential":true},"https:\\/\\/vocab.account.gov.uk\\/v1\\/address":{"essential":true}}}',
-          vtr: '["Cl.Cm"]',
-          prompt: "none",
-        })
-      ).toThrow(new MissingParameterError("Missing response_type parameter"));
-    });
-
     it("throws a parse request error if the prompt value is invalid", () => {
       expect(() =>
         parseAuthRequest({
@@ -158,7 +142,7 @@ describe("parseAuthRequest tests", () => {
         })
       ).toThrow(
         new ParseAuthRequestError(
-          "Invalid Request: Unsupported response_type parameter: notValid",
+          "Invalid Request: Invalid response_type parameter",
           redirectUri,
           clientId
         )
