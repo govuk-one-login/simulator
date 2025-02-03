@@ -1,7 +1,7 @@
 import express, { Application, Express, Request, Response } from "express";
 import { configController } from "./components/config/config-controller";
 import { tokenController } from "./components/token/token-controller";
-import { authoriseGetController } from "./components/authorise/authorise-get-controller";
+import { authoriseController } from "./components/authorise/authorise-get-controller";
 import { dedupeQueryParams } from "./middleware/dedupe-query-params";
 import { userInfoController } from "./components/user-info/user-info-controller";
 import { generateJWKS } from "./components/token/helper/key-helpers";
@@ -23,7 +23,7 @@ const createApp = (): Application => {
   app.get("/", (req: Request, res: Response) => {
     res.send("Express + TypeScript Server");
   });
-  app.get("/authorize", authoriseGetController);
+  app.use("/authorize", authoriseController);
 
   app.post(
     "/config",
