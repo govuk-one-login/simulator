@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
+    "acceptance-test": "mkdir -p reports && cucumber-js --config ./tests/acceptance/cucumber.js",
     "build": "npx tsc",
     "start": "node dist/server.js",
     "start:micro-rp": "node dist/tests/acceptance/micro-rp/app.js",
@@ -29,9 +30,11 @@
     "pino": "^9.5.0"
   },
   "devDependencies": {
+    "@cucumber/cucumber": "^10.9.0",
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.13",
     "@types/node": "^22.8.1",
+    "@types/selenium-webdriver": "^4.1.25",
     "@types/supertest": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^8.11.0",
     "@typescript-eslint/parser": "^8.11.0",
@@ -42,6 +45,7 @@
     "eslint-plugin-prettier": "^5.2.1",
     "husky": "^9.1.6",
     "jest": "^29.7.0",
+    "selenium-webdriver": "^4.23.0",
     "supertest": "^7.0.0",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
