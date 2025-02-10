@@ -1,0 +1,18 @@
+services:
+  simulator:
+    container_name: simulator
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: on-failure
+    network_mode: host
+  selenium:
+    platform: linux/x86_64/v8
+    image: selenium/standalone-chrome:latest
+    network_mode: host
+  micro-rp:
+    build:
+      context: ./tests/acceptance/micro-rp
+      dockerfile: Dockerfile
+    restart: on-failure
+    network_mode: host
