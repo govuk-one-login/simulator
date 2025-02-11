@@ -4,7 +4,8 @@ import { logger } from "../logger";
 import { AuthRequest, RequestObject } from "../parse/parse-auth-request";
 import { VectorOfTrust } from "../types/vector-of-trust";
 import { JWTPayload } from "jose";
-import { ParseAuthRequestError } from "..//errors/parse-auth-request-error";
+import { ParseAuthRequestError } from "../errors/parse-auth-request-error";
+import { Response } from "express";
 
 export const isValidUri = (uri: string): boolean => {
   try {
@@ -147,4 +148,11 @@ export const parsePrompts = (
   }
 
   return includedPrompts;
+};
+
+export const redirectWithoutBody = (res: Response, location: string): void => {
+  // res.redirect sends a non-configurable body which does not match the real system
+  res.status(302);
+  res.location(location);
+  res.end();
 };

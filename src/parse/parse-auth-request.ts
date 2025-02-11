@@ -12,6 +12,7 @@ import {
 } from "jose";
 import { VectorOfTrust } from "../types/vector-of-trust";
 import { isValidUri, parsePrompts } from "../utils/utils";
+import { BadRequestError } from "../errors/bad-request-error";
 
 export type RequestObject = {
   header: ProtectedHeaderParameters;
@@ -52,7 +53,7 @@ export const parseAuthRequest = (
   }
 
   if (authRequest.redirect_uri && !isValidUri(authRequest.redirect_uri)) {
-    throw new MissingParameterError(
+    throw new BadRequestError(
       "Invalid Request: Invalid redirect_uri parameter"
     );
   }

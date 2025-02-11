@@ -1,5 +1,6 @@
 const CustomWorld = require("../pages/custom-world.js");
 const { After, Status, Before, setWorldConstructor, setDefaultTimeout } = require('@cucumber/cucumber');
+const { setSimulatorClientId } = require('./simulator-step-def.js');
 
 setWorldConstructor(CustomWorld);
 setDefaultTimeout(30 * 1000);
@@ -17,4 +18,8 @@ After(async function (scenario) {
         });
     }
     await this.driver.quit();
+})
+
+After({ tags:'@ModifiesClientId' }, async function () {
+    await setSimulatorClientId("HGIOgho9HIRhgoepdIOPFdIUWgewi0jw")
 })

@@ -1,7 +1,7 @@
 import crypto, { generateKeyPairSync } from "crypto";
-import { createApp } from "./../../src/app";
+import { createApp } from "../../src/app";
 import request from "supertest";
-import { Config } from "./../../src/config";
+import { Config } from "../../src/config";
 import { exportSPKI, JWTPayload, SignJWT } from "jose";
 
 const authoriseEndpoint = "/authorize";
@@ -55,7 +55,7 @@ describe("Auth requests using query params", () => {
         authoriseEndpoint + "?" + requestParams
       );
       expect(response.status).toBe(400);
-      expect(response.text).toBe("Invalid Request");
+      expect(response.text).toBe("Invalid request");
     });
 
     it("returns an Missing Parameters response for no redirect uri", async () => {
@@ -71,18 +71,21 @@ describe("Auth requests using query params", () => {
       expect(response.text).toBe("Request is missing parameters");
     });
 
-    it("returns an Missing Parameters response for a badly formatted redirect uri", async () => {
+    it("returns an Invalid request response for a badly formatted redirect uri", async () => {
       const app = createApp();
       const requestParams = createRequestParams({
         client_id: knownClientId,
         redirect_uri: ".notaredirectURI..",
         response_type: "code",
+        scope: "openid",
+        state: "test-state",
+        nonce: "test-nonce",
       });
       const response = await request(app).get(
         authoriseEndpoint + "?" + requestParams
       );
       expect(response.status).toBe(400);
-      expect(response.text).toBe("Request is missing parameters");
+      expect(response.text).toBe("Invalid request");
     });
 
     it("returns an Invalid request response for non-matching redirect_uri", async () => {
@@ -96,7 +99,7 @@ describe("Auth requests using query params", () => {
         authoriseEndpoint + "?" + requestParams
       );
       expect(response.status).toBe(400);
-      expect(response.text).toBe("Invalid Request");
+      expect(response.text).toBe("Invalid request");
     });
 
     it("returns an Invalid request response for an unknown client_id", async () => {
@@ -110,7 +113,7 @@ describe("Auth requests using query params", () => {
         authoriseEndpoint + "?" + requestParams
       );
       expect(response.status).toBe(400);
-      expect(response.text).toBe("Invalid Request");
+      expect(response.text).toBe("Invalid request");
     });
   });
 
@@ -136,7 +139,7 @@ describe("Auth requests using query params", () => {
       );
       expect(response.status).toBe(302);
       expect(response.header.location).toBe(
-        `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Invalid Request")}`
+        `${knownRedirectUri}?error=invalid_request&error_description=Invalid+request`
       );
     });
 
@@ -153,7 +156,7 @@ describe("Auth requests using query params", () => {
       );
       expect(response.status).toBe(302);
       expect(response.header.location).toBe(
-        `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Invalid Request")}`
+        `${knownRedirectUri}?error=invalid_request&error_description=Invalid+request`
       );
     });
 
@@ -171,7 +174,7 @@ describe("Auth requests using query params", () => {
       );
       expect(response.status).toBe(302);
       expect(response.header.location).toBe(
-        `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Invalid Request")}`
+        `${knownRedirectUri}?error=invalid_request&error_description=Invalid+request`
       );
     });
 
@@ -189,7 +192,7 @@ describe("Auth requests using query params", () => {
       );
       expect(response.status).toBe(302);
       expect(response.header.location).toBe(
-        `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Invalid Request")}`
+        `${knownRedirectUri}?error=invalid_request&error_description=Invalid+request`
       );
     });
 
@@ -207,7 +210,7 @@ describe("Auth requests using query params", () => {
       );
       expect(response.status).toBe(302);
       expect(response.header.location).toBe(
-        `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Request is missing state parameter")}`
+        `${knownRedirectUri}?error=invalid_request&error_description=Request+is+missing+state+parameter`
       );
     });
 
@@ -221,14 +224,14 @@ describe("Auth requests using query params", () => {
         scope: "openid email",
         prompt: "login",
         state,
-        request_uri: "https:/example.com/request-uri/12345",
+        request_uri: "https://example.com/request-uri/12345",
       });
       const response = await request(app).get(
         authoriseEndpoint + "?" + requestParams
       );
       expect(response.status).toBe(302);
       expect(response.header.location).toBe(
-        `${knownRedirectUri}?error=request_uri_not_supported&error_description=${encodeURIComponent("Request URI parameter not supported")}&state=${state}`
+        `${knownRedirectUri}?error=request_uri_not_supported&error_description=Request+URI+parameter+not+supported&state=${state}`
       );
     });
 
@@ -248,7 +251,7 @@ describe("Auth requests using query params", () => {
       );
       expect(response.status).toBe(302);
       expect(response.header.location).toBe(
-        `${knownRedirectUri}?error=unsupported_response_type&error_description=${encodeURIComponent("Unsupported response type")}&state=${state}`
+        `${knownRedirectUri}?error=unsupported_response_type&error_description=Unsupported+response+type&state=${state}`
       );
     });
 
@@ -268,7 +271,7 @@ describe("Auth requests using query params", () => {
       );
       expect(response.status).toBe(302);
       expect(response.header.location).toBe(
-        `${knownRedirectUri}?error=invalid_scope&error_description=${encodeURIComponent("Invalid, unknown or malformed scope")}&state=${state}`
+        `${knownRedirectUri}?error=invalid_scope&error_description=Invalid%2C+unknown+or+malformed+scope&state=${state}`
       );
     });
 
@@ -288,7 +291,7 @@ describe("Auth requests using query params", () => {
       );
       expect(response.status).toBe(302);
       expect(response.header.location).toBe(
-        `${knownRedirectUri}?error=invalid_scope&error_description=${encodeURIComponent("Invalid, unknown or malformed scope")}&state=${state}`
+        `${knownRedirectUri}?error=invalid_scope&error_description=Invalid%2C+unknown+or+malformed+scope&state=${state}`
       );
     });
 
@@ -309,7 +312,7 @@ describe("Auth requests using query params", () => {
       );
       expect(response.status).toBe(302);
       expect(response.header.location).toBe(
-        `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Request contains invalid claims")}&state=${state}`
+        `${knownRedirectUri}?error=invalid_request&error_description=Request+contains+invalid+claims&state=${state}`
       );
     });
 
@@ -331,7 +334,7 @@ describe("Auth requests using query params", () => {
       );
       expect(response.status).toBe(302);
       expect(response.header.location).toBe(
-        `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Request contains invalid claims")}&state=${state}`
+        `${knownRedirectUri}?error=invalid_request&error_description=Request+contains+invalid+claims&state=${state}`
       );
     });
 
@@ -353,7 +356,7 @@ describe("Auth requests using query params", () => {
       );
       expect(response.status).toBe(302);
       expect(response.header.location).toBe(
-        `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Request is missing nonce parameter")}&state=${state}`
+        `${knownRedirectUri}?error=invalid_request&error_description=Request+is+missing+nonce+parameter&state=${state}`
       );
     });
 
@@ -379,7 +382,7 @@ describe("Auth requests using query params", () => {
         );
         expect(response.status).toBe(302);
         expect(response.header.location).toBe(
-          `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Request vtr not valid")}&state=${state}`
+          `${knownRedirectUri}?error=invalid_request&error_description=Request+vtr+not+valid&state=${state}`
         );
       }
     );
@@ -402,7 +405,7 @@ describe("Auth requests using query params", () => {
       );
       expect(response.status).toBe(302);
       expect(response.header.location).toBe(
-        `${knownRedirectUri}?error=unmet_authentication_requirements&error_description=${encodeURIComponent("Unmet authentication requirements")}&state=${state}`
+        `${knownRedirectUri}?error=unmet_authentication_requirements&error_description=Unmet+authentication+requirements&state=${state}`
       );
     });
   });
@@ -445,7 +448,7 @@ describe("Auth requests using query params", () => {
       );
       expect(response.status).toBe(302);
       expect(response.header.location).toBe(
-        `${knownRedirectUri}?error=access_denied&error_description=${encodeURIComponent("Access denied by resource owner or authorization server")}&state=${state}`
+        `${knownRedirectUri}?error=access_denied&error_description=Access+denied+by+resource+owner+or+authorization+server&state=${state}`
       );
     });
 
@@ -689,7 +692,7 @@ describe("Auth requests using request objects", () => {
       );
       expect(response.status).toBe(302);
       expect(response.headers.location).toBe(
-        `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Request is missing state parameter")}`
+        `${knownRedirectUri}?error=invalid_request&error_description=Request+is+missing+state+parameter`
       );
     });
 
@@ -707,7 +710,7 @@ describe("Auth requests using request objects", () => {
       );
       expect(response.status).toBe(302);
       expect(response.headers.location).toBe(
-        `${knownRedirectUri}?error=unsupported_response_type&error_description=${encodeURIComponent("Unsupported response type")}&state=${state}`
+        `${knownRedirectUri}?error=unsupported_response_type&error_description=Unsupported+response+type&state=${state}`
       );
     });
 
@@ -725,7 +728,7 @@ describe("Auth requests using request objects", () => {
       );
       expect(response.status).toBe(302);
       expect(response.headers.location).toBe(
-        `${knownRedirectUri}?error=invalid_scope&error_description=${encodeURIComponent("Invalid, unknown or malformed scope")}&state=${state}`
+        `${knownRedirectUri}?error=invalid_scope&error_description=Invalid%2C+unknown+or+malformed+scope&state=${state}`
       );
     });
 
@@ -743,7 +746,7 @@ describe("Auth requests using request objects", () => {
       );
       expect(response.status).toBe(302);
       expect(response.headers.location).toBe(
-        `${knownRedirectUri}?error=invalid_scope&error_description=${encodeURIComponent("Invalid, unknown or malformed scope")}&state=${state}`
+        `${knownRedirectUri}?error=invalid_scope&error_description=Invalid%2C+unknown+or+malformed+scope&state=${state}`
       );
     });
 
@@ -801,7 +804,7 @@ describe("Auth requests using request objects", () => {
       );
       expect(response.status).toBe(302);
       expect(response.headers.location).toBe(
-        `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Invalid request")}&state=${state}`
+        `${knownRedirectUri}?error=invalid_request&error_description=Invalid+request&state=${state}`
       );
     });
 
@@ -821,7 +824,7 @@ describe("Auth requests using request objects", () => {
       );
       expect(response.status).toBe(302);
       expect(response.headers.location).toBe(
-        `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Invalid request")}&state=${state}`
+        `${knownRedirectUri}?error=invalid_request&error_description=Invalid+request&state=${state}`
       );
     });
 
@@ -841,7 +844,7 @@ describe("Auth requests using request objects", () => {
       );
       expect(response.status).toBe(302);
       expect(response.headers.location).toBe(
-        `${knownRedirectUri}?error=access_denied&error_description=${encodeURIComponent("Access denied by resource owner or authorization server")}&state=${state}`
+        `${knownRedirectUri}?error=access_denied&error_description=Access+denied+by+resource+owner+or+authorization+server&state=${state}`
       );
     });
 
@@ -861,7 +864,7 @@ describe("Auth requests using request objects", () => {
       );
       expect(response.status).toBe(302);
       expect(response.headers.location).toBe(
-        `${knownRedirectUri}?error=access_denied&error_description=${encodeURIComponent("Access denied by resource owner or authorization server")}&state=${state}`
+        `${knownRedirectUri}?error=access_denied&error_description=Access+denied+by+resource+owner+or+authorization+server&state=${state}`
       );
     });
 
@@ -921,7 +924,7 @@ describe("Auth requests using request objects", () => {
       );
       expect(response.status).toBe(302);
       expect(response.headers.location).toBe(
-        `${knownRedirectUri}?error=unsupported_response_type&error_description=${encodeURIComponent("Unsupported response type")}&state=${state}`
+        `${knownRedirectUri}?error=unsupported_response_type&error_description=Unsupported+response+type&state=${state}`
       );
     });
 
@@ -941,7 +944,7 @@ describe("Auth requests using request objects", () => {
       );
       expect(response.status).toBe(302);
       expect(response.headers.location).toBe(
-        `${knownRedirectUri}?error=invalid_scope&error_description=${encodeURIComponent("Invalid, unknown or malformed scope")}&state=${state}`
+        `${knownRedirectUri}?error=invalid_scope&error_description=Invalid%2C+unknown+or+malformed+scope&state=${state}`
       );
     });
 
@@ -961,7 +964,7 @@ describe("Auth requests using request objects", () => {
       );
       expect(response.status).toBe(302);
       expect(response.headers.location).toBe(
-        `${knownRedirectUri}?error=invalid_scope&error_description=${encodeURIComponent("Invalid, unknown or malformed scope")}&state=${state}`
+        `${knownRedirectUri}?error=invalid_scope&error_description=Invalid%2C+unknown+or+malformed+scope&state=${state}`
       );
     });
 
@@ -1008,7 +1011,7 @@ describe("Auth requests using request objects", () => {
       );
       expect(response.status).toBe(302);
       expect(response.headers.location).toBe(
-        `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Request contains invalid claims")}&state=${state}`
+        `${knownRedirectUri}?error=invalid_request&error_description=Request+contains+invalid+claims&state=${state}`
       );
     });
 
@@ -1032,7 +1035,7 @@ describe("Auth requests using request objects", () => {
       );
       expect(response.status).toBe(302);
       expect(response.headers.location).toBe(
-        `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Request contains invalid claims")}&state=${state}`
+        `${knownRedirectUri}?error=invalid_request&error_description=Request+contains+invalid+claims&state=${state}`
       );
     });
 
@@ -1052,7 +1055,7 @@ describe("Auth requests using request objects", () => {
       );
       expect(response.status).toBe(302);
       expect(response.headers.location).toBe(
-        `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Request is missing nonce parameter")}&state=${state}`
+        `${knownRedirectUri}?error=invalid_request&error_description=Request+is+missing+nonce+parameter&state=${state}`
       );
     });
 
@@ -1074,7 +1077,7 @@ describe("Auth requests using request objects", () => {
         );
         expect(response.status).toBe(302);
         expect(response.headers.location).toBe(
-          `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Request vtr not valid")}&state=${state}`
+          `${knownRedirectUri}?error=invalid_request&error_description=Request+vtr+not+valid&state=${state}`
         );
       }
     );
@@ -1135,7 +1138,7 @@ describe("Auth requests using request objects", () => {
       );
       expect(response.status).toBe(302);
       expect(response.headers.location).toBe(
-        `${knownRedirectUri}?error=unmet_authentication_requirements&error_description=${encodeURIComponent("Unmet authentication requirements")}&state=${state}`
+        `${knownRedirectUri}?error=unmet_authentication_requirements&error_description=Unmet+authentication+requirements&state=${state}`
       );
     });
 
@@ -1155,7 +1158,7 @@ describe("Auth requests using request objects", () => {
       );
       expect(response.status).toBe(302);
       expect(response.headers.location).toBe(
-        `${knownRedirectUri}?error=access_denied&error_description=${encodeURIComponent("Access denied by resource owner or authorization server")}&state=${state}`
+        `${knownRedirectUri}?error=access_denied&error_description=Access+denied+by+resource+owner+or+authorization+server&state=${state}`
       );
     });
   });

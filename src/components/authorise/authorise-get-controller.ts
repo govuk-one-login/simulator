@@ -12,7 +12,7 @@ import { validateAuthRequestQueryParams } from "../../validators/validate-auth-r
 import { MethodNotAllowedError } from "../../errors/method-not-allowed-error";
 import { VectorOfTrust } from "../../types/vector-of-trust";
 import { validateAuthRequestObject } from "../../validators/validate-auth-request-object";
-import { transformRequestObject } from "../../utils/utils";
+import { redirectWithoutBody, transformRequestObject } from "../../utils/utils";
 import { TrustChainValidationError } from "../../errors/trust-chain-validation-error";
 
 export const authoriseController = async (
@@ -83,7 +83,8 @@ export const authoriseController = async (
       vtr: (parsedAuthRequest.vtr as VectorOfTrust[])[0],
     });
 
-    res.redirect(
+    redirectWithoutBody(
+      res,
       `${parsedAuthRequest.redirect_uri}?code=${authCode}&state=${parsedAuthRequest.state}`
     );
     return;
@@ -102,9 +103,9 @@ const handleRequestError = (
   config: Config
 ): void => {
   if (error instanceof AuthoriseRequestError) {
-    res.redirect(
-      `${error.redirectUri}?error=${error.errorCode}&error_description=${encodeURIComponent(error.errorDescription)}${error.state ? `&state=${error.state}` : ""}`
-    );
+    const redirectUrl = `${error.redirectUri}?error=${error.errorCode}&error_description=${encodeURIComponent(error.errorDescription)}${error.state ? `&state=${error.state}` : ""}`;
+    const formattedRedirectUrl = redirectUrl.replaceAll("%20", "+");
+    redirectWithoutBody(res, formattedRedirectUrl);
   } else if (error instanceof MissingParameterError) {
     res.status(400).send("Request is missing parameters");
   } else if (error instanceof ParseAuthRequestError) {
@@ -115,14 +116,14 @@ const handleRequestError = (
       logger.warn(
         `Redirect URI ${error.redirectUri} is not valid for client: ${error.clientId}`
       );
-      res.status(400).send("Invalid Request");
+      res.status(400).send("Invalid request");
     } else {
-      res.redirect(
-        `${error.redirectUri}?error=invalid_request&error_description=${encodeURIComponent("Invalid Request")}`
-      );
+      const redirectUrl = `${error.redirectUri}?error=invalid_request&error_description=${encodeURIComponent("Invalid request")}`;
+      const formattedRedirectUrl = redirectUrl.replaceAll("%20", "+");
+      redirectWithoutBody(res, formattedRedirectUrl);
     }
   } else if (error instanceof BadRequestError) {
-    res.status(400).send("Invalid Request");
+    res.status(400).send("Invalid request");
   } else if (error instanceof MethodNotAllowedError) {
     res.status(405).send(error.message);
   } else if (error instanceof TrustChainValidationError) {
