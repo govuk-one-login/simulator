@@ -57,12 +57,6 @@ export const generateResponseConfigurationPropertyValidators = (
       `${prefix}${nameof<ResponseConfiguration>("drivingPermitDetails")}.*`
     ).isObject(),
     bodyOptionalAllowNull(
-      `${prefix}${nameof<ResponseConfiguration>("socialSecurityRecordDetails")}`
-    ).isArray(),
-    bodyOptional(
-      `${prefix}${nameof<ResponseConfiguration>("socialSecurityRecordDetails")}.*`
-    ).isObject(),
-    bodyOptionalAllowNull(
       `${prefix}${nameof<ResponseConfiguration>("postalAddressDetails")}`
     ).isArray(),
     bodyOptional(
