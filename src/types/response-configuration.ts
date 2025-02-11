@@ -16,7 +16,6 @@ export default interface ResponseConfiguration {
   coreIdentityVerifiableCredentials?: object | null;
   passportDetails?: object[] | null;
   drivingPermitDetails?: object[] | null;
-  socialSecurityRecordDetails?: object[] | null;
   postalAddressDetails?: object[] | null;
   returnCodes?: ReturnCode[] | null;
 }
