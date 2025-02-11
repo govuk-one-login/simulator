@@ -6,7 +6,6 @@ export const VALID_CLAIMS: UserIdentityClaim[] = [
   "https://vocab.account.gov.uk/v1/passport",
   "https://vocab.account.gov.uk/v1/address",
   "https://vocab.account.gov.uk/v1/drivingPermit",
-  "https://vocab.account.gov.uk/v1/socialSecurityRecord",
   "https://vocab.account.gov.uk/v1/coreIdentityJWT",
   "https://vocab.account.gov.uk/v1/returnCode",
 ];
