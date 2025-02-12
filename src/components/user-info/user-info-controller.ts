@@ -72,12 +72,6 @@ export const userInfoController = async (
   tryAddClaim(
     userInfo,
     claims,
-    "https://vocab.account.gov.uk/v1/socialSecurityRecord",
-    config.getSocialSecurityRecordDetails()
-  );
-  tryAddClaim(
-    userInfo,
-    claims,
     "https://vocab.account.gov.uk/v1/address",
     config.getPostalAddressDetails()
   );

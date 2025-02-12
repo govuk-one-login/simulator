@@ -20,7 +20,6 @@ describe("response configuration validator", () => {
       coreIdentityVerifiableCredentials: { exampleField: "example value" },
       passportDetails: [{ exampleField: "example value" }],
       drivingPermitDetails: [{ exampleField: "example value" }],
-      socialSecurityRecordDetails: [{ exampleField: "example value" }],
       postalAddressDetails: [{ exampleField: "example value" }],
       returnCodes: [{ code: "example_code" }],
     };
@@ -103,15 +102,6 @@ describe("response configuration validator", () => {
     const response = await request(app).post("/test-validation").send(body);
     expect(response.status).toEqual(400);
     expect(response.body.errors.drivingPermitDetails.msg).toEqual(
-      "Invalid value"
-    );
-  });
-
-  test("returns 400 for invalid socialSecurityRecordDetails", async () => {
-    const body: object = { socialSecurityRecordDetails: {} };
-    const response = await request(app).post("/test-validation").send(body);
-    expect(response.status).toEqual(400);
-    expect(response.body.errors.socialSecurityRecordDetails.msg).toEqual(
       "Invalid value"
     );
   });

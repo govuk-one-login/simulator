@@ -47,7 +47,6 @@ describe("/.well-known/openid-configuration endpoint test", () => {
         "phone_number",
         "phone_number_verified",
         "https://vocab.account.gov.uk/v1/passport",
-        "https://vocab.account.gov.uk/v1/socialSecurityRecord",
         "https://vocab.account.gov.uk/v1/drivingPermit",
         "https://vocab.account.gov.uk/v1/coreIdentityJWT",
         "https://vocab.account.gov.uk/v1/address",

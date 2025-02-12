@@ -107,11 +107,6 @@ const populateResponseConfiguration = (
   if (responseConfiguration.drivingPermitDetails !== undefined) {
     config.setDrivingPermitDetails(responseConfiguration.drivingPermitDetails);
   }
-  if (responseConfiguration.socialSecurityRecordDetails !== undefined) {
-    config.setSocialSecurityRecordDetails(
-      responseConfiguration.socialSecurityRecordDetails
-    );
-  }
   if (responseConfiguration.postalAddressDetails !== undefined) {
     config.setPostalAddressDetails(responseConfiguration.postalAddressDetails);
   }

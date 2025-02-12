@@ -16,7 +16,6 @@ export default interface ResponseConfiguration {
   coreIdentityVerifiableCredentials?: object | null;
   passportDetails?: object[] | null;
   drivingPermitDetails?: object[] | null;
-  socialSecurityRecordDetails?: object[] | null;
   postalAddressDetails?: object[] | null;
   returnCodes?: ReturnCode[] | null;
 }
@@ -55,12 +54,6 @@ export const generateResponseConfigurationPropertyValidators = (
     ).isArray(),
     bodyOptional(
       `${prefix}${nameof<ResponseConfiguration>("drivingPermitDetails")}.*`
-    ).isObject(),
-    bodyOptionalAllowNull(
-      `${prefix}${nameof<ResponseConfiguration>("socialSecurityRecordDetails")}`
-    ).isArray(),
-    bodyOptional(
-      `${prefix}${nameof<ResponseConfiguration>("socialSecurityRecordDetails")}.*`
     ).isObject(),
     bodyOptionalAllowNull(
       `${prefix}${nameof<ResponseConfiguration>("postalAddressDetails")}`

@@ -101,7 +101,6 @@ CQIDAQAB
       },
       passportDetails: null,
       drivingPermitDetails: null,
-      socialSecurityRecordDetails: null,
       postalAddressDetails: [
         {
           addressCountry: "GB",
@@ -302,17 +301,6 @@ CQIDAQAB
 
   public setDrivingPermitDetails(drivingPermitDetails: object[] | null): void {
     this.responseConfiguration.drivingPermitDetails = drivingPermitDetails;
-  }
-
-  public getSocialSecurityRecordDetails(): object[] | null {
-    return this.responseConfiguration.socialSecurityRecordDetails!;
-  }
-
-  public setSocialSecurityRecordDetails(
-    socialSecurityRecordDetails: object[] | null
-  ): void {
-    this.responseConfiguration.socialSecurityRecordDetails =
-      socialSecurityRecordDetails;
   }
 
   public getPostalAddressDetails(): object[] | null {

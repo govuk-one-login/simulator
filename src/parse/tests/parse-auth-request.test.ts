@@ -6,7 +6,7 @@ const clientId = "284e6ac9818525b254053711c9251fa7";
 const redirectUri = "https://example.com/authenication-callback";
 const state = "6066cf5d190e2f1d5eeabaf089c01529ec47f7e3833d574f";
 const claims =
-  '{"userinfo":{"https://vocab.account.gov.uk/v1/passport":{"essential":true},"https://vocab.account.gov.uk/v1/address":{"essential":true},"https://vocab.account.gov.uk/v1/drivingPermit":{"essential":true},"https://vocab.account.gov.uk/v1/socialSecurityRecord":{"essential":true},"https://vocab.account.gov.uk/v1/coreIdentityJWT":{"essential":true},"https://vocab.account.gov.uk/v1/returnCode":{"essential":true}}}';
+  '{"userinfo":{"https://vocab.account.gov.uk/v1/passport":{"essential":true},"https://vocab.account.gov.uk/v1/address":{"essential":true},"https://vocab.account.gov.uk/v1/drivingPermit":{"essential":true},"https://vocab.account.gov.uk/v1/coreIdentityJWT":{"essential":true},"https://vocab.account.gov.uk/v1/returnCode":{"essential":true}}}';
 
 const testHeader: Record<string, string | undefined> = { alg: "test-alg" };
 
