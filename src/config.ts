@@ -25,6 +25,7 @@ export class Config {
   private accessTokenStore: AccessTokenStore;
 
   private simulatorUrl: string;
+  private readonly interactiveMode: boolean;
 
   private constructor() {
     const defaultPublicKey = `-----BEGIN PUBLIC KEY-----
@@ -132,6 +133,7 @@ CQIDAQAB
     this.accessTokenStore = {};
 
     this.simulatorUrl = process.env.SIMULATOR_URL ?? "http://localhost:3000";
+    this.interactiveMode = process.env.INTERACTIVE_MODE === "true";
   }
 
   public static getInstance(): Config {
@@ -402,5 +404,8 @@ CQIDAQAB
 
   public getDidController(): string {
     return `did:web:${new URL(this.simulatorUrl).host.replace(":", encodeURIComponent(":"))}`;
+  }
+  public isInteractiveModeEnabled(): boolean {
+    return this.interactiveMode;
   }
 }
