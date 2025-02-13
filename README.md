@@ -251,9 +251,9 @@ Alternatively the url can be updated using the `/config` endpoint with the follo
 
 > For example: The token endpoint will become`${SIMULATOR_URL}/token`, so the expected audience of the client assertion should be updated to reflect this.
 
-#### Running the simulator in parallel: 
+#### Running the simulator in parallel:
 
-By default the simulator is set to run with no UI and the response configuration is returned in all `/userinfo` requests. 
+By default the simulator is set to run with no UI and the response configuration is returned in all `/userinfo` requests.
 
 However it is possible to run simulator to return multiple response configurations. This is done by setting the environment variable `INTERACTIVE_MODE` to `true` which will render a form after each `/authorize` request to collect the expected response configuration.
 
