@@ -1236,3 +1236,110 @@ describe("Auth requests using request objects", () => {
       .sign(rsaKeyPair.privateKey);
   };
 });
+
+describe("Auth request with INTERACTIVE_MODE enabled", () => {
+  const state = "a7e4bfd39d3eaa57c27775744f22c5a2";
+  const nonce = "3eb5b04ca8e1baf7dea15b7fb7ac05a6";
+  const rsaKeyPair = generateKeyPairSync("rsa", {
+    modulusLength: 2048,
+  });
+
+  beforeEach(async () => {
+    process.env.CLIENT_ID = knownClientId;
+    process.env.REDIRECT_URLS = knownRedirectUri;
+    process.env.SCOPES = "openid,email";
+    process.env.CLAIMS = "https://vocab.account.gov.uk/v1/coreIdentityJWT";
+    process.env.CLIENT_LOCS = "P2";
+    process.env.PUBLIC_KEY = await exportSPKI(rsaKeyPair.publicKey);
+    process.env.INTERACTIVE_MODE = "true";
+    process.env.SIMULATOR_URL = "http://localhost:8080";
+    Config.resetInstance();
+  });
+
+  describe("valid auth request", () => {
+    jest
+      .spyOn(crypto, "randomBytes")
+      .mockImplementation(() =>
+        Buffer.from(
+          "6e4195129066135da2c81745247bb0edf82e00da5a8925d1a1289629ad8633"
+        )
+      );
+
+    it("renders a html form with an embeded auth code request object", async () => {
+      const app = createApp();
+      const requestParams = createRequestParams({
+        client_id: knownClientId,
+        redirect_uri: knownRedirectUri,
+        response_type: "code",
+        scope: "openid email",
+        request: await encodedJwtWithParams({
+          max_age: 123,
+          prompt: "login",
+          claims:
+            '{"userinfo": { "https://vocab.account.gov.uk/v1/coreIdentityJWT": { "essential": true }}}',
+          ui_locales: "en",
+        }),
+      });
+      const response = await request(app).get(
+        authoriseEndpoint + "?" + requestParams
+      );
+      expect(response.status).toBe(200);
+      const htmlRegex =
+        /<input type="hidden" name="authCode" value="(?<authCode>[A-Za-z0-9+/\-_]+)"\/>/;
+      expect(response.text).toMatch(htmlRegex);
+      const { authCode } = htmlRegex.exec(response.text)!.groups!;
+      expect(authCode).toBe(knownAuthCode);
+    });
+
+    it("renders a html form with embeded auth code query params", async () => {
+      const state = "a7e4bfd39d3eaa57c27775744f22c5a2";
+      const nonce = "3eb5b04ca8e1baf7dea15b7fb7ac05a6";
+      const app = createApp();
+      const requestParams = createRequestParams({
+        client_id: knownClientId,
+        redirect_uri: knownRedirectUri,
+        response_type: "code",
+        scope: "openid email",
+        state,
+        claims:
+          '{"userinfo":{"https://vocab.account.gov.uk/v1/coreIdentityJWT":null}}',
+        nonce,
+        prompt: "login",
+        vtr: '["Cl.Cm.P2"]',
+      });
+      const response = await request(app).get(
+        authoriseEndpoint + "?" + requestParams
+      );
+      expect(response.status).toBe(200);
+      const htmlRegex =
+        /<input type="hidden" name="authCode" value="(?<authCode>[A-Za-z0-9+/\-_]+)"\/>/;
+      expect(response.text).toMatch(htmlRegex);
+      const { authCode } = htmlRegex.exec(response.text)!.groups!;
+      expect(authCode).toBe(knownAuthCode);
+    });
+  });
+
+  const encodedJwtWithParams = async (
+    params: Record<string, unknown>
+  ): Promise<string> => {
+    const payload = {
+      redirect_uri: knownRedirectUri,
+      client_id: knownClientId,
+      response_type: "code",
+      state,
+      iss: knownClientId,
+      scope: "openid",
+      aud: "http://localhost:8080/authorize",
+      nonce,
+      ...params,
+    };
+    return await signPayload(payload);
+  };
+  const signPayload = async (payload: JWTPayload): Promise<string> => {
+    return await new SignJWT(payload)
+      .setProtectedHeader({
+        alg: "RS256",
+      })
+      .sign(rsaKeyPair.privateKey);
+  };
+});

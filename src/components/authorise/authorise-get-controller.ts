@@ -14,6 +14,7 @@ import { VectorOfTrust } from "../../types/vector-of-trust";
 import { validateAuthRequestObject } from "../../validators/validate-auth-request-object";
 import { transformRequestObject } from "../../utils/utils";
 import { TrustChainValidationError } from "../../errors/trust-chain-validation-error";
+import { renderResponseConfigFrom } from "../utils/form/render-response-config-form";
 
 export const authoriseController = async (
   req: Request,
@@ -75,6 +76,12 @@ export const authoriseController = async (
     }
 
     const authCode = generateAuthCode();
+
+    if (config.isInteractiveModeEnabled()) {
+      res.send(renderResponseConfigFrom(authCode));
+      return;
+    }
+
     config.addToAuthCodeRequestParamsStore(authCode, {
       claims: parsedAuthRequest.claims,
       nonce: parsedAuthRequest.nonce,
