@@ -251,6 +251,28 @@ Alternatively the url can be updated using the `/config` endpoint with the follo
 
 > For example: The token endpoint will become`${SIMULATOR_URL}/token`, so the expected audience of the client assertion should be updated to reflect this.
 
+#### Running the simulator in parallel:
+
+By default the simulator is set to run with no UI and the response configuration is returned in all `/userinfo` requests.
+
+However it is possible to run simulator to return multiple response configurations. This is done by setting the environment variable `INTERACTIVE_MODE` to `true` which will render a form after each `/authorize` request to collect the expected response configuration.
+
+Each configurable response field has a `data-testid` attribute which may be useful when matching DOM elements in a browser driven test framework, these are outlined below:
+
+| Field                             | `data-testid` attribute    |
+| --------------------------------- | -------------------------- |
+| sub                               | `"sub"`                    |
+| email                             | `"email"`                  |
+| emailVerified                     | `"email-verified"`         |
+| phoneNumber                       | `"phone-number"`           |
+| phoneNumberVerified               | `"phone-number-verified"`  |
+| maxLoCAchieved                    | `"max-loc-achieved"`       |
+| coreIdentityVerifiableCredentials | `"core-identity-vc"`       |
+| passportDetails                   | `"passport-details"`       |
+| drivingPermitDetails              | `"driving-permit-details"` |
+| postalAddressDetails              | `"postal-address-details"` |
+| returnCodes                       | `"return-codes"`           |
+
 #### Default configuration values:
 
 The default values for each configurable field are outlined below:
