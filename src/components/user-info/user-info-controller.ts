@@ -7,7 +7,7 @@ import {
 import { userInfoRequestValidator } from "../../validators/user-info-request-validator";
 import { Config } from "../../config";
 import { UserInfoRequestError } from "../../errors/user-info-request-error";
-import { importPKCS8, JWTPayload, SignJWT } from "jose";
+import { importPKCS8, SignJWT } from "jose";
 import {
   EC_PRIVATE_IDENTITY_SIGNING_KEY,
   EC_PRIVATE_IDENTITY_SIGNING_KEY_ID,
@@ -16,6 +16,8 @@ import { logger } from "../../logger";
 import { randomBytes } from "crypto";
 import { makeHeaderInvalid } from "../utils/make-header-invalid";
 import { fakeSignature } from "../utils/fake-signature";
+import { getAccessTokenFromHeaders } from "../../utils/utils";
+import ResponseConfiguration from "../../types/response-configuration";
 
 const AuthenticateHeaderKey: string = "www-authenticate";
 
@@ -23,7 +25,22 @@ export const userInfoController = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const validationResult = await userInfoRequestValidator(req.headers);
+  const authorisationHeader = req.headers.authorization;
+
+  if (!authorisationHeader) {
+    logger.warn("Missing authorisation header.");
+    res.status(UserInfoRequestError.HTTP_STATUS_CODE);
+    res.header(
+      AuthenticateHeaderKey,
+      UserInfoRequestError.MISSING_TOKEN.toAuthenticateHeader()
+    );
+    res.send();
+    return;
+  }
+
+  const accessToken = getAccessTokenFromHeaders(authorisationHeader);
+
+  const validationResult = await userInfoRequestValidator(accessToken);
 
   if (!validationResult.valid) {
     logger.error(
@@ -42,49 +59,83 @@ export const userInfoController = async (
 
   const config = Config.getInstance();
 
+  let userInfo: UserInfo;
+
+  if (config.isInteractiveModeEnabled()) {
+    //Our previous validator checked this value exists
+    const responseConfig = config.getResponseConfigurationForAccessToken(
+      accessToken as string
+    ) as ResponseConfiguration;
+
+    userInfo = await constructUserInfo(
+      responseConfig.sub as string,
+      validationResult.scopes,
+      validationResult.claims,
+      responseConfig,
+      config
+    );
+  } else {
+    userInfo = await constructUserInfo(
+      config.getSub(),
+      validationResult.scopes,
+      validationResult.claims,
+      config.getResponseConfiguration(),
+      config
+    );
+  }
+
+  res.status(200);
+  res.send(userInfo);
+};
+
+const constructUserInfo = async (
+  sub: string,
+  scopes: string[],
+  claims: UserIdentityClaim[],
+  responseConfig: ResponseConfiguration,
+  config: Config
+): Promise<UserInfo> => {
   const userInfo: UserInfo = {
-    sub: config.getSub(),
+    sub,
   };
 
-  if (validationResult.scopes.includes("email")) {
-    userInfo.email = config.getEmail();
-    userInfo.email_verified = config.getEmailVerified();
+  if (scopes.includes("email")) {
+    userInfo.email = responseConfig.email;
+    userInfo.email_verified = responseConfig.emailVerified;
   }
 
-  if (validationResult.scopes.includes("phone")) {
-    userInfo.phone_number = config.getPhoneNumber() || undefined;
-    userInfo.phone_number_verified = config.getPhoneNumberVerified();
+  if (scopes.includes("phone")) {
+    userInfo.phone_number = responseConfig.phoneNumber ?? undefined;
+    userInfo.phone_number_verified = responseConfig.phoneNumberVerified;
   }
 
-  const claims = validationResult.claims;
   tryAddClaim(
     userInfo,
     claims,
     "https://vocab.account.gov.uk/v1/drivingPermit",
-    config.getDrivingPermitDetails()
+    responseConfig.drivingPermitDetails
   );
   tryAddClaim(
     userInfo,
     claims,
     "https://vocab.account.gov.uk/v1/passport",
-    config.getPassportDetails()
+    responseConfig.passportDetails
   );
   tryAddClaim(
     userInfo,
     claims,
     "https://vocab.account.gov.uk/v1/address",
-    config.getPostalAddressDetails()
+    responseConfig.postalAddressDetails
   );
   tryAddClaim(
     userInfo,
     claims,
     "https://vocab.account.gov.uk/v1/returnCode",
-    config.getReturnCodes()
+    responseConfig.returnCodes
   );
-  await tryAddCoreIdentityJwt(userInfo, claims, config);
 
-  res.status(200);
-  res.send(userInfo);
+  await tryAddCoreIdentityJwt(userInfo, claims, config, responseConfig);
+  return userInfo;
 };
 
 const tryAddClaim = (
@@ -108,11 +159,12 @@ const tryAddClaim = (
 const tryAddCoreIdentityJwt = async (
   userInfo: UserInfo,
   requestedClaims: UserIdentityClaim[],
-  config: Config
+  config: Config,
+  responseConfig: ResponseConfiguration
 ): Promise<void> => {
   const claim: UserIdentityClaim =
     "https://vocab.account.gov.uk/v1/coreIdentityJWT";
-  const vc = config.getVerifiableIdentityCredentials();
+  const vc = responseConfig.coreIdentityVerifiableCredentials;
   const coreIdentityErrors = config.getCoreIdentityErrors();
 
   if (requestedClaims.includes(claim)) {
@@ -126,7 +178,7 @@ const tryAddCoreIdentityJwt = async (
     const timeNowSeconds = Math.floor(Date.now() / 1000);
     const oneDayTimeOffsetSeconds = 24 * 60 * 60;
     const coreIdentity = {
-      vot: config.getMaxLoCAchieved(),
+      vot: responseConfig.maxLoCAchieved,
       vc: vc,
       vtm: config.getTrustmarkUrl(),
       iss: coreIdentityErrors.includes("INVALID_ISS")
@@ -134,7 +186,7 @@ const tryAddCoreIdentityJwt = async (
         : config.getIssuerValue(),
       sub: coreIdentityErrors.includes("INCORRECT_SUB")
         ? randomBytes(32).toString()
-        : config.getSub(),
+        : responseConfig.sub,
       nbf: timeNowSeconds,
       exp: coreIdentityErrors.includes("TOKEN_EXPIRED")
         ? timeNowSeconds - oneDayTimeOffsetSeconds
@@ -146,7 +198,7 @@ const tryAddCoreIdentityJwt = async (
     };
 
     const signingKey = await importPKCS8(EC_PRIVATE_IDENTITY_SIGNING_KEY, "EC");
-    let coreIdentityJwt = await new SignJWT(coreIdentity as JWTPayload)
+    let coreIdentityJwt = await new SignJWT(coreIdentity)
       .setProtectedHeader({
         kid: `${config.getDidController()}#${EC_PRIVATE_IDENTITY_SIGNING_KEY_ID}`,
         alg: "ES256",
