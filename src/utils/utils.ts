@@ -148,3 +148,11 @@ export const parsePrompts = (
 
   return includedPrompts;
 };
+
+export const getAccessTokenFromHeaders = (
+  authorisationHeader: string
+): string | undefined => {
+  const match = /^Bearer (?<token>.*)$/.exec(authorisationHeader);
+  const accessToken = match?.groups?.token;
+  return accessToken;
+};
