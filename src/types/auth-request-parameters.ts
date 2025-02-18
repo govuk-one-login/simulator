@@ -1,3 +1,4 @@
+import ResponseConfiguration from "./response-configuration";
 import { VectorOfTrust } from "./vector-of-trust";
 
 export default interface AuthRequestParameters {
@@ -6,4 +7,5 @@ export default interface AuthRequestParameters {
   scopes: string[];
   claims: string[];
   vtr: VectorOfTrust;
+  responseConfiguration?: ResponseConfiguration;
 }
