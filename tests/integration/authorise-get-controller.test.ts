@@ -1289,7 +1289,7 @@ describe("Authorise controller tests", () => {
       process.env.INTERACTIVE_MODE = "true";
     });
 
-    it("renders a html form with an embeded auth code request object", async () => {
+    it("renders a html form with an embeded auth code request object and encoded authRequest params", async () => {
       const app = createApp();
       const requestParams = createRequestParams({
         client_id: knownClientId,
@@ -1297,6 +1297,7 @@ describe("Authorise controller tests", () => {
         response_type: "code",
         scope: "openid email",
         request: await encodedJwtWithParams({
+          scope: "openid email",
           max_age: 123,
           prompt: "login",
           claims:
@@ -1304,18 +1305,45 @@ describe("Authorise controller tests", () => {
           ui_locales: "en",
         }),
       });
+
       const response = await request(app).get(
         authoriseEndpoint + "?" + requestParams
       );
+
       expect(response.status).toBe(200);
-      const htmlRegex =
+
+      const authCodeRegex =
         /<input type="hidden" name="authCode" value="(?<authCode>[A-Za-z0-9+/\-_]+)"\/>/;
-      expect(response.text).toMatch(htmlRegex);
-      const { authCode } = htmlRegex.exec(response.text)!.groups!;
+      const authRequestParamRegex =
+        /<input type="hidden" name="authRequestParams" value="(?<authRequestParams>[A-Za-z0-9+/\-_]+)"\/>/;
+
+      expect(response.text).toMatch(authCodeRegex);
+      expect(response.text).toMatch(authRequestParamRegex);
+
+      const { authCode } = authCodeRegex.exec(response.text)!.groups!;
       expect(authCode).toBe(knownAuthCode);
+
+      const { authRequestParams } = authRequestParamRegex.exec(
+        response.text
+      )!.groups!;
+
+      const decodedParams = JSON.parse(
+        Buffer.from(base64url.decode(authRequestParams)).toString()
+      );
+
+      expect(decodedParams.scopes).toStrictEqual(["openid", "email"]);
+      expect(decodedParams.redirectUri).toStrictEqual(knownRedirectUri);
+      expect(decodedParams.nonce).toStrictEqual(nonce);
+      expect(decodedParams.claims).toStrictEqual([
+        "https://vocab.account.gov.uk/v1/coreIdentityJWT",
+      ]);
+      expect(decodedParams.vtr).toStrictEqual({
+        levelOfConfidence: null,
+        credentialTrust: "Cl.Cm",
+      });
     });
 
-    it("renders a html form with embeded auth code query params", async () => {
+    it("renders a html form with embeded auth code query params and encoded authRequest params", async () => {
       const app = createApp();
       const requestParams = createRequestParams({
         client_id: knownClientId,
@@ -1329,15 +1357,41 @@ describe("Authorise controller tests", () => {
         prompt: "login",
         vtr: '["Cl.Cm.P2"]',
       });
+
       const response = await request(app).get(
         authoriseEndpoint + "?" + requestParams
       );
+
       expect(response.status).toBe(200);
+
       const htmlRegex =
         /<input type="hidden" name="authCode" value="(?<authCode>[A-Za-z0-9+/\-_]+)"\/>/;
+      const authRequestParamRegex =
+        /<input type="hidden" name="authRequestParams" value="(?<authRequestParams>[A-Za-z0-9+/\-_]+)"\/>/;
+
       expect(response.text).toMatch(htmlRegex);
+
       const { authCode } = htmlRegex.exec(response.text)!.groups!;
       expect(authCode).toBe(knownAuthCode);
+
+      const { authRequestParams } = authRequestParamRegex.exec(
+        response.text
+      )!.groups!;
+
+      const decodedParams = JSON.parse(
+        Buffer.from(base64url.decode(authRequestParams)).toString()
+      );
+
+      expect(decodedParams.scopes).toStrictEqual(["openid", "email"]);
+      expect(decodedParams.redirectUri).toStrictEqual(knownRedirectUri);
+      expect(decodedParams.nonce).toStrictEqual(nonce);
+      expect(decodedParams.claims).toStrictEqual([
+        "https://vocab.account.gov.uk/v1/coreIdentityJWT",
+      ]);
+      expect(decodedParams.vtr).toStrictEqual({
+        levelOfConfidence: "P2",
+        credentialTrust: "Cl.Cm",
+      });
     });
   });
 });
