@@ -1,12 +1,20 @@
+import AuthRequestParameters from "src/types/auth-request-parameters";
 import { govukStyles } from "./gov-uk-styles";
+import { base64url } from "jose";
 
-//ATO-1443: Determine endpoint for form submission
+//The base64 encoding here looks weird but it's done to escape
+// '/' chars in the html which stop the value being rendered
+// correctly
 const mainContent = (
-  authcode: string
+  authcode: string,
+  authRequest: AuthRequestParameters,
+  state: string
 ) => `<h1 class="govuk-heading-l">Enter response Configuration</h1>
 <p class="govuk-body">Use this form to submit the user info response configuration for this request.</p>
-<form action="/tbd" method="post">
+<form action="/form-submit" method="post">
     <input type="hidden" name="authCode" value="${authcode}"/>
+    <input type="hidden" name="authRequestParams" value="${base64url.encode(Buffer.from(JSON.stringify(authRequest)))}"/>
+    <input type="hidden" name="state" value="${state}"/>
     <dl class="govuk-summary-list">
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">
@@ -124,7 +132,11 @@ const mainContent = (
 
 `;
 
-export const renderResponseConfigFrom = (authCode: string): string => {
+export const renderResponseConfigFrom = (
+  authCode: string,
+  requestParams: AuthRequestParameters,
+  state: string
+): string => {
   return `<!DOCTYPE html>
   <html lang="en" class="govuk-template">
   
@@ -170,7 +182,7 @@ export const renderResponseConfigFrom = (authCode: string): string => {
     </header>
     <div class="govuk-width-container">
       <main class="govuk-main-wrapper" id="main-content">
-        ${mainContent(authCode)}
+        ${mainContent(authCode, requestParams, state)}
       </main>
     </div>
     <footer class="govuk-footer">

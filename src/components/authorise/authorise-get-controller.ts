@@ -76,19 +76,26 @@ export const authoriseController = async (
     }
 
     const authCode = generateAuthCode();
-
-    if (config.isInteractiveModeEnabled()) {
-      res.send(renderResponseConfigFrom(authCode));
-      return;
-    }
-
-    config.addToAuthCodeRequestParamsStore(authCode, {
+    const authRequestParams = {
       claims: parsedAuthRequest.claims,
       nonce: parsedAuthRequest.nonce,
       redirectUri: parsedAuthRequest.redirect_uri,
       scopes: parsedAuthRequest.scope,
       vtr: (parsedAuthRequest.vtr as VectorOfTrust[])[0],
-    });
+    };
+
+    if (config.isInteractiveModeEnabled()) {
+      res.send(
+        renderResponseConfigFrom(
+          authCode,
+          authRequestParams,
+          parsedAuthRequest.state
+        )
+      );
+      return;
+    }
+
+    config.addToAuthCodeRequestParamsStore(authCode, authRequestParams);
 
     res.redirect(
       `${parsedAuthRequest.redirect_uri}?code=${authCode}&state=${parsedAuthRequest.state}`
