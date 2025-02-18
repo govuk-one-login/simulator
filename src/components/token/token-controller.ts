@@ -6,6 +6,7 @@ import { createIdToken } from "./helper/create-id-token";
 import { TokenRequestError } from "../../errors/token-request-error";
 import { ParseTokenRequestError } from "../../errors/parse-token-request-error";
 import { parseTokenRequest } from "../../parse/parse-token-request";
+import ResponseConfiguration from "src/types/response-configuration";
 
 export const tokenController = async (
   req: Request,
@@ -56,10 +57,17 @@ export const tokenController = async (
     );
     const idToken = await createIdToken(authCodeParams, accessToken);
 
-    config.addToAccessTokenStore(
-      `${config.getClientId()}.${config.getSub()}`,
-      accessToken
-    );
+    if (config.isInteractiveModeEnabled()) {
+      config.addToResponseConfigurationStore(
+        accessToken,
+        authCodeParams.responseConfiguration as ResponseConfiguration
+      );
+    } else {
+      config.addToAccessTokenStore(
+        `${config.getClientId()}.${config.getSub()}`,
+        accessToken
+      );
+    }
 
     res.status(200).json({
       access_token: accessToken,
