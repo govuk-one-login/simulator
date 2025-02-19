@@ -1,5 +1,4 @@
 import { UserInfoRequestError } from "../errors/user-info-request-error";
-import { IncomingHttpHeaders } from "http";
 import { signedJwtValidator } from "./signed-jwt-validator";
 import { Config } from "../config";
 import { logger } from "../logger";
@@ -7,7 +6,7 @@ import { VALID_SCOPES } from "../constants";
 import { UserIdentityClaim, UserScope } from "../types/user-info";
 
 export const userInfoRequestValidator = async (
-  userInfoRequestHeaders: IncomingHttpHeaders
+  accessToken: string | undefined
 ): Promise<
   | { valid: true; claims: UserIdentityClaim[]; scopes: UserScope[] }
   | {
@@ -15,15 +14,6 @@ export const userInfoRequestValidator = async (
       error: UserInfoRequestError;
     }
 > => {
-  const authorisationHeader = userInfoRequestHeaders.authorization;
-  if (!authorisationHeader) {
-    logger.warn("Missing authorisation header.");
-    return { valid: false, error: UserInfoRequestError.MISSING_TOKEN };
-  }
-
-  const match = /^Bearer (?<token>.*)$/.exec(authorisationHeader);
-  const accessToken = match?.groups?.token;
-
   if (!accessToken) {
     logger.warn("Failed to parse token in authorisation header.");
     return { valid: false, error: UserInfoRequestError.INVALID_TOKEN };
@@ -62,13 +52,23 @@ export const userInfoRequestValidator = async (
     return { valid: false, error: UserInfoRequestError.INVALID_SCOPE };
   }
 
-  const accessTokensForClient = config.getAccessTokensFromStore(
-    `${config_client_id}.${config.getSub()}`
-  );
+  if (config.isInteractiveModeEnabled()) {
+    const accessTokenForResponseConfig =
+      config.getResponseConfigurationForAccessToken(accessToken);
 
-  if (!accessTokensForClient?.includes(accessToken)) {
-    logger.warn("Access token not found in access token store.");
-    return { valid: false, error: UserInfoRequestError.INVALID_TOKEN };
+    if (!accessTokenForResponseConfig) {
+      logger.warn("Access token not found in response configuration store.");
+      return { valid: false, error: UserInfoRequestError.INVALID_TOKEN };
+    }
+  } else {
+    const accessTokensForClient = config.getAccessTokensFromStore(
+      `${config_client_id}.${config.getSub()}`
+    );
+
+    if (!accessTokensForClient?.includes(accessToken)) {
+      logger.warn("Access token not found in access token store.");
+      return { valid: false, error: UserInfoRequestError.INVALID_TOKEN };
+    }
   }
 
   if (!config_identity_supported) {

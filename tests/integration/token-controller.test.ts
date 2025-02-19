@@ -21,6 +21,7 @@ import {
   ID_TOKEN_EXPIRY,
 } from "../../src/constants";
 import { decodeJwtNoVerify } from "./helper/decode-jwt-no-verify";
+import { exampleResponseConfig } from "./helper/test-constants";
 
 const TOKEN_ENDPOINT = "/token";
 
@@ -731,5 +732,91 @@ describe("/token endpoint valid client_assertion", () => {
       Math.floor(TIME_NOW / 1000) + ID_TOKEN_EXPIRY
     );
     expect(decodedIdToken.payload.auth_time).toBe(Math.floor(TIME_NOW / 1000));
+  });
+});
+
+describe('when INTERACTIVE_MODE is set to "true"', () => {
+  beforeAll(() => {
+    process.env.INTERACTIVE_MODE = "true";
+  });
+
+  afterAll(() => {
+    delete process.env.INTERACTIVE_MODE;
+  });
+
+  it("returns a valid access_token and id_token and stores the response configuration", async () => {
+    await setupClientConfig(knownClientId);
+
+    const responseConfiguration = exampleResponseConfig();
+
+    const config = Config.getInstance();
+
+    jest.spyOn(config, "getAuthCodeRequestParams").mockReturnValue({
+      ...validAuthRequestParams,
+      responseConfiguration,
+    });
+
+    const clientAssertion = await createValidClientAssertion({
+      iss: knownClientId,
+      sub: knownClientId,
+      aud: audience,
+      jti: randomUUID(),
+      iat: Math.floor(TIME_NOW / 1000),
+      exp: Math.floor(TIME_NOW / 1000) + 3600,
+    });
+
+    const app = createApp();
+    const response = await request(app).post(TOKEN_ENDPOINT).send({
+      grant_type: "authorization_code",
+      code: knownAuthCode,
+      client_assertion_type:
+        "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+      redirect_uri: redirectUri,
+      client_assertion: clientAssertion,
+    });
+
+    expect(response.status).toEqual(200);
+
+    const { access_token, expires_in, id_token, token_type } = response.body;
+
+    const decodedAccessToken = decodeJwtNoVerify(access_token);
+    const decodedIdToken = decodeJwtNoVerify(id_token);
+
+    expect(expires_in).toEqual(3600);
+    expect(token_type).toEqual("Bearer");
+
+    expect(decodedAccessToken.protectedHeader).toStrictEqual({
+      alg: "RS256",
+      kid: RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
+    });
+    expect(decodedAccessToken.payload.sub).toBe(knownSub);
+    expect(decodedAccessToken.payload.client_id).toBe(knownClientId);
+    expect(decodedAccessToken.payload.sid).toBe(SESSION_ID);
+    expect(decodedAccessToken.payload.scope).toStrictEqual(
+      validAuthRequestParams.scopes
+    );
+    expect(decodedAccessToken.payload.claims).toEqual(VALID_CLAIMS);
+    expect(decodedIdToken.protectedHeader).toStrictEqual({
+      alg: "RS256",
+      kid: RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
+    });
+    expect(decodedIdToken.payload.sub).toBe(knownSub);
+    expect(decodedIdToken.payload.iss).toBe("http://localhost:3000/");
+    expect(decodedIdToken.payload.vtm).toBe("http://localhost:3000/trustmark");
+    expect(decodedIdToken.payload.aud).toBe(knownClientId);
+    expect(decodedIdToken.payload.sid).toBe(SESSION_ID);
+    expect(decodedIdToken.payload.nonce).toBe(validAuthRequestParams.nonce);
+    expect(decodedIdToken.payload.vot).toBe(
+      validAuthRequestParams.vtr.credentialTrust
+    );
+    expect(decodedIdToken.payload.iat).toBe(Math.floor(TIME_NOW / 1000));
+    expect(decodedIdToken.payload.exp).toBe(
+      Math.floor(TIME_NOW / 1000) + ID_TOKEN_EXPIRY
+    );
+    expect(decodedIdToken.payload.auth_time).toBe(Math.floor(TIME_NOW / 1000));
+
+    expect(
+      config.getResponseConfigurationForAccessToken(access_token)
+    ).toStrictEqual(responseConfiguration);
   });
 });

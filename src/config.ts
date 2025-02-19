@@ -14,6 +14,7 @@ import { isAuthoriseError } from "./validators/authorise-errors";
 import { AuthoriseError } from "./types/authorise-errors";
 import ReturnCode from "./types/return-code";
 import { UserIdentityClaim } from "./types/user-info";
+import { ResponseConfigurationStore } from "./types/response-configuration-store";
 
 export class Config {
   private static instance: Config;
@@ -23,6 +24,7 @@ export class Config {
   private errorConfiguration: ErrorConfiguration;
   private authCodeRequestParamsStore: Record<string, AuthRequestParameters>;
   private accessTokenStore: AccessTokenStore;
+  private responseConfigurationStore: ResponseConfigurationStore;
 
   private simulatorUrl: string;
   private readonly interactiveMode: boolean;
@@ -131,6 +133,7 @@ CQIDAQAB
 
     this.authCodeRequestParamsStore = {};
     this.accessTokenStore = {};
+    this.responseConfigurationStore = {};
 
     this.simulatorUrl = process.env.SIMULATOR_URL ?? "http://localhost:3000";
     this.interactiveMode = process.env.INTERACTIVE_MODE === "true";
@@ -352,6 +355,19 @@ CQIDAQAB
       ...(this.accessTokenStore[clientIdSub] ?? []),
       accessToken,
     ];
+  }
+
+  public getResponseConfigurationForAccessToken(
+    accessToken: string
+  ): ResponseConfiguration | undefined {
+    return this.responseConfigurationStore[accessToken];
+  }
+
+  public addToResponseConfigurationStore(
+    accessToken: string,
+    responseConfiguration: ResponseConfiguration
+  ): void {
+    this.responseConfigurationStore[accessToken] = responseConfiguration;
   }
 
   public getErrorConfiguration(): ErrorConfiguration {

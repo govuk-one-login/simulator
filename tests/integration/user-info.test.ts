@@ -6,6 +6,7 @@ import request from "supertest";
 import { UserIdentityClaim, UserInfo } from "../../src/types/user-info";
 import ReturnCode from "../../src/types/return-code";
 import { decodeJwtNoVerify } from "./helper/decode-jwt-no-verify";
+import { exampleResponseConfig } from "./helper/test-constants";
 
 const USER_INFO_ENDPOINT = "/userinfo";
 const KNOWN_CLIENT_ID = "d76db56760ceda7cab875f085c54bd35";
@@ -286,7 +287,7 @@ describe("/userinfo endpoint", () => {
     );
   });
 
-  it("returns expected user info for valid token", async () => {
+  it("returns expected status and bearer value for invalid token", async () => {
     await setupClientConfig(
       KNOWN_CLIENT_ID,
       ["openid", "email", "phone"],
@@ -788,6 +789,137 @@ describe("/userinfo endpoint with identity verification enabled", () => {
     const { payload } = await decodeJwtNoVerify(coreIdentityJwt);
     const nowSeconds = Math.floor(Date.now() / 1000);
     expect(payload.exp).toBeLessThan(nowSeconds);
+  });
+});
+
+describe('when INTERACTIVE_MODE is set to "true"', () => {
+  beforeAll(() => {
+    process.env.INTERACTIVE_MODE = "true";
+  });
+
+  afterAll(() => {
+    delete process.env.INTERACTIVE_MODE;
+  });
+
+  it("returns expected user info for valid token", async () => {
+    await setupClientConfig(KNOWN_CLIENT_ID, ["openid", "email", "phone"]);
+    const accessToken = await createAccessToken(
+      ISSUER_VALUE,
+      KNOWN_CLIENT_ID,
+      ["openid", "email", "phone"],
+      EC_PRIVATE_TOKEN_SIGNING_KEY
+    );
+
+    const sub = "sample-sub";
+    const responseConfig = {
+      ...exampleResponseConfig(),
+      sub,
+    };
+
+    Config.getInstance().addToResponseConfigurationStore(
+      accessToken,
+      responseConfig
+    );
+
+    const app = createApp();
+    const response = await request(app)
+      .get(USER_INFO_ENDPOINT)
+      .set(AUTHORIZATION_HEADER_KEY, `Bearer ${accessToken}`);
+
+    const expectedUserInfo: UserInfo = {
+      email: responseConfig.email,
+      email_verified: responseConfig.emailVerified,
+      phone_number: responseConfig.phoneNumber,
+      phone_number_verified: responseConfig.phoneNumberVerified,
+      sub,
+    };
+
+    expect(response.status).toBe(200);
+    expect(response.header[AUTHENTICATE_HEADER_KEY]).toBeUndefined();
+    expect(response.body).toStrictEqual(expectedUserInfo);
+  });
+
+  it("returns expected user info with additional claims for a valid access_token", async () => {
+    await setupClientConfig(
+      KNOWN_CLIENT_ID,
+      ["openid", "email", "phone"],
+      true,
+      [
+        "https://vocab.account.gov.uk/v1/coreIdentityJWT",
+        "https://vocab.account.gov.uk/v1/returnCode",
+      ]
+    );
+    const accessToken = await createAccessToken(
+      ISSUER_VALUE,
+      KNOWN_CLIENT_ID,
+      ["openid", "email", "phone"],
+      EC_PRIVATE_TOKEN_SIGNING_KEY,
+      undefined,
+      [
+        "https://vocab.account.gov.uk/v1/coreIdentityJWT",
+        "https://vocab.account.gov.uk/v1/returnCode",
+      ]
+    );
+    const nowBeforeSeconds = Math.floor(Date.now() / 1000);
+    const sub = "sample-sub";
+    const responseConfig = {
+      ...exampleResponseConfig(),
+      sub,
+    };
+
+    Config.getInstance().addToResponseConfigurationStore(
+      accessToken,
+      responseConfig
+    );
+
+    const app = createApp();
+
+    const response = await request(app)
+      .get(USER_INFO_ENDPOINT)
+      .set(AUTHORIZATION_HEADER_KEY, `Bearer ${accessToken}`);
+    const nowAfterSeconds = Math.floor(Date.now() / 1000);
+
+    expect(response.status).toBe(200);
+    expect(response.header[AUTHENTICATE_HEADER_KEY]).toBeUndefined();
+    expect(Object.keys(response.body).sort()).toEqual(
+      [
+        "email",
+        "email_verified",
+        "phone_number",
+        "phone_number_verified",
+        "sub",
+        "https://vocab.account.gov.uk/v1/coreIdentityJWT",
+        "https://vocab.account.gov.uk/v1/returnCode",
+      ].sort()
+    );
+    expect(response.body.email).toEqual(responseConfig.email);
+    expect(response.body.email_verified).toEqual(responseConfig.emailVerified);
+    expect(response.body.phone_number).toEqual(responseConfig.phoneNumber);
+    expect(response.body.phone_number_verified).toEqual(
+      responseConfig.phoneNumberVerified
+    );
+    expect(response.body.sub).toEqual(responseConfig.sub);
+
+    expect(response.body["https://vocab.account.gov.uk/v1/returnCode"]).toEqual(
+      responseConfig.returnCodes
+    );
+
+    const coreIdentityJwt =
+      response.body["https://vocab.account.gov.uk/v1/coreIdentityJWT"];
+    const publicKey = await importSPKI(EC_PUBLIC_IDENTITY_SIGNING_KEY, "ES256");
+    const { payload } = await jwtVerify(coreIdentityJwt, publicKey);
+    expect(payload.aud).toEqual("d76db56760ceda7cab875f085c54bd35");
+    expect(payload.iss).toEqual(ISSUER_VALUE);
+    expect(payload.sub).toEqual(responseConfig.sub);
+    expect(payload.vot).toEqual(responseConfig.maxLoCAchieved);
+    expect(payload.vtm).toEqual(TRUSTMARK_VALUE);
+    expect(payload.nbf).toBeGreaterThanOrEqual(nowBeforeSeconds);
+    expect(payload.exp).toBeGreaterThan(nowBeforeSeconds);
+    expect(payload.iat).toBeGreaterThanOrEqual(nowBeforeSeconds);
+    expect(payload.iat).toBeLessThanOrEqual(nowAfterSeconds);
+    expect(payload.vc).toEqual(
+      responseConfig.coreIdentityVerifiableCredentials
+    );
   });
 });
 

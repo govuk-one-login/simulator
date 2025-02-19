@@ -64,7 +64,7 @@ const mainContent = (
             </dt>
             <dd class="govuk-summary-list__value">
             <div class="govuk-checkboxes__item">
-            <input class="govuk-checkboxes__input" id="phone-number-verified" name="phone-number-verified" type="checkbox" value="true">
+            <input class="govuk-checkboxes__input" id="phone-number-verified" name="phoneNumberVerified" type="checkbox" value="true" data-testid="phone-number-verified">
             <label class="govuk-label govuk-checkboxes__label" for="phone-number-verified">
             </label>
           </div>
