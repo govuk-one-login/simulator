@@ -13,6 +13,7 @@ import { didController } from "./components/did/did-controller";
 import { logoutController } from "./components/logout/logout-controller";
 import { getConfigController } from "./components/config/get-config-controller";
 import { formSubmitController } from "./components/form-submit/form-submit-controller";
+import { generateConfigFormFieldValidator } from "./types/response-configuration";
 
 const createApp = (): Application => {
   const app: Express = express();
@@ -45,7 +46,11 @@ const createApp = (): Application => {
   });
   app.get("/.well-known/did.json", didController);
   app.get("/logout", logoutController);
-  app.post("/form-submit", formSubmitController);
+  app.post(
+    "/form-submit",
+    ...generateConfigFormFieldValidator(),
+    formSubmitController
+  );
 
   return app;
 };
