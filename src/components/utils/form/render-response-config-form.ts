@@ -42,7 +42,7 @@ const mainContent = (
             </dt>
             <dd class="govuk-summary-list__value">
             <div class="govuk-checkboxes__item">
-            <input class="govuk-checkboxes__input" id="email-verified" name="emailVerified" type="checkbox" value="true" ${config.getEmailVerified() ? "checked" : ""}>
+            <input class="govuk-checkboxes__input" id="email-verified" data-testid="email-verified" name="emailVerified" type="checkbox" value="true" ${config.getEmailVerified() ? "checked" : ""}>
             <label class="govuk-label govuk-checkboxes__label" for="email-verified">
             </label>
           </div>
