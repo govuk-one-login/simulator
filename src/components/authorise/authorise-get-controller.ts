@@ -89,7 +89,8 @@ export const authoriseController = async (
         renderResponseConfigFrom(
           authCode,
           authRequestParams,
-          parsedAuthRequest.state
+          parsedAuthRequest.state,
+          config
         )
       );
       return;
