@@ -1,6 +1,7 @@
 import AuthRequestParameters from "src/types/auth-request-parameters";
 import { govukStyles } from "./gov-uk-styles";
 import { base64url } from "jose";
+import { Config } from "./../../../config";
 
 //The base64 encoding here looks weird but it's done to escape
 // '/' chars in the html which stop the value being rendered
@@ -8,7 +9,8 @@ import { base64url } from "jose";
 const mainContent = (
   authcode: string,
   authRequest: AuthRequestParameters,
-  state: string
+  state: string,
+  config: Config
 ) => `<h1 class="govuk-heading-l">Enter response Configuration</h1>
 <p class="govuk-body">Use this form to submit the user info response configuration for this request.</p>
 <form action="/form-submit" method="post">
@@ -21,7 +23,7 @@ const mainContent = (
                 Subject (sub)
             </dt>
             <dd class="govuk-summary-list__value">
-                <input class="govuk-textarea" id="sub" name="sub" data-testid="sub" type="text" />
+                <input class="govuk-textarea" id="sub" name="sub" data-testid="sub" type="text" value="${config.getSub()}"/>
             </dd>
         </div>
 
@@ -30,7 +32,7 @@ const mainContent = (
                 Email
             </dt>
             <dd class="govuk-summary-list__value">
-                <input class="govuk-textarea" id="email" data-testid="email" name="email" type="text" data-testid="email" />
+                <input class="govuk-textarea" id="email" data-testid="email" name="email" type="text" data-testid="email" value="${config.getEmail()}"/>
             </dd>
         </div>
 
@@ -40,7 +42,7 @@ const mainContent = (
             </dt>
             <dd class="govuk-summary-list__value">
             <div class="govuk-checkboxes__item">
-            <input class="govuk-checkboxes__input" id="email-verified" name="emailVerified" type="checkbox" value="true">
+            <input class="govuk-checkboxes__input" id="email-verified" data-testid="email-verified" name="emailVerified" type="checkbox" value="true" ${config.getEmailVerified() ? "checked" : ""}>
             <label class="govuk-label govuk-checkboxes__label" for="email-verified">
             </label>
           </div>
@@ -52,7 +54,7 @@ const mainContent = (
                 Phone Number
             </dt>
             <dd class="govuk-summary-list__value">
-                <input class="govuk-textarea" id="phone-number" name="phoneNumber" type="text" data-testid="phone-number" />
+                <input class="govuk-textarea" id="phone-number" name="phoneNumber" type="text" data-testid="phone-number" value="${config.getPhoneNumber()}"/>
             </dd>
         </div>
 
@@ -64,7 +66,7 @@ const mainContent = (
             </dt>
             <dd class="govuk-summary-list__value">
             <div class="govuk-checkboxes__item">
-            <input class="govuk-checkboxes__input" id="phone-number-verified" name="phoneNumberVerified" type="checkbox" value="true" data-testid="phone-number-verified">
+            <input class="govuk-checkboxes__input" id="phone-number-verified" name="phoneNumberVerified" type="checkbox" value="true" data-testid="phone-number-verified"  ${config.getPhoneNumberVerified() ? "checked" : ""}>
             <label class="govuk-label govuk-checkboxes__label" for="phone-number-verified">
             </label>
           </div>
@@ -77,7 +79,7 @@ const mainContent = (
                 Max Level Of Confidence Achieved
             </dt>
             <dd class="govuk-summary-list__value">
-                <input class="govuk-textarea" id="max-loc-achieved" name="maxLoCAchieved" type="text" data-testid="max-loc-achieved" />
+                <input class="govuk-textarea" id="max-loc-achieved" name="maxLoCAchieved" type="text" data-testid="max-loc-achieved" value="${config.getMaxLoCAchieved()}" />
             </dd>
         </div>
 
@@ -86,7 +88,7 @@ const mainContent = (
                 CoreIdentity VC
             </dt>
             <dd class="govuk-summary-list__value">
-                <textarea class="govuk-textarea" id="core-identity-vc" name="coreIdentityVerifiableCredentials" data-testid="core-identity-vc" type="text"></textarea>
+                <textarea class="govuk-textarea" id="core-identity-vc" name="coreIdentityVerifiableCredentials" data-testid="core-identity-vc" type="text" rows="16"> ${config.getVerifiableIdentityCredentials() ? JSON.stringify(config.getVerifiableIdentityCredentials(), null, 2) : ""}</textarea>
             </dd>
         </div>
 
@@ -95,7 +97,7 @@ const mainContent = (
                 Passport details
             </dt>
             <dd class="govuk-summary-list__value">
-                <textarea class="govuk-textarea" id="passport-details" name="passportDetails" data-testid="passport-details" type="text"></textarea>
+                <textarea class="govuk-textarea" id="passport-details" name="passportDetails" data-testid="passport-details" type="text" rows="4">${config.getPassportDetails() ? JSON.stringify(config.getPassportDetails(), null, 2) : ""}</textarea>
             </dd>
         </div>
 
@@ -104,7 +106,7 @@ const mainContent = (
                 Driving Permit details
             </dt>
             <dd class="govuk-summary-list__value">
-                <textarea class="govuk-textarea" id="driving-permit-details" name="drivingPermitDetails" data-testid="driving-permit-details" type="text"></textarea>
+                <textarea class="govuk-textarea" id="driving-permit-details" name="drivingPermitDetails" data-testid="driving-permit-details" type="text" rows="4">${config.getDrivingPermitDetails() ? JSON.stringify(config.getDrivingPermitDetails(), null, 2) : ""}</textarea>
             </dd>
         </div>
 
@@ -113,7 +115,7 @@ const mainContent = (
                 Postal Address details
             </dt>
             <dd class="govuk-summary-list__value">
-                <textarea class="govuk-textarea" id="postal-address-details" name="postalAddressDetails" data-testid="postal-address-details" type="text"></textarea>
+                <textarea class="govuk-textarea" id="postal-address-details" name="postalAddressDetails" data-testid="postal-address-details" type="text" rows="8">${config.getPostalAddressDetails() ? JSON.stringify(config.getPostalAddressDetails(), null, 2) : ""}</textarea>
             </dd>
         </div>
 
@@ -122,7 +124,7 @@ const mainContent = (
                 Return Codes
             </dt>
             <dd class="govuk-summary-list__value">
-                <textarea class="govuk-textarea" id="return-codes" name="returnCodes" data-testid="return-codes" type="text"></textarea>
+                <textarea class="govuk-textarea" id="return-codes" name="returnCodes" data-testid="return-codes" type="text" rows="4">${config.getReturnCodes() ? JSON.stringify(config.getReturnCodes(), null, 2) : ""}</textarea>
             </dd>
         </div>
 
@@ -135,7 +137,8 @@ const mainContent = (
 export const renderResponseConfigFrom = (
   authCode: string,
   requestParams: AuthRequestParameters,
-  state: string
+  state: string,
+  config: Config
 ): string => {
   return `<!DOCTYPE html>
   <html lang="en" class="govuk-template">
@@ -182,7 +185,7 @@ export const renderResponseConfigFrom = (
     </header>
     <div class="govuk-width-container">
       <main class="govuk-main-wrapper" id="main-content">
-        ${mainContent(authCode, requestParams, state)}
+        ${mainContent(authCode, requestParams, state, config)}
       </main>
     </div>
     <footer class="govuk-footer">
