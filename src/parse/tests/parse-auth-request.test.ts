@@ -207,6 +207,8 @@ describe("parseAuthRequest tests", () => {
           vtr: '["Cl.Cm"]',
           nonce: "8b5376320b7d9307627a5ad9512da4f84555d96fe9517365",
           prompt: "none",
+          code_challenge: "code-challenge",
+          code_challenge_method: "code-challenge-method",
         })
       ).toStrictEqual({
         response_type: "code",
@@ -226,6 +228,8 @@ describe("parseAuthRequest tests", () => {
         requestObject: undefined,
         request_uri: undefined,
         max_age: -1,
+        code_challenge: "code-challenge",
+        code_challenge_method: "code-challenge-method",
       });
     });
   });
@@ -237,6 +241,8 @@ describe("parseAuthRequest tests", () => {
         client_id: clientId,
         scope: "openid",
         request: defaultEncodedJwt,
+        code_challenge: "code-challenge",
+        code_challenge_method: "code-challenge-method",
       });
 
       expect(parsedRequest).toStrictEqual({
@@ -268,6 +274,8 @@ describe("parseAuthRequest tests", () => {
         ui_locales: [],
         request_uri: undefined,
         max_age: -1,
+        code_challenge: "code-challenge",
+        code_challenge_method: "code-challenge-method",
       });
     });
 
