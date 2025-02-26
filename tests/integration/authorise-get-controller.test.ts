@@ -1289,6 +1289,10 @@ describe("Authorise controller tests", () => {
       process.env.INTERACTIVE_MODE = "true";
     });
 
+    afterAll(() => {
+      delete process.env.INTERACTIVE_MODE;
+    });
+
     it("renders a html form with an embeded auth code request object and encoded authRequest params", async () => {
       const app = createApp();
       const requestParams = createRequestParams({
@@ -1391,6 +1395,170 @@ describe("Authorise controller tests", () => {
       expect(decodedParams.vtr).toStrictEqual({
         levelOfConfidence: "P2",
         credentialTrust: "Cl.Cm",
+      });
+    });
+  });
+
+  describe("Auth request with PKCE_ENABLED enabled", () => {
+    beforeAll(() => {
+      process.env.PKCE_ENABLED = "true";
+    });
+
+    afterAll(() => {
+      delete process.env.PKCE_ENABLED;
+    });
+
+    describe("Auth requests using query params", () => {
+      it("returns 302 and redirect with an auth code for a invalid code challenge method", async () => {
+        const app = createApp();
+        const requestParams = createRequestParams({
+          client_id: knownClientId,
+          redirect_uri: knownRedirectUri,
+          response_type: "code",
+          scope: "openid email",
+          state,
+          claims:
+            '{"userinfo":{"https://vocab.account.gov.uk/v1/coreIdentityJWT":null}}',
+          nonce,
+          prompt: "login",
+          vtr: '["Cl.Cm.P2"]',
+          code_challenge: "code-challenge",
+          code_challenge_method: "not-S256",
+        });
+
+        const response = await request(app).get(
+          authoriseEndpoint + "?" + requestParams
+        );
+
+        expect(response.status).toBe(302);
+        expect(response.headers.location).toBe(
+          `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Invalid value for code_challenge_method parameter.")}&state=${state}`
+        );
+      });
+
+      it("returns 302 and redirect with an auth code for an empty code challenge", async () => {
+        const app = createApp();
+        const requestParams = createRequestParams({
+          client_id: knownClientId,
+          redirect_uri: knownRedirectUri,
+          response_type: "code",
+          scope: "openid email",
+          state,
+          claims:
+            '{"userinfo":{"https://vocab.account.gov.uk/v1/coreIdentityJWT":null}}',
+          nonce,
+          prompt: "login",
+          vtr: '["Cl.Cm.P2"]',
+          code_challenge: " ",
+          code_challenge_method: "S256",
+        });
+
+        const response = await request(app).get(
+          authoriseEndpoint + "?" + requestParams
+        );
+
+        expect(response.status).toBe(302);
+        expect(response.headers.location).toBe(
+          `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Invalid value for code_challenge parameter.")}&state=${state}`
+        );
+      });
+
+      it("returns 302 and redirect with an auth code for a valid code challenge", async () => {
+        const app = createApp();
+        const requestParams = createRequestParams({
+          client_id: knownClientId,
+          redirect_uri: knownRedirectUri,
+          response_type: "code",
+          scope: "openid email",
+          state,
+          claims:
+            '{"userinfo":{"https://vocab.account.gov.uk/v1/coreIdentityJWT":null}}',
+          nonce,
+          prompt: "login",
+          vtr: '["Cl.Cm.P2"]',
+          code_challenge: "code-challenge",
+          code_challenge_method: "S256",
+        });
+
+        const response = await request(app).get(
+          authoriseEndpoint + "?" + requestParams
+        );
+
+        expect(response.status).toBe(302);
+        expect(response.header.location).toBe(
+          `${knownRedirectUri}?code=${knownAuthCode}&state=${state}`
+        );
+      });
+    });
+
+    describe("Auth requests using request objects", () => {
+      it("returns 302 for request with invalid code challenge method", async () => {
+        const app = createApp();
+        const requestParams = createRequestParams({
+          client_id: knownClientId,
+          redirect_uri: knownRedirectUri,
+          response_type: "code",
+          scope: "openid email",
+          request: await encodedJwtWithParams({
+            code_challenge: "code-challenge",
+            code_challenge_method: "not-S256",
+          }),
+        });
+
+        const response = await request(app).get(
+          authoriseEndpoint + "?" + requestParams
+        );
+
+        expect(response.status).toBe(302);
+        expect(response.headers.location).toBe(
+          `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Invalid value for code_challenge_method parameter.")}&state=${state}`
+        );
+      });
+
+      it("returns 302 for request with empty code challenge", async () => {
+        const app = createApp();
+        const requestParams = createRequestParams({
+          client_id: knownClientId,
+          redirect_uri: knownRedirectUri,
+          response_type: "code",
+          scope: "openid email",
+          request: await encodedJwtWithParams({
+            code_challenge: " ",
+            code_challenge_method: "S256",
+          }),
+        });
+
+        const response = await request(app).get(
+          authoriseEndpoint + "?" + requestParams
+        );
+
+        expect(response.status).toBe(302);
+        expect(response.headers.location).toBe(
+          `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Invalid value for code_challenge parameter.")}&state=${state}`
+        );
+      });
+
+      it("returns 302 and redirect with an auth code for a valid code challenge", async () => {
+        const app = createApp();
+        const requestParams = createRequestParams({
+          client_id: knownClientId,
+          redirect_uri: knownRedirectUri,
+          response_type: "code",
+          scope: "openid email",
+          request: await encodedJwtWithParams({
+            code_challenge: "code-challenge",
+            code_challenge_method: "S256",
+          }),
+        });
+
+        const response = await request(app).get(
+          authoriseEndpoint + "?" + requestParams
+        );
+
+        expect(response.status).toBe(302);
+        expect(response.header.location).toBe(
+          `${knownRedirectUri}?code=${knownAuthCode}&state=${state}`
+        );
       });
     });
   });
