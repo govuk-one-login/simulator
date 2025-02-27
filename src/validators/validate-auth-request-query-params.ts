@@ -6,6 +6,7 @@ import { areScopesValid } from "./scope-validator";
 import { vtrValidator } from "./vtr-validator";
 import { Config } from "../config";
 import { AuthRequest } from "src/parse/parse-auth-request";
+import { validatePKCECodeChallengeAndMethod } from "./code-challenge-validator";
 
 export const validateAuthRequestQueryParams = (
   queryParams: AuthRequest,
@@ -101,5 +102,14 @@ export const validateAuthRequestQueryParams = (
       redirectUri: queryParams.redirect_uri,
       state: queryParams.state,
     });
+  }
+
+  if (config.isPKCEEnabled()) {
+    validatePKCECodeChallengeAndMethod(
+      queryParams.redirect_uri,
+      queryParams.state,
+      queryParams.code_challenge,
+      queryParams.code_challenge_method
+    );
   }
 };
