@@ -174,6 +174,7 @@ export const parseTokenRequest = async (
       code: tokenRequestBody.code,
       client_assertion: tokenRequestBody.client_assertion,
       client_assertion_type: tokenRequestBody.client_assertion_type,
+      code_verifier: tokenRequestBody.code_verifier,
     },
     clientAssertion: parsedClientAssertion,
   };
