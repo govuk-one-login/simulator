@@ -13,7 +13,7 @@ const mainContent = (
   config: Config
 ) => `<h1 class="govuk-heading-l">Enter response Configuration</h1>
 <p class="govuk-body">Use this form to submit the user info response configuration for this request.</p>
-<form action="/form-submit" method="post">
+<form action="${config.getSimulatorUrl()}/form-submit" method="post">
     <input type="hidden" name="authCode" value="${authcode}"/>
     <input type="hidden" name="authRequestParams" value="${base64url.encode(Buffer.from(JSON.stringify(authRequest)))}"/>
     <input type="hidden" name="state" value="${state}"/>
