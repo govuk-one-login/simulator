@@ -28,6 +28,7 @@ export class Config {
 
   private simulatorUrl: string;
   private readonly interactiveMode: boolean;
+  private readonly pkceEnabled: boolean;
 
   private constructor() {
     const defaultPublicKey = `-----BEGIN PUBLIC KEY-----
@@ -137,6 +138,7 @@ CQIDAQAB
 
     this.simulatorUrl = process.env.SIMULATOR_URL ?? "http://localhost:3000";
     this.interactiveMode = process.env.INTERACTIVE_MODE === "true";
+    this.pkceEnabled = process.env.PKCE_ENABLED === "true";
   }
 
   public static getInstance(): Config {
@@ -421,7 +423,12 @@ CQIDAQAB
   public getDidController(): string {
     return `did:web:${new URL(this.simulatorUrl).host.replace(":", encodeURIComponent(":"))}`;
   }
+
   public isInteractiveModeEnabled(): boolean {
     return this.interactiveMode;
+  }
+
+  public isPKCEEnabled(): boolean {
+    return this.pkceEnabled;
   }
 }
