@@ -436,17 +436,112 @@ describe("Validate auth request object tests", () => {
     );
   });
 
-  it("does not throw when auth request is valid", async () => {
-    const requestObject = defaultRequestObject;
-    const authRequest = {
-      ...defaultAuthRequest,
-      requestObject,
-    };
+  describe('when PKCE_ENABLED is set to "true"', () => {
+    beforeAll(() => {
+      jest.spyOn(config, "isPKCEEnabled").mockReturnValue(true);
+    });
 
-    await expect(
-      validateAuthRequestObject(authRequest, config)
-    ).resolves.not.toThrow();
+    afterAll(() => {
+      jest.spyOn(config, "isPKCEEnabled").mockReturnValue(false);
+    });
+
+    it("throw authorise request error when code challenge method is not S256", async () => {
+      const requestObject = requestObjectWithParams({
+        code_challenge_method: "not-S256",
+        code_challenge: "code-challenge",
+      });
+      const authRequest = {
+        ...defaultAuthRequest,
+        requestObject,
+      };
+
+      await expect(
+        validateAuthRequestObject(authRequest, config)
+      ).rejects.toThrow(
+        new AuthoriseRequestError({
+          httpStatusCode: 302,
+          errorCode: "invalid_request",
+          errorDescription:
+            "Invalid value for code_challenge_method parameter.",
+          redirectUri: defaultRedirectUri,
+          state: defaultState,
+        })
+      );
+    });
+
+    it("throw authorise request error when code challenge method is null", async () => {
+      const requestObject = requestObjectWithParams({
+        code_challenge: "code-challenge",
+      });
+      const authRequest = {
+        ...defaultAuthRequest,
+        requestObject,
+      };
+
+      await expect(
+        validateAuthRequestObject(authRequest, config)
+      ).rejects.toThrow(
+        new AuthoriseRequestError({
+          httpStatusCode: 302,
+          errorCode: "invalid_request",
+          errorDescription:
+            "Request is missing code_challenge_method parameter. code_challenge_method is required when code_challenge is present.",
+          redirectUri: defaultRedirectUri,
+          state: defaultState,
+        })
+      );
+    });
+
+    it("throw authorise request error when code challenge is whitespace", async () => {
+      const requestObject = requestObjectWithParams({
+        code_challenge_method: "S256",
+        code_challenge: " ",
+      });
+      const authRequest = {
+        ...defaultAuthRequest,
+        requestObject,
+      };
+
+      await expect(
+        validateAuthRequestObject(authRequest, config)
+      ).rejects.toThrow(
+        new AuthoriseRequestError({
+          httpStatusCode: 302,
+          errorCode: "invalid_request",
+          errorDescription: "Invalid value for code_challenge parameter.",
+          redirectUri: defaultRedirectUri,
+          state: defaultState,
+        })
+      );
+    });
+
+    it("does not throw when auth request is valid with valid code challenge", async () => {
+      const requestObject = requestObjectWithParams({
+        code_challenge_method: "S256",
+        code_challenge: "code-challenge",
+      });
+      const authRequest = {
+        ...defaultAuthRequest,
+        requestObject,
+      };
+
+      await expect(
+        validateAuthRequestObject(authRequest, config)
+      ).resolves.not.toThrow();
+    });
   });
+});
+
+it("does not throw when auth request is valid", async () => {
+  const requestObject = defaultRequestObject;
+  const authRequest = {
+    ...defaultAuthRequest,
+    requestObject,
+  };
+
+  await expect(
+    validateAuthRequestObject(authRequest, config)
+  ).resolves.not.toThrow();
 });
 
 const requestObjectWithParams = (params: object): RequestObject => {

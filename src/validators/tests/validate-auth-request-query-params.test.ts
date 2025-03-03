@@ -193,4 +193,78 @@ describe("validateAuthRequestQueryParams tests", () => {
       })
     );
   });
+
+  describe('when PKCE_ENABLED is set to "true"', () => {
+    beforeAll(() => {
+      jest.spyOn(config, "isPKCEEnabled").mockReturnValue(true);
+    });
+
+    afterAll(() => {
+      jest.spyOn(config, "isPKCEEnabled").mockReturnValue(false);
+    });
+
+    it("throw authorise request error when code challenge method is not S256", () => {
+      expect(() =>
+        validateAuthRequestQueryParams(
+          {
+            ...defaultAuthRequest,
+            code_challenge_method: "not-S256",
+            code_challenge: "code-challenge",
+          },
+          config
+        )
+      ).toThrow(
+        new AuthoriseRequestError({
+          errorCode: "invalid_request",
+          errorDescription:
+            "Invalid value for code_challenge_method parameter.",
+          httpStatusCode: 302,
+          redirectUri: defaultAuthRequest.redirect_uri,
+          state: defaultAuthRequest.state,
+        })
+      );
+    });
+
+    it("throw authorise request error when code challenge method is null", async () => {
+      expect(() =>
+        validateAuthRequestQueryParams(
+          {
+            ...defaultAuthRequest,
+            code_challenge: "code-challenge",
+          },
+          config
+        )
+      ).toThrow(
+        new AuthoriseRequestError({
+          errorCode: "invalid_request",
+          errorDescription:
+            "Request is missing code_challenge_method parameter. code_challenge_method is required when code_challenge is present.",
+          httpStatusCode: 302,
+          redirectUri: defaultAuthRequest.redirect_uri,
+          state: defaultAuthRequest.state,
+        })
+      );
+    });
+
+    it("throw authorise request error when code challenge is whitespace", () => {
+      expect(() =>
+        validateAuthRequestQueryParams(
+          {
+            ...defaultAuthRequest,
+            code_challenge_method: "S256",
+            code_challenge: " ",
+          },
+          config
+        )
+      ).toThrow(
+        new AuthoriseRequestError({
+          errorCode: "invalid_request",
+          errorDescription: "Invalid value for code_challenge parameter.",
+          httpStatusCode: 302,
+          redirectUri: defaultAuthRequest.redirect_uri,
+          state: defaultAuthRequest.state,
+        })
+      );
+    });
+  });
 });

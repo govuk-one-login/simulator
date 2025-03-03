@@ -33,6 +33,8 @@ export type AuthRequest = {
   max_age: number;
   request_uri?: string;
   requestObject?: RequestObject;
+  code_challenge?: string;
+  code_challenge_method?: string;
 };
 
 export const parseAuthRequest = (
@@ -145,6 +147,8 @@ export const parseAuthRequest = (
     max_age,
     request_uri: authRequest.request_uri,
     requestObject,
+    code_challenge: authRequest.code_challenge,
+    code_challenge_method: authRequest.code_challenge_method,
   };
 };
 

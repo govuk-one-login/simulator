@@ -14,6 +14,7 @@ import {
 import { areScopesValid } from "./scope-validator";
 import { vtrValidator } from "./vtr-validator";
 import { areClaimsValid } from "./claims-validator";
+import { validatePKCECodeChallengeAndMethod } from "./code-challenge-validator";
 
 export const validateAuthRequestObject = async (
   authRequest: AuthRequest,
@@ -165,6 +166,15 @@ export const validateAuthRequestObject = async (
   }
 
   validateMaxAge(payload);
+
+  if (config.isPKCEEnabled()) {
+    validatePKCECodeChallengeAndMethod(
+      payload.redirect_uri as string,
+      payload.state as string,
+      payload.code_challenge as string,
+      payload.code_challenge_method as string
+    );
+  }
 
   logger.info("RequestObject has passed initial validation");
 };
