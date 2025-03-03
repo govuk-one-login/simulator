@@ -12,8 +12,8 @@ describe("/.well-known/jwks.json endpoint test", () => {
     const keys = response.body["keys"];
     expect(keys).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ kty: "EC" }),
-        expect.objectContaining({ kty: "RSA" }),
+        expect.objectContaining({ kty: "EC", alg: "ES256" }),
+        expect.objectContaining({ kty: "RSA", alg: "RS256" }),
       ])
     );
   });
