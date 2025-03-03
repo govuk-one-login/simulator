@@ -32,11 +32,13 @@ export const generateJWKS = async (): Promise<JSONWebKeySet> => {
     EC_PRIVATE_TOKEN_SIGNING_KEY,
     EC_PRIVATE_TOKEN_SIGNING_KEY_ID
   );
+  ecPubJwk.alg = "ES256";
 
   const rsPubJwk = await publicJwkWithKidFromPrivateKey(
     RSA_PRIVATE_TOKEN_SIGNING_KEY,
     RSA_PRIVATE_TOKEN_SIGNING_KEY_ID
   );
+  rsPubJwk.alg = "RS256";
   return {
     keys: [ecPubJwk, rsPubJwk],
   };
