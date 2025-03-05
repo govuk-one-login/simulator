@@ -53,6 +53,7 @@ describe("/.well-known/openid-configuration endpoint test", () => {
         "https://vocab.account.gov.uk/v1/returnCode",
       ],
       request_uri_parameter_supported: false,
+      code_challenge_methods_supported: ["S256"],
     });
   });
 });
