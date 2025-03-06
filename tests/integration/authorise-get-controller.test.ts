@@ -448,7 +448,7 @@ describe("Authorise controller tests", () => {
         }
       );
 
-      it("returns 302 and redirects with an error code and description", async () => {
+      it("returns 302 and redirects with an unmet_authentication_requirements error when the prompt includes select_account", async () => {
         const app = createApp();
         const requestParams = createRequestParams({
           client_id: knownClientId,
@@ -469,6 +469,28 @@ describe("Authorise controller tests", () => {
           `${knownRedirectUri}?error=unmet_authentication_requirements&error_description=${encodeURIComponent("Unmet authentication requirements")}&state=${state}`
         );
       });
+    });
+
+    it("returns 302 and redirects with an invalid_request error when the response_mode is not query or fragment", async () => {
+      const app = createApp();
+      const requestParams = createRequestParams({
+        client_id: knownClientId,
+        redirect_uri: knownRedirectUri,
+        response_type: "code",
+        scope: "openid email",
+        state,
+        nonce,
+        response_mode: "notQuery",
+      });
+
+      const response = await request(app).get(
+        authoriseEndpoint + "?" + requestParams
+      );
+
+      expect(response.status).toBe(302);
+      expect(response.header.location).toBe(
+        `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Invalid response mode")}&state=${state}`
+      );
     });
 
     describe("valid auth request", () => {
@@ -1187,6 +1209,28 @@ describe("Authorise controller tests", () => {
         expect(response.status).toBe(302);
         expect(response.headers.location).toBe(
           `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Max age could not be parsed to an integer")}&state=${state}`
+        );
+      });
+
+      it("returns a 302 with invalid request if response_mode in the request object is not query or fragment", async () => {
+        const app = createApp();
+        const requestParams = createRequestParams({
+          client_id: knownClientId,
+          redirect_uri: knownRedirectUri,
+          response_type: "code",
+          scope: "openid email",
+          request: await encodedJwtWithParams({
+            response_mode: "notQuery",
+          }),
+        });
+
+        const response = await request(app).get(
+          authoriseEndpoint + "?" + requestParams
+        );
+
+        expect(response.status).toBe(302);
+        expect(response.headers.location).toBe(
+          `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Invalid response mode")}&state=${state}`
         );
       });
 
