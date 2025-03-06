@@ -194,6 +194,26 @@ describe("validateAuthRequestQueryParams tests", () => {
     );
   });
 
+  it("throw authorise request error when response mode is not query or fragment", () => {
+    expect(() =>
+      validateAuthRequestQueryParams(
+        {
+          ...defaultAuthRequest,
+          response_mode: "code",
+        },
+        config
+      )
+    ).toThrow(
+      new AuthoriseRequestError({
+        errorCode: "invalid_request",
+        errorDescription: "Invalid response mode",
+        httpStatusCode: 302,
+        redirectUri: defaultAuthRequest.redirect_uri,
+        state: defaultAuthRequest.state,
+      })
+    );
+  });
+
   describe('when PKCE_ENABLED is set to "true"', () => {
     beforeAll(() => {
       jest.spyOn(config, "isPKCEEnabled").mockReturnValue(true);

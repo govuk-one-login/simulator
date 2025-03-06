@@ -436,6 +436,28 @@ describe("Validate auth request object tests", () => {
     );
   });
 
+  it("throw authorise request error response_mode is not query or fragment", async () => {
+    const requestObject = requestObjectWithParams({
+      response_mode: "code",
+    });
+    const authRequest = {
+      ...defaultAuthRequest,
+      requestObject,
+    };
+
+    await expect(
+      validateAuthRequestObject(authRequest, config)
+    ).rejects.toThrow(
+      new AuthoriseRequestError({
+        httpStatusCode: 302,
+        errorCode: "invalid_request",
+        errorDescription: "Invalid response mode",
+        redirectUri: defaultRedirectUri,
+        state: defaultState,
+      })
+    );
+  });
+
   describe('when PKCE_ENABLED is set to "true"', () => {
     beforeAll(() => {
       jest.spyOn(config, "isPKCEEnabled").mockReturnValue(true);

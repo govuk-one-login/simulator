@@ -112,4 +112,21 @@ export const validateAuthRequestQueryParams = (
       queryParams.code_challenge_method
     );
   }
+
+  if (
+    queryParams.response_mode &&
+    queryParams.response_mode !== "query" &&
+    queryParams.response_mode !== "fragment"
+  ) {
+    logger.error(
+      `Invalid response mode in request: ${queryParams.response_mode}`
+    );
+    throw new AuthoriseRequestError({
+      errorCode: "invalid_request",
+      errorDescription: "Invalid response mode",
+      httpStatusCode: 302,
+      redirectUri: queryParams.redirect_uri,
+      state: queryParams.state,
+    });
+  }
 };

@@ -176,6 +176,21 @@ export const validateAuthRequestObject = async (
     );
   }
 
+  if (
+    payload.response_mode &&
+    payload.response_mode !== "query" &&
+    payload.response_mode !== "fragment"
+  ) {
+    logger.error(`Invalid response mode in request: ${payload.response_mode}`);
+    throw new AuthoriseRequestError({
+      errorCode: "invalid_request",
+      errorDescription: "Invalid response mode",
+      httpStatusCode: 302,
+      redirectUri: redirectUri,
+      state: payload.state as string,
+    });
+  }
+
   logger.info("RequestObject has passed initial validation");
 };
 
