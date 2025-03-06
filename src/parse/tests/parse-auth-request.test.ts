@@ -209,6 +209,7 @@ describe("parseAuthRequest tests", () => {
           prompt: "none",
           code_challenge: "code-challenge",
           code_challenge_method: "code-challenge-method",
+          response_mode: "query",
         })
       ).toStrictEqual({
         response_type: "code",
@@ -230,6 +231,7 @@ describe("parseAuthRequest tests", () => {
         max_age: -1,
         code_challenge: "code-challenge",
         code_challenge_method: "code-challenge-method",
+        response_mode: "query",
       });
     });
   });
@@ -273,6 +275,7 @@ describe("parseAuthRequest tests", () => {
         prompt: [],
         ui_locales: [],
         request_uri: undefined,
+        response_mode: undefined,
         max_age: -1,
         code_challenge: "code-challenge",
         code_challenge_method: "code-challenge-method",

@@ -35,6 +35,7 @@ export type AuthRequest = {
   requestObject?: RequestObject;
   code_challenge?: string;
   code_challenge_method?: string;
+  response_mode?: string;
 };
 
 export const parseAuthRequest = (
@@ -149,6 +150,7 @@ export const parseAuthRequest = (
     requestObject,
     code_challenge: authRequest.code_challenge,
     code_challenge_method: authRequest.code_challenge_method,
+    response_mode: authRequest.response_mode,
   };
 };
 
