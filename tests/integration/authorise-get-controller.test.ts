@@ -167,6 +167,26 @@ describe("Authorise controller tests", () => {
         expect(response.status).toBe(400);
         expect(response.text).toBe("Invalid Request");
       });
+
+      it("returns an invalid request for unknown response_mode", async () => {
+        const app = createApp();
+        const requestParams = createRequestParams({
+          client_id: knownClientId,
+          redirect_uri: knownRedirectUri,
+          response_type: "code",
+          response_mode: "form_post",
+          scope: "openid email",
+          state,
+          nonce,
+        });
+
+        const response = await request(app).get(
+          authoriseEndpoint + "?" + requestParams
+        );
+
+        expect(response.status).toBe(400);
+        expect(response.text).toBe("Invalid Request");
+      });
     });
 
     describe("/authorize GET controller: Invalid request, redirecting errors", () => {
@@ -448,7 +468,7 @@ describe("Authorise controller tests", () => {
         }
       );
 
-      it("returns 302 and redirects with an error code and description", async () => {
+      it("returns 302 and redirects with an unmet_authentication_requirements error when the prompt includes select_account", async () => {
         const app = createApp();
         const requestParams = createRequestParams({
           client_id: knownClientId,
@@ -639,6 +659,26 @@ describe("Authorise controller tests", () => {
           scope: "openid email",
           request: await encodedJwtWithParams({
             redirect_uri: "https://example.com/auth-callback",
+          }),
+        });
+
+        const response = await request(app).get(
+          authoriseEndpoint + "?" + requestParams
+        );
+
+        expect(response.status).toBe(400);
+        expect(response.text).toBe("Invalid Request");
+      });
+
+      it("returns a 400 and Invalid request for an unknown response_mode", async () => {
+        const app = createApp();
+        const requestParams = createRequestParams({
+          client_id: knownClientId,
+          redirect_uri: knownRedirectUri,
+          response_type: "code",
+          scope: "openid email",
+          request: await encodedJwtWithParams({
+            response_mode: "form_post",
           }),
         });
 

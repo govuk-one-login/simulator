@@ -436,6 +436,20 @@ describe("Validate auth request object tests", () => {
     );
   });
 
+  it("throw bad request error response_mode for unknown response_mode", async () => {
+    const requestObject = requestObjectWithParams({
+      response_mode: "code",
+    });
+    const authRequest = {
+      ...defaultAuthRequest,
+      requestObject,
+    };
+
+    await expect(
+      validateAuthRequestObject(authRequest, config)
+    ).rejects.toThrow(new BadRequestError("Invalid request"));
+  });
+
   describe('when PKCE_ENABLED is set to "true"', () => {
     beforeAll(() => {
       jest.spyOn(config, "isPKCEEnabled").mockReturnValue(true);

@@ -112,4 +112,15 @@ export const validateAuthRequestQueryParams = (
       queryParams.code_challenge_method
     );
   }
+
+  if (
+    queryParams.response_mode &&
+    queryParams.response_mode !== "query" &&
+    queryParams.response_mode !== "fragment"
+  ) {
+    logger.error(
+      `Invalid response mode in request: ${queryParams.response_mode}`
+    );
+    throw new BadRequestError("Invalid request");
+  }
 };
