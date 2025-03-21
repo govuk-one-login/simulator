@@ -6,4 +6,5 @@ export type TokenRequest = {
   client_assertion: string;
   //We do not expect RPs to add this but it may be present
   client_id?: string;
+  code_verifier?: string;
 };

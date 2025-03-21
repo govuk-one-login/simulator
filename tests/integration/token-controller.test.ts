@@ -820,3 +820,156 @@ describe('when INTERACTIVE_MODE is set to "true"', () => {
     ).toStrictEqual(responseConfiguration);
   });
 });
+
+describe('when PKCE_ENABLED is set to "true"', () => {
+  beforeAll(() => {
+    process.env.PKCE_ENABLED = "true";
+  });
+
+  afterAll(() => {
+    delete process.env.PKCE_ENABLED;
+  });
+
+  it("returns 200 with valid code verifier and code challenge", async () => {
+    await setupClientConfig(knownClientId);
+    const codeChallengeValidAuthRequestParams = {
+      ...validAuthRequestParams,
+      code_challenge: "eIe4S9eBZL3SvHEtvsxhvN4FQ8ln3VmwUQvjdVJ-VEY",
+    };
+
+    jest
+      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
+      .mockReturnValue(codeChallengeValidAuthRequestParams);
+
+    const clientAssertion = await createValidClientAssertion({
+      iss: knownClientId,
+      sub: knownClientId,
+      aud: audience,
+      jti: randomUUID(),
+      iat: Math.floor(TIME_NOW / 1000),
+      exp: Math.floor(TIME_NOW / 1000) + 3600,
+    });
+
+    const app = createApp();
+    const response = await request(app).post(TOKEN_ENDPOINT).send({
+      grant_type: "authorization_code",
+      code: knownAuthCode,
+      client_assertion_type:
+        "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+      redirect_uri: redirectUri,
+      client_assertion: clientAssertion,
+      code_verifier: "eR_WWqemjlNa509bCR7_d4QlvhM1OYLmv5AmlEdjrlE",
+    });
+
+    expect(response.status).toEqual(200);
+  });
+
+  it("returns 400 with invalid code challenge and code verifier pair", async () => {
+    await setupClientConfig(knownClientId);
+    const codeChallengeValidAuthRequestParams = {
+      ...validAuthRequestParams,
+      code_challenge: "eIe4S9eBZL3SvHEtvsxhvN4FQ8ln3VmwUQvjdVJ-VLL",
+    };
+
+    jest
+      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
+      .mockReturnValue(codeChallengeValidAuthRequestParams);
+
+    const clientAssertion = await createValidClientAssertion({
+      iss: knownClientId,
+      sub: knownClientId,
+      aud: audience,
+      jti: randomUUID(),
+      iat: Math.floor(TIME_NOW / 1000),
+      exp: Math.floor(TIME_NOW / 1000) + 3600,
+    });
+
+    const app = createApp();
+    const response = await request(app).post(TOKEN_ENDPOINT).send({
+      grant_type: "authorization_code",
+      code: knownAuthCode,
+      client_assertion_type:
+        "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+      redirect_uri: redirectUri,
+      client_assertion: clientAssertion,
+      code_verifier: "eR_WWqemjlNa509bCR7_d4QlvhM1OYLmv5AmlEdjrlE",
+    });
+
+    expect(response.status).toEqual(400);
+    expect(response.body).toStrictEqual({
+      error: "invalid_grant",
+      error_description: "PKCE code verification failed",
+    });
+  });
+
+  it("returns 400 with missing code challenge", async () => {
+    await setupClientConfig(knownClientId);
+
+    jest
+      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
+      .mockReturnValue(validAuthRequestParams);
+
+    const clientAssertion = await createValidClientAssertion({
+      iss: knownClientId,
+      sub: knownClientId,
+      aud: audience,
+      jti: randomUUID(),
+      iat: Math.floor(TIME_NOW / 1000),
+      exp: Math.floor(TIME_NOW / 1000) + 3600,
+    });
+
+    const app = createApp();
+    const response = await request(app).post(TOKEN_ENDPOINT).send({
+      grant_type: "authorization_code",
+      code: knownAuthCode,
+      client_assertion_type:
+        "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+      redirect_uri: redirectUri,
+      client_assertion: clientAssertion,
+      code_verifier: "eR_WWqemjlNa509bCR7_d4QlvhM1OYLmv5AmlEdjrlE",
+    });
+
+    expect(response.status).toEqual(400);
+    expect(response.body).toStrictEqual({
+      error: "invalid_grant",
+      error_description: "PKCE code verification failed",
+    });
+  });
+
+  it("returns 400 with missing code verifier", async () => {
+    await setupClientConfig(knownClientId);
+    const codeChallengeValidAuthRequestParams = {
+      ...validAuthRequestParams,
+      code_challenge: "eIe4S9eBZL3SvHEtvsxhvN4FQ8ln3VmwUQvjdVJ-VEY",
+    };
+
+    jest
+      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
+      .mockReturnValue(codeChallengeValidAuthRequestParams);
+
+    const clientAssertion = await createValidClientAssertion({
+      iss: knownClientId,
+      sub: knownClientId,
+      aud: audience,
+      jti: randomUUID(),
+      iat: Math.floor(TIME_NOW / 1000),
+      exp: Math.floor(TIME_NOW / 1000) + 3600,
+    });
+
+    const app = createApp();
+    const response = await request(app).post(TOKEN_ENDPOINT).send({
+      grant_type: "authorization_code",
+      code: knownAuthCode,
+      client_assertion_type:
+        "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+      redirect_uri: redirectUri,
+      client_assertion: clientAssertion,
+    });
+
+    expect(response.status).toEqual(400);
+    expect(response.body).toStrictEqual({
+      error: "invalid_grant",
+      error_description: "PKCE code verification failed",
+    });
+  });
+});

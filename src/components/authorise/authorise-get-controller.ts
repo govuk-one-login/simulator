@@ -82,6 +82,9 @@ export const authoriseController = async (
       redirectUri: parsedAuthRequest.redirect_uri,
       scopes: parsedAuthRequest.scope,
       vtr: (parsedAuthRequest.vtr as VectorOfTrust[])[0],
+      ...(parsedAuthRequest.code_challenge && {
+        code_challenge: parsedAuthRequest.code_challenge,
+      }),
     };
 
     if (config.isInteractiveModeEnabled()) {
