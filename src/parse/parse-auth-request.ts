@@ -41,43 +41,7 @@ export type AuthRequest = {
 export const parseAuthRequest = (
   authRequest: Record<string, string>
 ): AuthRequest => {
-  // Validate core OAuth2.0 authorization request params
-  if (isEmptyRequest(authRequest)) {
-    throw new MissingParameterError(
-      "Invalid Request: No Query parameters present in request"
-    );
-  }
-
-  if (!authRequest.client_id) {
-    throw new MissingParameterError(
-      "Invalid Request: Missing client_id parameter"
-    );
-  }
-
-  if (authRequest.redirect_uri && !isValidUri(authRequest.redirect_uri)) {
-    throw new MissingParameterError(
-      "Invalid Request: Invalid redirect_uri parameter"
-    );
-  }
-
-  if (
-    authRequest.response_type &&
-    !isResponseTypeValid(authRequest.response_type)
-  ) {
-    throw new ParseAuthRequestError(
-      "Invalid Request: Invalid response_type parameter",
-      authRequest.client_id,
-      authRequest.redirect_uri
-    );
-  }
-
-  if (authRequest.request_uri && !isValidUri(authRequest.request_uri)) {
-    throw new ParseAuthRequestError(
-      "Invalid Request: Invalid request_uri parameter",
-      authRequest.client_id,
-      authRequest.redirect_uri
-    );
-  }
+  checkParams(authRequest);
 
   const requestObject = parseRequestObject(authRequest);
 
@@ -148,10 +112,54 @@ export const parseAuthRequest = (
     max_age,
     request_uri: authRequest.request_uri,
     requestObject,
-    code_challenge: authRequest.code_challenge,
-    code_challenge_method: authRequest.code_challenge_method,
+    ...(authRequest.code_challenge && {
+      code_challenge: authRequest.code_challenge,
+    }),
+    ...(authRequest.code_challenge_method && {
+      code_challenge_method: authRequest.code_challenge_method,
+    }),
     response_mode: authRequest.response_mode,
   };
+};
+
+const checkParams = (authRequest: Record<string, string>): void => {
+  // Validate core OAuth2.0 authorization request params
+  if (isEmptyRequest(authRequest)) {
+    throw new MissingParameterError(
+      "Invalid Request: No Query parameters present in request"
+    );
+  }
+
+  if (!authRequest.client_id) {
+    throw new MissingParameterError(
+      "Invalid Request: Missing client_id parameter"
+    );
+  }
+
+  if (authRequest.redirect_uri && !isValidUri(authRequest.redirect_uri)) {
+    throw new MissingParameterError(
+      "Invalid Request: Invalid redirect_uri parameter"
+    );
+  }
+
+  if (
+    authRequest.response_type &&
+    !isResponseTypeValid(authRequest.response_type)
+  ) {
+    throw new ParseAuthRequestError(
+      "Invalid Request: Invalid response_type parameter",
+      authRequest.client_id,
+      authRequest.redirect_uri
+    );
+  }
+
+  if (authRequest.request_uri && !isValidUri(authRequest.request_uri)) {
+    throw new ParseAuthRequestError(
+      "Invalid Request: Invalid request_uri parameter",
+      authRequest.client_id,
+      authRequest.redirect_uri
+    );
+  }
 };
 
 const isEmptyRequest = (queryParams: Request["query"]): boolean => {

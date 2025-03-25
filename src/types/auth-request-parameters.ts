@@ -8,4 +8,5 @@ export default interface AuthRequestParameters {
   claims: string[];
   vtr: VectorOfTrust;
   responseConfiguration?: ResponseConfiguration;
+  code_challenge?: string;
 }

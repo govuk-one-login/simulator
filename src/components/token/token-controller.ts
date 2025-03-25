@@ -7,6 +7,7 @@ import { TokenRequestError } from "../../errors/token-request-error";
 import { ParseTokenRequestError } from "../../errors/parse-token-request-error";
 import { parseTokenRequest } from "../../parse/parse-token-request";
 import ResponseConfiguration from "src/types/response-configuration";
+import { comparePKCECodeChallengeAndVerifier } from "./helper/code-challenge-comparer";
 
 export const tokenController = async (
   req: Request,
@@ -66,6 +67,13 @@ export const tokenController = async (
       config.addToAccessTokenStore(
         `${config.getClientId()}.${config.getSub()}`,
         accessToken
+      );
+    }
+
+    if (config.isPKCEEnabled()) {
+      comparePKCECodeChallengeAndVerifier(
+        authCodeParams.code_challenge,
+        parsedTokenRequest.tokenRequest.code_verifier
       );
     }
 
