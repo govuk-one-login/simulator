@@ -700,7 +700,7 @@ describe("/token endpoint valid client_assertion", () => {
     const decodedAccessToken = decodeJwtNoVerify(access_token);
     const decodedIdToken = decodeJwtNoVerify(id_token);
 
-    expect(expires_in).toEqual(3600);
+    expect(expires_in).toEqual(180);
     expect(token_type).toEqual("Bearer");
 
     expect(decodedAccessToken.protectedHeader).toStrictEqual({
@@ -782,7 +782,7 @@ describe('when INTERACTIVE_MODE is set to "true"', () => {
     const decodedAccessToken = decodeJwtNoVerify(access_token);
     const decodedIdToken = decodeJwtNoVerify(id_token);
 
-    expect(expires_in).toEqual(3600);
+    expect(expires_in).toEqual(180);
     expect(token_type).toEqual("Bearer");
 
     expect(decodedAccessToken.protectedHeader).toStrictEqual({

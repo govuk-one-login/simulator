@@ -8,6 +8,7 @@ import { ParseTokenRequestError } from "../../errors/parse-token-request-error";
 import { parseTokenRequest } from "../../parse/parse-token-request";
 import ResponseConfiguration from "src/types/response-configuration";
 import { comparePKCECodeChallengeAndVerifier } from "./helper/code-challenge-comparer";
+import { ACCESS_TOKEN_EXPIRY } from "../../constants";
 
 export const tokenController = async (
   req: Request,
@@ -80,7 +81,7 @@ export const tokenController = async (
     res.status(200).json({
       access_token: accessToken,
       token_type: "Bearer",
-      expires_in: 3600,
+      expires_in: ACCESS_TOKEN_EXPIRY,
       id_token: idToken,
     });
 
