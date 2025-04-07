@@ -1,4 +1,11 @@
 # Developing for the GOV.UK One Login Simulator
+These instructions are primarily intended for developers working on GOV.UK One Login.
+
+We would be happy to accept contributions from elsewhere, but cannot guarantee that we will be able to accept every change.
+For example, we will be unable to accept new features that the team would be unable to support on an ongoing basis.
+
+You can use a GitHub issue to get feedback on new features before you begin.
+
 ## Local Setup
 
 To run the stub locally, you can simply run `docker compose up --build`.
