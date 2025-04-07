@@ -23,7 +23,7 @@ const createApp = (): Application => {
   app.use(dedupeQueryParams);
 
   app.get("/", (req: Request, res: Response) => {
-    res.send("Express + TypeScript Server");
+    res.send("GOV.UK One Login Simulator");
   });
   app.use("/authorize", authoriseController);
 
