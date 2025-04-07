@@ -100,5 +100,5 @@ The simulator aims to mirror GOV.UK One Login but does not support all of the fe
 
 - [Setting up configuration](./docs/configuration.md)
 - [Configuring Errors](./docs/configured-errors.md)
-- [Default configuration values](./docs/configured-errors.md)
+- [Default configuration values](./docs/default-config-values.md)
 - [Running the simulator in interactive mode](./docs/interactive-mode.md)
