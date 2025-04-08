@@ -38,6 +38,15 @@ export const validateAuthRequestObject = async (
     );
   }
 
+  if (
+    payload.response_mode &&
+    payload.response_mode !== "query" &&
+    payload.response_mode !== "fragment"
+  ) {
+    logger.error(`Invalid response mode in request: ${payload.response_mode}`);
+    throw new BadRequestError("Invalid request");
+  }
+
   if (!payload.state) {
     logger.warn("State parameter not in request object");
     throw new AuthoriseRequestError({
@@ -174,15 +183,6 @@ export const validateAuthRequestObject = async (
       payload.code_challenge as string,
       payload.code_challenge_method as string
     );
-  }
-
-  if (
-    payload.response_mode &&
-    payload.response_mode !== "query" &&
-    payload.response_mode !== "fragment"
-  ) {
-    logger.error(`Invalid response mode in request: ${payload.response_mode}`);
-    throw new BadRequestError("Invalid request");
   }
 
   logger.info("RequestObject has passed initial validation");

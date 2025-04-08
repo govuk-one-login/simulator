@@ -19,6 +19,17 @@ export const validateAuthRequestQueryParams = (
     throw new BadRequestError("Invalid request");
   }
 
+  if (
+    queryParams.response_mode &&
+    queryParams.response_mode !== "query" &&
+    queryParams.response_mode !== "fragment"
+  ) {
+    logger.error(
+      `Invalid response mode in request: ${queryParams.response_mode}`
+    );
+    throw new BadRequestError("Invalid request");
+  }
+
   if (!queryParams.state) {
     throw new AuthoriseRequestError({
       errorCode: "invalid_request",
@@ -111,16 +122,5 @@ export const validateAuthRequestQueryParams = (
       queryParams.code_challenge,
       queryParams.code_challenge_method
     );
-  }
-
-  if (
-    queryParams.response_mode &&
-    queryParams.response_mode !== "query" &&
-    queryParams.response_mode !== "fragment"
-  ) {
-    logger.error(
-      `Invalid response mode in request: ${queryParams.response_mode}`
-    );
-    throw new BadRequestError("Invalid request");
   }
 };
