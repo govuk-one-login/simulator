@@ -13,14 +13,16 @@ import { VectorOfTrust } from "../../../types/vector-of-trust";
 export const createAccessToken = async (
   scope: string[],
   vtr: VectorOfTrust,
-  claims?: string[] | null
+  claims?: string[] | null,
+  userDefinedSub?: string | null
 ): Promise<string> => {
   logger.info("Creating access token");
   const config = Config.getInstance();
   const accessTokenClaims = createAccessTokenClaimSet(
     scope,
     config,
-    getClaimsRequest(vtr, claims)
+    getClaimsRequest(vtr, claims),
+    userDefinedSub
   );
   const accessToken = await signToken(accessTokenClaims);
   return accessToken;
@@ -39,13 +41,14 @@ export const getClaimsRequest = (
 const createAccessTokenClaimSet = (
   scope: string[],
   config: Config,
-  claims?: string[] | null
+  claims?: string[] | null,
+  userDefinedSub?: string | null
 ): AccessTokenClaims => {
   const iat = Math.floor(Date.now() / 1000);
   const exp = iat + ACCESS_TOKEN_EXPIRY;
   const jti = randomUUID();
   const sid = SESSION_ID;
-  const sub = config.getSub();
+  const sub = userDefinedSub ? userDefinedSub : config.getSub();
   const clientId = config.getClientId();
 
   return {
