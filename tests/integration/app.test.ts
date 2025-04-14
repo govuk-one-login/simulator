@@ -6,6 +6,6 @@ describe("Integration: Healthcheck", () => {
     const app = createApp();
     const response = await request(app).get("/");
     expect(response.status).toEqual(200);
-    expect(response.text).toEqual("Express + TypeScript Server");
+    expect(response.text).toEqual("GOV.UK One Login Simulator");
   });
 });
