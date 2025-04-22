@@ -55,7 +55,8 @@ export const tokenController = async (
     const accessToken = await createAccessToken(
       authCodeParams.scopes,
       authCodeParams.vtr,
-      authCodeParams.claims
+      authCodeParams.claims,
+      authCodeParams.responseConfiguration?.sub
     );
     const idToken = await createIdToken(authCodeParams, accessToken);
 

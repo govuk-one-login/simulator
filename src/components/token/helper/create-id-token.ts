@@ -64,7 +64,9 @@ const createIdTokenClaimSet = (
     iat,
     exp,
     at_hash: generateAccessTokenHash(accessToken),
-    sub: config.getSub(),
+    sub: authRequestParams.responseConfiguration?.sub
+      ? authRequestParams.responseConfiguration.sub
+      : config.getSub(),
     aud: idTokenErrors.includes("INVALID_AUD")
       ? randomBytes(32).toString()
       : config.getClientId(),

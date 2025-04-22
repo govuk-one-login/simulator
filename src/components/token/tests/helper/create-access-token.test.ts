@@ -116,4 +116,26 @@ describe("createAccessToken tests", () => {
 
     expect(payload).not.toHaveProperty("claims");
   });
+
+  it("returns a token with the user defined sub when using interactive mode", async () => {
+    const vtr: VectorOfTrust = {
+      credentialTrust: "Cl.Cm",
+      levelOfConfidence: "P2",
+    };
+    subSpy.mockReturnValue(testSubClaim);
+    clientIdSpy.mockReturnValue(testClientId);
+
+    const testUserDefinedSub = "Sj80MyJ0LFQxISo7LDp7L2ZAVUo-JTI_fVEhTFtJRg==";
+    const accessToken = await createAccessToken(
+      ["openid"],
+      vtr,
+      VALID_CLAIMS,
+      testUserDefinedSub
+    );
+    const tokenParts = accessToken.split(".");
+
+    const payload = decodeTokenPart(tokenParts[1]);
+
+    expect(payload.sub).toBe(testUserDefinedSub);
+  });
 });

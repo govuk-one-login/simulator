@@ -223,4 +223,20 @@ describe("createIdToken tests", () => {
     const payload = decodeTokenPart(idToken.split(".")[1]);
     expect(payload.iss).not.toEqual(mockAuthRequestParams.nonce);
   });
+
+  it("returns a token with the user defined sub when using interactive mode", async () => {
+    tokenSigningAlgorithmSpy.mockReturnValue("ES256");
+    subSpy.mockReturnValue(testSubClaim);
+    clientIdSpy.mockReturnValue(testClientId);
+
+    const testUserDefinedSub = "Sj80MyJ0LFQxISo7LDp7L2ZAVUo-JTI_fVEhTFtJRg==";
+    mockAuthRequestParams.responseConfiguration = {
+      sub: testUserDefinedSub,
+    };
+
+    const idToken = await createIdToken(mockAuthRequestParams, testAccessToken);
+
+    const payload = decodeTokenPart(idToken.split(".")[1]);
+    expect(payload.sub).toBe(testUserDefinedSub);
+  });
 });
