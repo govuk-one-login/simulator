@@ -114,6 +114,48 @@ describe("createIdToken tests", () => {
     expect(typeof tokenParts[2]).toBe("string");
   });
 
+  it("returns a signed Id Token using ES256 with the form provided sub", async () => {
+    tokenSigningAlgorithmSpy.mockReturnValue("ES256");
+    subSpy.mockReturnValue(testSubClaim);
+    clientIdSpy.mockReturnValue(testClientId);
+
+    const userProvidedSub = "urn::hello:world";
+
+    const interactiveModeAuthParams = {
+      ...mockAuthRequestParams,
+      responseConfiguration: { sub: userProvidedSub },
+    };
+
+    const idToken = await createIdToken(
+      interactiveModeAuthParams,
+      testAccessToken
+    );
+    const tokenParts = idToken.split(".");
+
+    const header = decodeTokenPart(tokenParts[0]);
+    const payload = decodeTokenPart(tokenParts[1]);
+
+    expect(tokenParts.length).toBe(3);
+    expect(header).toStrictEqual({
+      alg: "ES256",
+      kid: EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
+    });
+    expect(payload).toStrictEqual({
+      iat: Math.floor(testTimestampMs / 1000),
+      exp: Math.floor(testTimestampMs / 1000) + ID_TOKEN_EXPIRY,
+      iss: "http://localhost:3000/",
+      aud: testClientId,
+      sub: userProvidedSub,
+      sid: SESSION_ID,
+      at_hash: "oB7bgQoIL9clDcgMdS4Ydg",
+      vtm: "http://localhost:3000/trustmark",
+      vot: mockAuthRequestParams.vtr.credentialTrust,
+      nonce: mockAuthRequestParams.nonce,
+      auth_time: Math.floor(testTimestampMs / 1000),
+    });
+    expect(typeof tokenParts[2]).toBe("string");
+  });
+
   it("returns an invalid header if the client config has enabled INVALID_ALG_HEADER", async () => {
     tokenSigningAlgorithmSpy.mockReturnValue("ES256");
     subSpy.mockReturnValue(testSubClaim);
