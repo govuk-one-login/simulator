@@ -142,7 +142,9 @@ const isIdTokenSignatureValid = async (idToken: string): Promise<boolean> => {
         EC_PRIVATE_TOKEN_SIGNING_KEY,
         EC_PRIVATE_TOKEN_SIGNING_KEY_ID
       );
-      await jwtVerify(idToken, ecKey);
+      await jwtVerify(idToken, ecKey, { currentDate: new Date(0) });
+      //We shouldn't validate the exp claim here, hence the Date(0)
+      // https://openid.net/specs/openid-connect-rpinitiated-1_0.html#:~:text=When%20an%20id_token_hint,act%20upon%20it.
       return true;
     }
   } catch (error) {

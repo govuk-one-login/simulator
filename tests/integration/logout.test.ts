@@ -203,4 +203,28 @@ describe("logout endpoint", () => {
       `${postLogoutRedirectUri}?state=${state}`
     );
   });
+
+  //https://github.com/govuk-one-login/simulator/issues/290
+  //https://openid.net/specs/openid-connect-rpinitiated-1_0.html#:~:text=When%20an%20id_token_hint,act%20upon%20it.
+  test("It accepts an expired valid id_token_hint and redirects to the post logout redirect url", async () => {
+    const postLogoutRedirectUri = "https://example.com/oidc/post-logout";
+    Config.getInstance().setPostLogoutRedirectUrls([postLogoutRedirectUri]);
+    const state = randomUUID();
+    const idTokenHint = await fakeIdToken({
+      aud: DEFAULT_CLIENT_ID,
+      sid: randomUUID(),
+      sub: randomUUID(),
+      //Thu Jan 01 1970 03:25:45 in Unix timestamp
+      exp: 12345,
+    });
+
+    const app = createApp();
+    const response = await request(app).get(
+      `${LOGOUT_ENDPOINT}?&state=${state}&id_token_hint=${idTokenHint}&post_logout_redirect_uri=${encodeURIComponent(postLogoutRedirectUri)}`
+    );
+    expect(response.status).toEqual(302);
+    expect(response.headers.location).toStrictEqual(
+      `${postLogoutRedirectUri}?state=${state}`
+    );
+  });
 });
