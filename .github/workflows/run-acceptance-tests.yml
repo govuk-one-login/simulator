@@ -3,6 +3,7 @@ name: Run Acceptance Tests
 on:
   schedule:
     - cron: "0 3 * * *"
+  workflow_dispatch:
 
 jobs:
   run-acceptance-tests:
