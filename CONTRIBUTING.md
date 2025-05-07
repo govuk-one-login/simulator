@@ -62,11 +62,25 @@ npm run fix:lint; # Fix linting
 ```shell script
 npm run prepare
 ```
+## Tests
+### Unit tests/Integration tests
 
-## Testing
-
-> To run tests run
+> To run all unit tests and integration tests, run
 
 ```shell script
 npm run test
 ```
+
+### Acceptance tests
+
+To run the acceptance tests locally:
+1. Create an account in the build environment that is a test client (email starts with `orch-test-user`).
+2. Make a copy of the `.env.template` file and rename it to `.env`.
+3. Update the test variables in `.env` to point to the account you have setup in step 1.
+4. Run the acceptance tests with the following command:
+```shell script
+./run-acceptance-tests.sh
+```
+
+These tests will generate a report with screenshots that you can view at `reports/cucumber-report.html`
+
