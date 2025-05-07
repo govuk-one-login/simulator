@@ -9,18 +9,18 @@ import { logger } from "../../../logger";
 import { signToken } from "./sign-token";
 import { AccessTokenClaims } from "../../../types/access-token-claims";
 import { VectorOfTrust } from "../../../types/vector-of-trust";
+import AuthRequestParameters from "src/types/auth-request-parameters";
 
 export const createAccessToken = async (
-  scope: string[],
-  vtr: VectorOfTrust,
-  claims?: string[] | null
+  authRequestParams: AuthRequestParameters
 ): Promise<string> => {
   logger.info("Creating access token");
   const config = Config.getInstance();
   const accessTokenClaims = createAccessTokenClaimSet(
-    scope,
+    authRequestParams.scopes,
     config,
-    getClaimsRequest(vtr, claims)
+    authRequestParams.responseConfiguration?.sub ?? config.getSub(),
+    getClaimsRequest(authRequestParams.vtr, authRequestParams.claims)
   );
   const accessToken = await signToken(accessTokenClaims);
   return accessToken;
@@ -39,13 +39,13 @@ export const getClaimsRequest = (
 const createAccessTokenClaimSet = (
   scope: string[],
   config: Config,
+  sub: string,
   claims?: string[] | null
 ): AccessTokenClaims => {
   const iat = Math.floor(Date.now() / 1000);
   const exp = iat + ACCESS_TOKEN_EXPIRY;
   const jti = randomUUID();
   const sid = SESSION_ID;
-  const sub = config.getSub();
   const clientId = config.getClientId();
 
   return {
@@ -57,6 +57,6 @@ const createAccessTokenClaimSet = (
     sub,
     sid,
     scope,
-    ...(claims && { claims }),
+    ...(claims && claims.length > 0 && { claims }),
   };
 };
