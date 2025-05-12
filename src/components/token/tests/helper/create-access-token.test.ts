@@ -10,7 +10,6 @@ import {
   SESSION_ID,
   VALID_CLAIMS,
 } from "../../../../constants";
-import { VectorOfTrust } from "../../../../types/vector-of-trust";
 import { createAccessToken } from "../../helper/create-access-token";
 
 describe("createAccessToken tests", () => {
@@ -53,19 +52,21 @@ describe("createAccessToken tests", () => {
   ])(
     "returns a signed jwt using $tokenSigningAlgorithm",
     async ({ tokenSigningAlgorithm, expectedKeyId }) => {
-      const vtr: VectorOfTrust = {
-        credentialTrust: "Cl.Cm",
-        levelOfConfidence: "P2",
-      };
       tokenSigningAlgorithmSpy.mockReturnValue(tokenSigningAlgorithm);
       subSpy.mockReturnValue(testSubClaim);
       clientIdSpy.mockReturnValue(testClientId);
 
-      const accessToken = await createAccessToken(
-        ["openid"],
-        vtr,
-        VALID_CLAIMS
-      );
+      const accessToken = await createAccessToken({
+        claims: VALID_CLAIMS,
+        nonce: "nonce-1238rhbh4r84=4rij=r4r",
+        scopes: ["openid"],
+        redirectUri: "https://example.com/authentication-callback/",
+        vtr: {
+          credentialTrust: "Cl.Cm",
+          levelOfConfidence: "P2",
+        },
+      });
+
       const tokenParts = accessToken.split(".");
 
       const header = decodeTokenPart(tokenParts[0]);
@@ -92,11 +93,16 @@ describe("createAccessToken tests", () => {
   );
 
   it("does not contain any claims if no claims were given", async () => {
-    const vtr: VectorOfTrust = {
-      credentialTrust: "Cl.Cm",
-      levelOfConfidence: "P2",
-    };
-    const accessToken = await createAccessToken(["openid"], vtr, null);
+    const accessToken = await createAccessToken({
+      claims: [],
+      nonce: "nonce-1238rhbh4r84=4rij=r4r",
+      scopes: ["openid"],
+      redirectUri: "https://example.com/authentication-callback/",
+      vtr: {
+        credentialTrust: "Cl.Cm",
+        levelOfConfidence: "P2",
+      },
+    });
     const tokenParts = accessToken.split(".");
 
     const payload = decodeTokenPart(tokenParts[1]);
@@ -105,15 +111,55 @@ describe("createAccessToken tests", () => {
   });
 
   it("does not contain any claims if level of confidence is null", async () => {
-    const vtr: VectorOfTrust = {
-      credentialTrust: "Cl",
-      levelOfConfidence: null,
-    };
-    const accessToken = await createAccessToken(["openid"], vtr, VALID_CLAIMS);
+    const accessToken = await createAccessToken({
+      claims: VALID_CLAIMS,
+      nonce: "nonce-1238rhbh4r84=4rij=r4r",
+      scopes: ["openid"],
+      redirectUri: "https://example.com/authentication-callback/",
+      vtr: {
+        credentialTrust: "Cl.Cm",
+        levelOfConfidence: null,
+      },
+    });
     const tokenParts = accessToken.split(".");
 
     const payload = decodeTokenPart(tokenParts[1]);
 
     expect(payload).not.toHaveProperty("claims");
+  });
+
+  it("uses the form defined sub claim if present", async () => {
+    const customSub = "urn::hello::world";
+
+    const accessToken = await createAccessToken({
+      claims: VALID_CLAIMS,
+      nonce: "nonce-1238rhbh4r84=4rij=r4r",
+      scopes: ["openid"],
+      redirectUri: "https://example.com/authentication-callback/",
+      vtr: {
+        credentialTrust: "Cl.Cm",
+        levelOfConfidence: "P2",
+      },
+      responseConfiguration: {
+        sub: customSub,
+      },
+    });
+    const tokenParts = accessToken.split(".");
+
+    const payload = decodeTokenPart(tokenParts[1]);
+
+    expect(tokenParts.length).toBe(3);
+    expect(payload).toStrictEqual({
+      iat: Math.floor(testTimestamp / 1000),
+      exp: Math.floor(testTimestamp / 1000) + ACCESS_TOKEN_EXPIRY,
+      iss: "http://localhost:3000/",
+      jti: "1234567",
+      client_id: testClientId,
+      sub: customSub,
+      sid: SESSION_ID,
+      scope: ["openid"],
+      claims: VALID_CLAIMS,
+    });
+    expect(typeof tokenParts[2]).toBe("string");
   });
 });

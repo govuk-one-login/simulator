@@ -789,7 +789,7 @@ describe('when INTERACTIVE_MODE is set to "true"', () => {
       alg: "RS256",
       kid: RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
     });
-    expect(decodedAccessToken.payload.sub).toBe(knownSub);
+    expect(decodedAccessToken.payload.sub).toBe(responseConfiguration.sub);
     expect(decodedAccessToken.payload.client_id).toBe(knownClientId);
     expect(decodedAccessToken.payload.sid).toBe(SESSION_ID);
     expect(decodedAccessToken.payload.scope).toStrictEqual(
@@ -800,7 +800,7 @@ describe('when INTERACTIVE_MODE is set to "true"', () => {
       alg: "RS256",
       kid: RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
     });
-    expect(decodedIdToken.payload.sub).toBe(knownSub);
+    expect(decodedIdToken.payload.sub).toBe(responseConfiguration.sub);
     expect(decodedIdToken.payload.iss).toBe("http://localhost:3000/");
     expect(decodedIdToken.payload.vtm).toBe("http://localhost:3000/trustmark");
     expect(decodedIdToken.payload.aud).toBe(knownClientId);

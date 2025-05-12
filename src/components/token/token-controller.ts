@@ -52,11 +52,8 @@ export const tokenController = async (
       });
     }
 
-    const accessToken = await createAccessToken(
-      authCodeParams.scopes,
-      authCodeParams.vtr,
-      authCodeParams.claims
-    );
+    const accessToken = await createAccessToken(authCodeParams);
+
     const idToken = await createIdToken(authCodeParams, accessToken);
 
     if (config.isInteractiveModeEnabled()) {
