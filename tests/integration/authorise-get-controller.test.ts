@@ -609,6 +609,28 @@ describe("Authorise controller tests", () => {
           `${knownRedirectUri}?code=${knownAuthCode}&state=${state}`
         );
       });
+
+      it("returns 302 and redirect with an auth code despite login_hint", async () => {
+        const app = createApp();
+        const requestParams = createRequestParams({
+          client_id: knownClientId,
+          redirect_uri: knownRedirectUri,
+          response_type: "code",
+          scope: "openid email",
+          state,
+          nonce,
+          login_hint: "email@email.com",
+        });
+
+        const response = await request(app).get(
+          authoriseEndpoint + "?" + requestParams
+        );
+
+        expect(response.status).toBe(302);
+        expect(response.header.location).toBe(
+          `${knownRedirectUri}?code=${knownAuthCode}&state=${state}`
+        );
+      });
     });
   });
 
@@ -1230,6 +1252,29 @@ describe("Authorise controller tests", () => {
         );
       });
 
+      it("returns a 302 with invalid request if the login_hint parameter in the request object fails validation", async () => {
+        const app = createApp();
+        const requestParams = createRequestParams({
+          client_id: knownClientId,
+          redirect_uri: knownRedirectUri,
+          response_type: "code",
+          scope: "openid email",
+          request: await encodedJwtWithParams({
+            login_hint:
+              "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111@email.com",
+          }),
+        });
+
+        const response = await request(app).get(
+          authoriseEndpoint + "?" + requestParams
+        );
+
+        expect(response.status).toBe(302);
+        expect(response.headers.location).toBe(
+          `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("login_hint parameter is invalid")}&state=${state}`
+        );
+      });
+
       it("returns a 302 with unmet authentication requirements if the prompt includes select_account", async () => {
         const app = createApp();
         const requestParams = createRequestParams({
@@ -1309,6 +1354,7 @@ describe("Authorise controller tests", () => {
             claims:
               '{"userinfo": { "https://vocab.account.gov.uk/v1/coreIdentityJWT": { "essential": true }}}',
             ui_locales: "en",
+            login_hint: "email@email.com",
           }),
         });
 

@@ -71,6 +71,7 @@ export const transformRequestObject = (
   const ui_locales = payload.ui_locales;
   const code_challenge = payload.code_challenge;
   const code_challenge_method = payload.code_challenge_method;
+  const login_hint = payload.login_hint;
   let prompt = [];
   try {
     prompt = parsePrompts(
@@ -98,6 +99,7 @@ export const transformRequestObject = (
     max_age,
     code_challenge,
     code_challenge_method,
+    login_hint,
   } as AuthRequest;
 };
 

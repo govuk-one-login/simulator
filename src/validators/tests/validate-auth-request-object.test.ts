@@ -436,6 +436,29 @@ describe("Validate auth request object tests", () => {
     );
   });
 
+  it("throw authorise request error when login_hint is too long in request object", async () => {
+    const requestObject = requestObjectWithParams({
+      login_hint:
+        "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111@email.com",
+    });
+    const authRequest = {
+      ...defaultAuthRequest,
+      requestObject,
+    };
+
+    await expect(
+      validateAuthRequestObject(authRequest, config)
+    ).rejects.toThrow(
+      new AuthoriseRequestError({
+        httpStatusCode: 302,
+        errorCode: "invalid_request",
+        errorDescription: "login_hint parameter is invalid",
+        redirectUri: defaultRedirectUri,
+        state: defaultState,
+      })
+    );
+  });
+
   it("throw bad request error response_mode for unknown response_mode", async () => {
     const requestObject = requestObjectWithParams({
       response_mode: "code",
@@ -548,6 +571,20 @@ describe("Validate auth request object tests", () => {
 
 it("does not throw when auth request is valid", async () => {
   const requestObject = defaultRequestObject;
+  const authRequest = {
+    ...defaultAuthRequest,
+    requestObject,
+  };
+
+  await expect(
+    validateAuthRequestObject(authRequest, config)
+  ).resolves.not.toThrow();
+});
+
+it("does not throw when auth request is valid with login_hint", async () => {
+  const requestObject = requestObjectWithParams({
+    login_hint: "email@email.com",
+  });
   const authRequest = {
     ...defaultAuthRequest,
     requestObject,

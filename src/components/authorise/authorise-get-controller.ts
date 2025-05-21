@@ -85,6 +85,9 @@ export const authoriseController = async (
       ...(parsedAuthRequest.code_challenge && {
         code_challenge: parsedAuthRequest.code_challenge,
       }),
+      ...(parsedAuthRequest.login_hint && {
+        login_hint: parsedAuthRequest.login_hint,
+      }),
     };
 
     if (config.isInteractiveModeEnabled()) {
