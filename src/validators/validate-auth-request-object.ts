@@ -185,6 +185,8 @@ export const validateAuthRequestObject = async (
     );
   }
 
+  validateLoginHint(payload);
+
   logger.info("RequestObject has passed initial validation");
 };
 
@@ -234,6 +236,23 @@ const validateMaxAge = (payload: JWTPayload) => {
         httpStatusCode: 302,
         errorCode: "invalid_request",
         errorDescription: "Max age could not be parsed to an integer",
+        redirectUri: payload.redirect_uri as string,
+        state: payload.state as string,
+      });
+    }
+  }
+};
+
+const validateLoginHint = (payload: JWTPayload) => {
+  if (payload.login_hint) {
+    const parsedLoginHint = payload.login_hint as string;
+
+    if (parsedLoginHint !== null && parsedLoginHint.length > 256) {
+      logger.warn("login_hint parameter is invalid");
+      throw new AuthoriseRequestError({
+        httpStatusCode: 302,
+        errorCode: "invalid_request",
+        errorDescription: "login_hint parameter is invalid",
         redirectUri: payload.redirect_uri as string,
         state: payload.state as string,
       });

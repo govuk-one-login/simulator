@@ -36,6 +36,7 @@ export type AuthRequest = {
   code_challenge?: string;
   code_challenge_method?: string;
   response_mode?: string;
+  login_hint?: string;
 };
 
 export const parseAuthRequest = (
