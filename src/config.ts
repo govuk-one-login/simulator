@@ -412,8 +412,8 @@ CQIDAQAB
     return `${this.simulatorUrl}/`;
   }
 
-  public getExpectedPrivateKeyJwtAudience(): string {
-    return `${this.simulatorUrl}/token`;
+  public getExpectedPrivateKeyJwtAudiences(): string[] {
+    return [`${this.simulatorUrl}/token`, this.getIssuerValue()];
   }
 
   public getTrustmarkUrl(): string {
