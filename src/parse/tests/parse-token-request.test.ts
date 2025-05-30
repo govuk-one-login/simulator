@@ -129,6 +129,29 @@ describe("parseTokenRequest tests", () => {
     );
   });
 
+  it("throws an invalid_request error when an empty string code is included", async () => {
+    await expect(
+      parseTokenRequest(
+        {
+          grant_type: "authorization_code",
+          redirect_uri: "https://example.com/authentication-callback/",
+          client_assertion_type:
+            "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+          client_assertion:
+            "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIiLCJpc3MiOiIiLCJhdWQiOiIiLCJqdGkiOiIifQ.r1Ylfhhy6VNSlhlhW1N89F3WfIGuko2rvSRWO4yK1BI",
+          code: "",
+        },
+        config
+      )
+    ).rejects.toThrow(
+      new TokenRequestError({
+        errorCode: "invalid_request",
+        errorDescription: "Request is missing code parameter",
+        httpStatusCode: 400,
+      })
+    );
+  });
+
   it("throws an invalid_request error when the client_assertion_type is not included", async () => {
     await expect(
       parseTokenRequest(
