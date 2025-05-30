@@ -11,7 +11,10 @@ When("the simulator is sent the configuration", async function () {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            "responseConfiguration": AUTH_ONLY_REQUEST
+            "responseConfiguration": AUTH_ONLY_REQUEST, 
+            clientConfiguration: {
+                clientId: process.env.RP_CLIENT_ID 
+            }
         }),
     };
     const response = await fetch('http://localhost:3000/config', configRequestOptions);
@@ -31,7 +34,10 @@ When("the simulator is sent the identity configuration", async function () {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            "responseConfiguration": IDENTITY_REQUEST
+        "responseConfiguration": IDENTITY_REQUEST, 
+            clientConfiguration: {
+                clientId: process.env.RP_CLIENT_ID 
+            }
         }),
     };
     await fetch('http://localhost:3000/config', configRequestOptions);

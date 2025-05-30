@@ -5,7 +5,7 @@ import { importPKCS8, SignJWT } from "jose";
 const app = express();
 const port = 3001;
 const simulatorUrl = "http://localhost:3000";
-const clientId = "HGIOgho9HIRhgoepdIOPFdIUWgewi0jw";
+const clientId = process.env.RP_CLIENT_ID;
 
 app.get("/callback", async (req: Request, res: Response) => {
   const tokenResponse = await makeTokenRequest(req.query["code"] as string);

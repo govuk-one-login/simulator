@@ -16,5 +16,7 @@ services:
     build:
       context: ./tests/acceptance/micro-rp
       dockerfile: Dockerfile
+    environment:
+      - RP_CLIENT_ID=${RP_CLIENT_ID}
     restart: on-failure
     network_mode: host
