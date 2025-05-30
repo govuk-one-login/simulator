@@ -14,7 +14,13 @@ When("the simulator is sent the configuration", async function () {
             "responseConfiguration": AUTH_ONLY_REQUEST
         }),
     };
-    await fetch('http://localhost:3000/config', configRequestOptions);
+    const response = await fetch('http://localhost:3000/config', configRequestOptions);
+
+    if(!response.ok){
+        throw new Error(
+            "Failed to configure simulator configuration, request failed with status code: " + response.status
+            )
+    }
 })
 
 When("the simulator is sent the identity configuration", async function () {
