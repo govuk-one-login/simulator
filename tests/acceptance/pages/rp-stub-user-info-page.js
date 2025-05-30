@@ -13,6 +13,10 @@ module.exports = class RpStubUserInfoPage extends BasePage {
     return parsedUserinfo;
   };
 
+  getCoreIdentityJwt = async () => {
+    return await this.getElementWithId("user-info-core-identity-claim");
+  };
+
     clickLogoutButton = async () => {
         await this.findAndClickButtonByText("Log out");
     }

@@ -1,6 +1,6 @@
 Feature: Identity
   Scenario: User successfully gets identity response
-    Given the user comes from the stub relying party with options: "loc-P2,claims-core-identity"
+    Given the user comes from the stub relying party with options: "loc-P2"
     Then the user is taken to the "Create your GOV.UK One Login or sign in" page
     When the user selects sign in
     Then the user is taken to the "Enter your email" page
@@ -13,6 +13,7 @@ Feature: Identity
     When the user clicks the "Continue to the service" button
     Then the user is returned to the service with extended timeout
     And the RP receives the expected identity user info
+    And the RP receives a valid CoreIdentityJWT
     And the user logs out
     When the simulator is sent the identity configuration
     Then the simulator returns the expected identity user info
