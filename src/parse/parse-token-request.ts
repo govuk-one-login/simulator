@@ -54,7 +54,7 @@ export const parseTokenRequest = async (
     });
   }
 
-  if (!tokenRequestBody.code) {
+  if (!tokenRequestBody.code || tokenRequestBody.code.length === 0) {
     logger.error("Token request is missing code");
     throw new TokenRequestError({
       errorCode: "invalid_request",
