@@ -7,8 +7,8 @@ Feature: Identity
     When user enters "TEST_USER_EMAIL" email address
     Then the user is taken to the "Enter your password" page
     When the user enters their password
-    Then the user is taken to the "Check your phone" page
-    When the user enters the six digit security code from their phone
+    Then the user is taken to the "Enter the 6 digit security code shown in your authenticator app" page
+    When the user enters the six digit security code from their authenticator app
     Then the user is taken to the "IPV Stub Form" page
     When the user clicks the continue button
     Then the user is returned to the service with extended timeout
