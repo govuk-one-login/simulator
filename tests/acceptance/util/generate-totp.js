@@ -2,12 +2,12 @@ const base32 = require("hi-base32");
 const crypto = require("node:crypto");
 
 const generateTotpCode = () => {
-  if (!process.env.TOTP_SECRET) {
+  if (!process.env.TEST_USER_TOTP_SECRET) {
     throw new Error("No TOTP secret set");
   }
 
   let counter = Math.floor(Date.now() / 30000);
-  const decodedSecret = base32.decode.asBytes(process.env.TOTP_SECRET);
+  const decodedSecret = base32.decode.asBytes(process.env.TEST_USER_TOTP_SECRET);
   const buffer = Buffer.alloc(8);
 
   for (let i = 0; i < 8; i++) {
