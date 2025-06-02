@@ -15,7 +15,7 @@ jobs:
       TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
       TEST_USER_PASSPORT: ${{ secrets.TEST_USER_PASSPORT }}
       TEST_USER_ADDRESS: ${{ secrets.TEST_USER_ADDRESS }}
-      TOTP_SECRET: ${{secrets.TEST_USER_TOTP_SECRET}}
+      TEST_USER_TOTP_SECRET: ${{secrets.TEST_USER_TOTP_SECRET}}
       ENVIRONMENT: ${{secrets.ENVIRONMENT}}
       RP_CLIENT_ID: ${{secrets.RP_CLIENT_ID}}
       RP_URL: ${{secrets.RP_URL}}

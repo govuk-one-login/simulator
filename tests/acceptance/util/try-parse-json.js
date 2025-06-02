@@ -1,6 +1,6 @@
 const tryParseJSON = (json) => {
   try {
-    return JSON.stringify(json);
+    return JSON.parse(json);
   } catch (
     _ // eslint-disable-line @typescript-eslint/no-unused-vars
   ) {
