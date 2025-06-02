@@ -17,13 +17,13 @@ Then("the user logs out", async function () {
 Then("the RP receives the expected auth-only user info", async function () {
     const page = new RpStubUserInfoPage(this.driver);
     const userInfoData = await page.getUserInfoDataWithoutCoreIdentityJwt();
-    deepStrictEqual(userInfoData, AUTH_ONLY_RESPONSE);
+    deepStrictEqual(userInfoData, AUTH_ONLY_RESPONSE, new Error("Auth only userinfo did not match"));
 });
 
 Then("the RP receives the expected identity user info", async function () {
     const page = new RpStubUserInfoPage(this.driver);
     const userInfoData = await page.getUserInfoDataWithoutCoreIdentityJwt();
-    deepStrictEqual(userInfoData, IDENTITY_RESPONSE);
+    deepStrictEqual(userInfoData, IDENTITY_RESPONSE, new Error("Identity userinfo did not match"));
 });
 
 Then("the RP receives a valid ID Token", async function () {
