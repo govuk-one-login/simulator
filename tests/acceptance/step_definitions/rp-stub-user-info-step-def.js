@@ -13,13 +13,13 @@ Then("the user logs out", async function () {
 
 Then("the RP receives the expected auth-only user info", async function () {
     const page = new RpStubUserInfoPage(this.driver);
-    const userInfoData = await page.getUserInfoData();
+    const userInfoData = await page.getUserInfoDataWithoutCoreIdentityJwt();
     deepStrictEqual(userInfoData, AUTH_ONLY_RESPONSE);
 });
 
 Then("the RP receives the expected identity user info", async function () {
     const page = new RpStubUserInfoPage(this.driver);
-    const userInfoData = await page.getUserInfoData();
+    const userInfoData = await page.getUserInfoDataWithoutCoreIdentityJwt();
     deepStrictEqual(userInfoData, IDENTITY_RESPONSE);
 });
 

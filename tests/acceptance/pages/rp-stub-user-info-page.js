@@ -5,10 +5,13 @@ module.exports = class RpStubUserInfoPage extends BasePage {
         super(page);
     }
 
-    getUserInfoData = async () => {
-        const userInfoString = await this.getElementWithId("user-info-response");
-        return await JSON.parse(userInfoString);
-    }
+  getUserInfoDataWithoutCoreIdentityJwt = async () => {
+    const userInfoString = await this.getElementWithId("user-info-response");
+    const parsedUserinfo = JSON.parse(userInfoString);
+    //Let's validate this one separately
+    delete parsedUserinfo["https://vocab.account.gov.uk/v1/coreIdentityJWT"];
+    return parsedUserinfo;
+  };
 
     clickLogoutButton = async () => {
         await this.findAndClickButtonByText("Log out");
