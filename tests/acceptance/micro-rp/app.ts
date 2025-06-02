@@ -12,7 +12,11 @@ app.get("/callback", async (req: Request, res: Response) => {
   const userInfoResponse = await makeUserInfoRequest(
     tokenResponse["access_token"]
   );
-  res.send(userInfoResponse);
+
+  res.send({
+    token: tokenResponse,
+    userinfo: userInfoResponse,
+  });
 });
 
 app.listen(port);
