@@ -17,6 +17,10 @@ module.exports = class RpStubUserInfoPage extends BasePage {
     return await this.getElementWithId("user-info-core-identity-claim");
   };
 
+  getIdToken = async () => {
+    return await this.getElementWithId("user-info-id-token");
+  };
+
     clickLogoutButton = async () => {
         await this.findAndClickButtonByText("Log out");
     }

@@ -6,6 +6,7 @@ const { IDENTITY_RESPONSE } = require("../data/identity");
 const {
   validateCoreIdentityJwt,
 } = require("../util/validate-core-identity-jwt");
+const { validateIdToken } = require("../util/validate-id-token");
 
 Then("the user logs out", async function () {
     const page = new RpStubUserInfoPage(this.driver);
@@ -23,6 +24,12 @@ Then("the RP receives the expected identity user info", async function () {
     const page = new RpStubUserInfoPage(this.driver);
     const userInfoData = await page.getUserInfoDataWithoutCoreIdentityJwt();
     deepStrictEqual(userInfoData, IDENTITY_RESPONSE);
+});
+
+Then("the RP receives a valid ID Token", async function () {
+    const page = new RpStubUserInfoPage(this.driver);
+    const encodedJWT = await page.getIdToken();
+    await validateIdToken(encodedJWT, true);
 });
 
 Then("the RP receives a valid CoreIdentityJWT", async function () {

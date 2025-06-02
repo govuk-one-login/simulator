@@ -10,7 +10,8 @@ Feature: Authentication
     Then the user is taken to the "Enter the 6 digit security code shown in your authenticator app" page
     When the user enters the six digit security code from their authenticator app
     Then the user is returned to the service
+    And the RP receives a valid ID Token
     And the RP receives the expected auth-only user info
     And the user logs out
     When the simulator is sent the configuration
-    Then the simulator returns the expected auth-only user info
+    Then the simulator returns a valid id token and the expected auth-only user info

@@ -12,8 +12,9 @@ Feature: Identity
     Then the user is taken to the "You have already proved your identity" page
     When the user clicks the "Continue to the service" button
     Then the user is returned to the service with extended timeout
+    And the RP receives a valid ID Token
     And the RP receives the expected identity user info
     And the RP receives a valid CoreIdentityJWT
     And the user logs out
     When the simulator is sent the identity configuration
-    Then the simulator returns the expected identity user info
+    Then the simulator returns a valid id token and the expected identity user info
