@@ -1,0 +1,521 @@
+import { Request, Response } from "express";
+import { STYLE_SHEET } from "./../public/style";
+import { randomUUID } from "crypto";
+
+export const rootGet = (req: Request, res: Response): void => {
+  res.status(200).send(`<!DOCTYPE html>
+    <html lang="en" class="govuk-template ">
+    <head>
+        <title>Micro RP - GOV.UK</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+        <meta name="theme-color" content="#0b0c0c">
+    
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+        <link rel="shortcut icon" sizes="16x16 32x32 48x48" href="/gds/assets/images/favicon.ico" type="image/x-icon">
+        <link rel="mask-icon" href="/gds/assets/images/govuk-mask-icon.svg" color="#0b0c0c">
+        <link rel="apple-touch-icon" sizes="180x180" href="/gds/assets/images/govuk-apple-touch-icon-180x180.png">
+        <link rel="apple-touch-icon" sizes="167x167" href="/gds/assets/images/govuk-apple-touch-icon-167x167.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="/gds/assets/images/govuk-apple-touch-icon-152x152.png">
+        <link rel="apple-touch-icon" href="/gds/assets/images/govuk-apple-touch-icon.png">
+
+        <style>
+        ${STYLE_SHEET}
+        </style>
+    </head>
+    <body class="govuk-template__body ">
+    <a href="#main-content" class="govuk-skip-link">Skip to main content</a>
+    
+    <header class="govuk-header " role="banner" data-module="govuk-header">
+        <div class="govuk-header__container govuk-width-container">
+            <div class="govuk-header__logo">
+                <a href="/" class="govuk-header__link govuk-header__link--homepage">
+              <span class="govuk-header__logotype">
+                <svg aria-hidden="true" focusable="false" class="govuk-header__logotype-crown" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 97" height="30" width="36">
+                  <path fill="currentColor" fill-rule="evenodd" d="M25 30.2c3.5 1.5 7.7-.2 9.1-3.7 1.5-3.6-.2-7.8-3.9-9.2-3.6-1.4-7.6.3-9.1 3.9-1.4 3.5.3 7.5 3.9 9zM9 39.5c3.6 1.5 7.8-.2 9.2-3.7 1.5-3.6-.2-7.8-3.9-9.1-3.6-1.5-7.6.2-9.1 3.8-1.4 3.5.3 7.5 3.8 9zM4.4 57.2c3.5 1.5 7.7-.2 9.1-3.8 1.5-3.6-.2-7.7-3.9-9.1-3.5-1.5-7.6.3-9.1 3.8-1.4 3.5.3 7.6 3.9 9.1zm38.3-21.4c3.5 1.5 7.7-.2 9.1-3.8 1.5-3.6-.2-7.7-3.9-9.1-3.6-1.5-7.6.3-9.1 3.8-1.3 3.6.4 7.7 3.9 9.1zm64.4-5.6c-3.6 1.5-7.8-.2-9.1-3.7-1.5-3.6.2-7.8 3.8-9.2 3.6-1.4 7.7.3 9.2 3.9 1.3 3.5-.4 7.5-3.9 9zm15.9 9.3c-3.6 1.5-7.7-.2-9.1-3.7-1.5-3.6.2-7.8 3.7-9.1 3.6-1.5 7.7.2 9.2 3.8 1.5 3.5-.3 7.5-3.8 9zm4.7 17.7c-3.6 1.5-7.8-.2-9.2-3.8-1.5-3.6.2-7.7 3.9-9.1 3.6-1.5 7.7.3 9.2 3.8 1.3 3.5-.4 7.6-3.9 9.1zM89.3 35.8c-3.6 1.5-7.8-.2-9.2-3.8-1.4-3.6.2-7.7 3.9-9.1 3.6-1.5 7.7.3 9.2 3.8 1.4 3.6-.3 7.7-3.9 9.1zM69.7 17.7l8.9 4.7V9.3l-8.9 2.8c-.2-.3-.5-.6-.9-.9L72.4 0H59.6l3.5 11.2c-.3.3-.6.5-.9.9l-8.8-2.8v13.1l8.8-4.7c.3.3.6.7.9.9l-5 15.4v.1c-.2.8-.4 1.6-.4 2.4 0 4.1 3.1 7.5 7 8.1h.2c.3 0 .7.1 1 .1.4 0 .7 0 1-.1h.2c4-.6 7.1-4.1 7.1-8.1 0-.8-.1-1.7-.4-2.4V34l-5.1-15.4c.4-.2.7-.6 1-.9zM66 92.8c16.9 0 32.8 1.1 47.1 3.2 4-16.9 8.9-26.7 14-33.5l-9.6-3.4c1 4.9 1.1 7.2 0 10.2-1.5-1.4-3-4.3-4.2-8.7L108.6 76c2.8-2 5-3.2 7.5-3.3-4.4 9.4-10 11.9-13.6 11.2-4.3-.8-6.3-4.6-5.6-7.9 1-4.7 5.7-5.9 8-.5 4.3-8.7-3-11.4-7.6-8.8 7.1-7.2 7.9-13.5 2.1-21.1-8 6.1-8.1 12.3-4.5 20.8-4.7-5.4-12.1-2.5-9.5 6.2 3.4-5.2 7.9-2 7.2 3.1-.6 4.3-6.4 7.8-13.5 7.2-10.3-.9-10.9-8-11.2-13.8 2.5-.5 7.1 1.8 11 7.3L80.2 60c-4.1 4.4-8 5.3-12.3 5.4 1.4-4.4 8-11.6 8-11.6H55.5s6.4 7.2 7.9 11.6c-4.2-.1-8-1-12.3-5.4l1.4 16.4c3.9-5.5 8.5-7.7 10.9-7.3-.3 5.8-.9 12.8-11.1 13.8-7.2.6-12.9-2.9-13.5-7.2-.7-5 3.8-8.3 7.1-3.1 2.7-8.7-4.6-11.6-9.4-6.2 3.7-8.5 3.6-14.7-4.6-20.8-5.8 7.6-5 13.9 2.2 21.1-4.7-2.6-11.9.1-7.7 8.8 2.3-5.5 7.1-4.2 8.1.5.7 3.3-1.3 7.1-5.7 7.9-3.5.7-9-1.8-13.5-11.2 2.5.1 4.7 1.3 7.5 3.3l-4.7-15.4c-1.2 4.4-2.7 7.2-4.3 8.7-1.1-3-.9-5.3 0-10.2l-9.5 3.4c5 6.9 9.9 16.7 14 33.5 14.8-2.1 30.8-3.2 47.7-3.2z"></path>
+                  <image src="/assets/images/govuk-logotype-crown.png" xlink:href="data:," display="none" class="govuk-header__logotype-crown-fallback-image" width="36" height="32"></image>
+                </svg>
+                <span class="govuk-header__logotype-text">
+                  GOV.UK
+                </span>
+              </span>
+                </a>
+            </div>
+            <div class="govuk-header__content">
+                <button type="button" class="govuk-header__menu-button govuk-js-header-toggle" aria-controls="navigation" aria-label="Show or hide navigation menu">Menu</button>
+                <nav>
+                    <ul id="navigation" class="govuk-header__navigation " aria-label="Navigation menu" style="text-align: right">
+                        <li class="govuk-header__navigation-item">
+                            <a class="govuk-header__link" href="/relying-party">
+                                Change Relying Party
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <div class="govuk-width-container ">
+        <main class="govuk-main-wrapper>" id="main-content" role="main">
+            <div class="govuk-!-margin-top-8 govuk-!-margin-bottom-9">
+                <h1 class="govuk-heading-xl">
+                Micro RP
+                </h1>
+            </div>
+            <div class="govuk-grid-row">
+                <form method="post" action="/oidc/auth">
+                    <div class="govuk-grid-column-one-quarter govuk-form-group">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                                <h3 class="govuk-fieldset__heading">
+                                    Scopes
+                                </h3>
+                            </legend>
+                            <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+                                <div class="govuk-checkboxes__item">
+                                    <input class="govuk-checkboxes__input" id="scopes-openid" name="scopes" type="checkbox" value="openid" checked disabled>
+                                    <label class="govuk-label govuk-checkboxes__label" for="scopes-openid">
+                                        openid
+                                    </label>
+                                </div>
+                                <div class="govuk-checkboxes__item">
+                                    <input class="govuk-checkboxes__input" id="scopes-email" name="scopes-email" type="checkbox" value="email" checked>
+                                    <label class="govuk-label govuk-checkboxes__label" for="scopes-email">
+                                        email address
+                                    </label>
+                                </div>
+                                <div class="govuk-checkboxes__item">
+                                    <input class="govuk-checkboxes__input" id="scopes-phone" name="scopes-phone" type="checkbox" value="phone" checked>
+                                    <label class="govuk-label govuk-checkboxes__label" for="scopes-phone">
+                                        phone number
+                                    </label>
+                                </div>
+                                <div class="govuk-checkboxes__item">
+                                    <input class="govuk-checkboxes__input" id="scopes-wallet-subject-id" name="scopes-wallet-subject-id" type="checkbox" value="wallet-subject-id">
+                                    <label class="govuk-label govuk-checkboxes__label" for="scopes-wallet-subject-id">
+                                        wallet subject ID
+                                    </label>
+                                </div>
+                                <div class="govuk-checkboxes__item">
+                                    <input class="govuk-checkboxes__input" id="scopes-account-management" name="scopes-account-management" type="checkbox" value="am">
+                                    <label class="govuk-label govuk-checkboxes__label" for="scopes-account-management">
+                                        Account Management
+                                    </label>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="govuk-grid-column-one-quarter govuk-form-group">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                                <h3 class="govuk-fieldset__heading">
+                                    Prompt
+                                </h3>
+                            </legend>
+                            <div class="govuk-radios">
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="prompt-none" name="prompt" type="radio" value="none" checked>
+                                    <label class="govuk-label govuk-radios__label" for="prompt-none">
+                                        none
+                                    </label>
+                                </div>
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="prompt-login" name="prompt" type="radio" value="login">
+                                    <label class="govuk-label govuk-radios__label" for="prompt-login">
+                                        login
+                                    </label>
+                                </div>
+                            </div>
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m govuk-!-margin-top-6">
+                                <h3 class="govuk-fieldset__heading">
+                                    <label class="govuk-label govuk-label--m" for="reauth-id-token">
+                                        ID token for reauthentication
+                                    </label>
+                                </h3>
+                            </legend>
+                            <input class="govuk-input" id="reauth-id-token" name="reauth-id-token" type="text">
+                        </fieldset>
+                    </div>
+                    <div class="govuk-grid-column-one-quarter govuk-form-group">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                                <h3 class="govuk-fieldset__heading">
+                                    Second factor authentication
+                                </h3>
+                            </legend>
+                            <div class="govuk-radios">
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="2fa-on" name="2fa" type="radio" value="Cl.Cm" checked>
+                                    <label class="govuk-label govuk-radios__label" for="2fa-on">
+                                        2FA
+                                    </label>
+                                </div>
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="2fa-off" name="2fa" type="radio" value="Cl">
+                                    <label class="govuk-label govuk-radios__label" for="2fa-off">
+                                        No 2FA
+                                    </label>
+                                </div>
+                            </div>
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m govuk-!-margin-top-6">
+                                <h3 class="govuk-fieldset__heading">
+                                    <label class="govuk-label govuk-label--m" for="max-age">
+                                        Max age (not yet supported)
+                                    </label>
+                                </h3>
+                            </legend>
+                            <input class="govuk-input" id="max-age" name="max-age" type="text">
+                        </fieldset>
+                    </div>
+                    <div class="govuk-grid-column-one-quarter govuk-form-group">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                                <h3 class="govuk-fieldset__heading">
+                                    Level of confidence
+                                </h3>
+                            </legend>
+                            <div class="govuk-radios">
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="loc-none" name="loc" type="radio" value="" checked>
+                                    <label class="govuk-label govuk-radios__label" for="loc-none">
+                                        Do not request LoC
+                                    </label>
+                                </div>
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="loc-P0" name="loc" type="radio" value="P0">
+                                    <label class="govuk-label govuk-radios__label" for="loc-P0">
+                                        P0 (None - equivalent to above)
+                                    </label>
+                                </div>
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="loc-P1" name="loc" type="radio" value="P1">
+                                    <label class="govuk-label govuk-radios__label" for="loc-P1">
+                                        P1 (Low)
+                                    </label>
+                                </div>
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="loc-P2" name="loc" type="radio" value="P2">
+                                    <label class="govuk-label govuk-radios__label" for="loc-P2">
+                                        P2 (Medium)
+                                    </label>
+                                </div>
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="loc-P3" name="loc" type="radio" value="P3" disabled>
+                                    <label class="govuk-label govuk-radios__label" for="loc-P3">
+                                        P3
+                                    </label>
+                                </div>
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="loc-P4" name="loc" type="radio" value="P4" disabled>
+                                    <label class="govuk-label govuk-radios__label" for="loc-P4">
+                                        P4
+                                    </label>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="govuk-grid-column-one-quarter govuk-form-group">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                                <h3 class="govuk-fieldset__heading">
+                                    Claims
+                                </h3>
+                            </legend>
+                            <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+                                <div class="govuk-checkboxes__item">
+                                    <input class="govuk-checkboxes__input" id="claims-core-identity" name="claims-core-identity" type="checkbox" value="https://vocab.account.gov.uk/v1/coreIdentityJWT" checked>
+                                    <label class="govuk-label govuk-checkboxes__label" for="claims-core-identity">
+                                        core identity
+                                    </label>
+                                </div>
+                                <div class="govuk-checkboxes__item">
+                                    <input class="govuk-checkboxes__input" id="claims-passport" name="claims-passport" type="checkbox" value="https://vocab.account.gov.uk/v1/passport" checked>
+                                    <label class="govuk-label govuk-checkboxes__label" for="claims-passport">
+                                        passport
+                                    </label>
+                                </div>
+                                <div class="govuk-checkboxes__item">
+                                    <input class="govuk-checkboxes__input" id="claims-address" name="claims-address" type="checkbox" value="https://vocab.account.gov.uk/v1/address" checked>
+                                    <label class="govuk-label govuk-checkboxes__label" for="claims-address">
+                                        address
+                                    </label>
+                                </div>
+                                <div class="govuk-checkboxes__item">
+                                    <input class="govuk-checkboxes__input" id="claims-driving-permit" name="claims-driving-permit" type="checkbox" value="https://vocab.account.gov.uk/v1/drivingPermit">
+                                    <label class="govuk-label govuk-checkboxes__label" for="claims-driving-permit">
+                                        driving permit
+                                    </label>
+                                </div>
+                                <div class="govuk-checkboxes__item">
+                                    <input class="govuk-checkboxes__input" id="claims-return-code" name="claims-return-code" type="checkbox" value="https://vocab.account.gov.uk/v1/returnCode">
+                                    <label class="govuk-label govuk-checkboxes__label" for="claims-return-code">
+                                        return code
+                                    </label>
+                                </div>
+                            </div>
+                            <label class="govuk-label govuk-checkboxes__label">Inherited Identity:</label>
+                            <div class="govuk-form-group" id="test_data_block"></div>
+                            <div class="identity-options" id="identity-options">
+                                <div class="govuk-radios">
+                                    <div class="govuk-radios__item">
+                                        <input class="govuk-radios__input" id="vot-PCL200" name="vot" type="radio" value="PCL200" checked>
+                                        <label class="govuk-label govuk-radios__label" for="vot-PCL200">
+                                            PCL200
+                                        </label>
+                                    </div>
+                                    <div class="govuk-radios__item">
+                                        <input class="govuk-radios__input" id="vot-PCL250" name="vot" type="radio" value="PCL250">
+                                        <label class="govuk-label govuk-radios__label" for="vot-PCL250">
+                                            PCL250
+                                        </label>
+                                    </div>
+                                </div>
+    
+                                <label class="govuk-label govuk-checkboxes__label">evidence:</label>
+                                <div class="govuk-form-group" id="custom_evidence_block"></div>
+                                <textarea class="govuk-textarea" id="claims-inherited-identity" name="claims-inherited-identity" type="text" rows="10"></textarea>
+                            </div>
+                        </fieldset>
+                    </div>
+    
+                    <div class="govuk-grid-column-one-quarter govuk-form-group">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                                <h3 class="govuk-fieldset__heading">
+                                    Language (ui_locales)
+                                </h3>
+                            </legend>
+                            <div class="govuk-radios">
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="lng-none" name="lng" type="radio" value="" checked>
+                                    <label class="govuk-label govuk-radios__label" for="lng-none">
+                                        none
+                                    </label>
+                                </div>
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="lng-en" name="lng" type="radio" value="en">
+                                    <label class="govuk-label govuk-radios__label" for="lng-en">
+                                        English - en
+                                    </label>
+                                </div>
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="lng-cy" name="lng" type="radio" value="cy">
+                                    <label class="govuk-label govuk-radios__label" for="lng-cy">
+                                        Welsh (Cymraeg) - cy
+                                    </label>
+                                </div>
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="lng-cy-AR" name="lng" type="radio" value="cy-AR">
+                                    <label class="govuk-label govuk-radios__label" for="lng-cy-AR">
+                                        Welsh (Cymraeg) - Argentina - cy-AR
+                                    </label>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+    
+                    <div class="govuk-grid-column-one-quarter govuk-form-group">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                                <h3 class="govuk-fieldset__heading">
+                                    HTTP METHOD
+                                </h3>
+                            </legend>
+                            <div class="govuk-radios">
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="method-get" name="method" type="radio"
+                                           value="get" checked>
+                                    <label class="govuk-label govuk-radios__label" for="method-get">
+                                        GET
+                                    </label>
+                                </div>
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="method-post" name="method" type="radio"
+                                           value="post">
+                                    <label class="govuk-label govuk-radios__label" for="method-post">
+                                        POST
+                                    </label>
+                                </div>
+                            </div>
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m govuk-!-margin-top-6">
+                                <h3 class="govuk-fieldset__heading">
+                                    <label class="govuk-label govuk-label--m" for="rp-sid">
+                                        RP Session ID (rp_sid)
+                                    </label>
+                                </h3>
+                            </legend>
+                            <input class="govuk-input" id="rp-sid" name="rp-sid" type="text">
+                        </fieldset>
+                    </div>
+    
+                    <div class="govuk-grid-column-one-quarter govuk-form-group">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                                <h3 class="govuk-fieldset__heading">
+                                    Request Method
+                                </h3>
+                            </legend>
+                            <div class="govuk-radios">
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="request-query-params" name="request" type="radio" value="query" checked>
+                                    <label class="govuk-label govuk-radios__label" for="request-query-params">
+                                        Query Parameters
+                                    </label>
+                                </div>
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="request-object" name="request" type="radio" value="object">
+                                    <label class="govuk-label govuk-radios__label" for="request-object">
+                                        Request Object
+                                    </label>
+                                </div>
+                            </div>
+    
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m govuk-!-margin-top-6">
+                                <h3 class="govuk-fieldset__heading">
+                                    PKCE
+                                </h3>
+                            </legend>
+                            <div class="govuk-radios">
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="pkce-yes" name="pkce" type="radio"
+                                           value="yes">
+                                    <label class="govuk-label govuk-radios__label" for="pkce-yes">
+                                        Yes
+                                    </label>
+                                </div>
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="pkce-no" name="pkce" type="radio"
+                                           value="no" checked>
+                                    <label class="govuk-label govuk-radios__label" for="pkce-no">
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m govuk-!-margin-top-6">
+                                <h3 class="govuk-fieldset__heading">
+                                    Choose IdP
+                                </h3>
+                            </legend>
+                            <div class="govuk-radios">
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="simulator-idp" name="idp" type="radio"
+                                           value="simulator">
+                                    <label class="govuk-label govuk-radios__label" for="simulator-idp">
+                                        Simulator
+                                    </label>
+                                </div>
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="one-login-idp" name="idp" type="radio"
+                                           value="one-login" checked>
+                                    <label class="govuk-label govuk-radios__label" for="one-login-idp">
+                                        GOV.UK One Login
+                                    </label>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+    
+                    <div class="govuk-grid-column-one-quarter govuk-form-group">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m govuk-!-margin-top-6">
+                                <h3 class="govuk-fieldset__heading">
+                                    <label class="govuk-label govuk-label--m" for="login-hint">
+                                        Login hint
+                                    </label>
+                                </h3>
+                                <p class="govuk-body">(Not supported for Query Params)</p>
+                            </legend>
+                            <input class="govuk-input" id="login-hint" name="login-hint" type="text">
+                        </fieldset>
+                    </div>
+    
+                    <div class="govuk-grid-column-full">
+                    <button data-prevent-double-click="true" class="govuk-button" id="govuk-signin-button" data-module="govuk-button" type="submit">
+                        Continue
+                    </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+    
+    <footer class="govuk-footer " role="contentinfo">
+        <div class="govuk-width-container ">
+            <div class="govuk-footer__meta">
+                <div class="govuk-footer__meta-item govuk-footer__meta-item--grow">
+    
+                    <svg aria-hidden="true" focusable="false" class="govuk-footer__licence-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 483.2 195.7" height="17" width="41">
+                        <path fill="currentColor" d="M421.5 142.8V.1l-50.7 32.3v161.1h112.4v-50.7zm-122.3-9.6A47.12 47.12 0 0 1 221 97.8c0-26 21.1-47.1 47.1-47.1 16.7 0 31.4 8.7 39.7 21.8l42.7-27.2A97.63 97.63 0 0 0 268.1 0c-36.5 0-68.3 20.1-85.1 49.7A98 98 0 0 0 97.8 0C43.9 0 0 43.9 0 97.8s43.9 97.8 97.8 97.8c36.5 0 68.3-20.1 85.1-49.7a97.76 97.76 0 0 0 149.6 25.4l19.4 22.2h3v-87.8h-80l24.3 27.5zM97.8 145c-26 0-47.1-21.1-47.1-47.1s21.1-47.1 47.1-47.1 47.2 21 47.2 47S123.8 145 97.8 145" />
+                    </svg>
+                    <span class="govuk-footer__licence-description">
+                All content is available under the
+                <a class="govuk-footer__link" href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" rel="license">Open Government Licence v3.0</a>, except where otherwise stated
+              </span>
+                </div>
+                <div class="govuk-footer__meta-item">
+                    <a class="govuk-footer__link govuk-footer__copyright-logo" href="https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/">© Crown copyright</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    </body>
+    </html>
+    `);
+};
+
+export const formPost = (req: Request, res: Response): void => {
+  const formOpts = req.body;
+  const params: Record<string, any> = {
+    client_id: process.env.RP_CLIENT_ID!,
+    redirect_uri: "http://localhost:3001/callback",
+    state: randomUUID(),
+    nonce: Math.floor(Math.random() * 10000000),
+    scope: ["openid"],
+    response_type: "code",
+    vtr: '["Cl.Cm"]',
+  };
+
+  const userinfo = {} as Record<string, unknown>;
+
+  let idp = `https://oidc.${process.env.ENVIRONMENT}.account.gov.uk`;
+  let cookieValue = "OL";
+
+  if (formOpts.idp === "simulator") {
+    idp = "http://localhost:3000";
+    cookieValue = "SIM";
+  }
+
+  if (formOpts["2fa"] === "Cl") {
+    params.vtr = '["Cl"]';
+  }
+
+  if (formOpts.loc?.length > 0) {
+    params.vtr = `["${formOpts.loc}.Cl.Cm"]`;
+  }
+
+  if (formOpts["scopes-email"]) {
+    params.scope.push("email");
+  }
+  if (formOpts["scopes-phone"]) {
+    params.scope.push("phone");
+  }
+
+  Object.entries(formOpts).forEach(([k, v]) => {
+    if (k.startsWith("claims") && (v as string).length > 0) {
+      userinfo[v as string] = {
+        essential: true,
+      };
+    }
+  });
+
+  if (Object.keys(userinfo).length > 0) {
+    params["claims"] = JSON.stringify({ userinfo });
+  }
+
+  params.scope = params.scope.join(" ");
+
+  const encodedParams = new URLSearchParams(params).toString();
+  res.cookie("idp", cookieValue, { maxAge: 3600, httpOnly: true });
+  res.redirect(`${idp}/authorize?${encodedParams}`);
+};

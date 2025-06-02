@@ -7,5 +7,7 @@ services:
       - "3001:3001"
     environment:
       - RP_CLIENT_ID=${RP_CLIENT_ID}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - RP_PRIVATE_KEY=${RP_PRIVATE_KEY}
     restart: on-failure
     network_mode: host
