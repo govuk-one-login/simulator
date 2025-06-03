@@ -29,6 +29,7 @@ const rsaKeyPair = generateKeyPairSync("rsa", {
 const testTimestamp = 1723707024;
 const knownClientId = "b1a80190cf07983fca7e46375385a8ed";
 const audience = "http://localhost:3000/token";
+const issuer = "http://localhost:3000/";
 
 describe("parseTokenRequest tests", () => {
   beforeEach(() => {
@@ -842,6 +843,57 @@ describe("parseTokenRequest tests", () => {
       exp: Math.floor(testTimestamp / 1000) + 300,
       iss: knownClientId,
       aud: audience,
+      jti: randomUUID(),
+    };
+
+    const clientAssertion = await new SignJWT(payload)
+      .setProtectedHeader(header)
+      .sign(rsaKeyPair.privateKey);
+
+    const tokenRequest = {
+      grant_type: "authorization_code",
+      code: "123456",
+      redirect_uri: "https://example.com/authentication-callback/",
+      client_assertion_type:
+        "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+      client_assertion: clientAssertion,
+    };
+
+    const parsedTokenRequest = await parseTokenRequest(tokenRequest, config);
+
+    expect(parsedTokenRequest).toStrictEqual({
+      tokenRequest: {
+        grant_type: "authorization_code",
+        code: "123456",
+        redirectUri: "https://example.com/authentication-callback/",
+        client_assertion_type:
+          "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+        client_assertion: clientAssertion,
+      },
+      clientAssertion: {
+        header,
+        payload,
+        token: clientAssertion,
+        clientId: knownClientId,
+        signature: clientAssertion.split(".")[2],
+      },
+    });
+  });
+
+  it("returns a parsed tokenRequest and clientAssertion for a valid request with the issuer as the audience", async () => {
+    clientIdSpy.mockReturnValue(knownClientId);
+    const publicKey = await exportSPKI(rsaKeyPair.publicKey);
+    publicKeySpy.mockReturnValue(publicKey);
+    idTokenSigningSpy.mockReturnValue("RS256");
+
+    const header = {
+      alg: "RS256",
+    };
+    const payload = {
+      sub: knownClientId,
+      exp: Math.floor(testTimestamp / 1000) + 300,
+      iss: knownClientId,
+      aud: issuer,
       jti: randomUUID(),
     };
 
