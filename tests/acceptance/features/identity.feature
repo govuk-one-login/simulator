@@ -1,6 +1,6 @@
 Feature: Identity
   Scenario: User successfully gets identity response
-    Given the user comes from the stub relying party with options: "loc-P2"
+    Given the user comes from the micro RP with options: "loc-P2"
     Then the user is taken to the "Create your GOV.UK One Login or sign in" page
     When the user selects sign in
     Then the user is taken to the "Enter your email" page
@@ -17,4 +17,9 @@ Feature: Identity
     And the RP receives a valid CoreIdentityJWT
     And the user logs out
     When the simulator is sent the identity configuration
-    Then the simulator returns a valid id token and the expected identity user info
+    Given the user comes from the micro RP with options: "loc-P2,simulator-idp"
+    Then the user is returned to the service
+    And the RP receives a valid ID Token from the simulator
+    And the RP receives the expected identity user info
+    And the RP receives a valid CoreIdentityJWT from the simulator
+    And the user logs out
