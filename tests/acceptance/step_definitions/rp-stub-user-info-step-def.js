@@ -32,10 +32,22 @@ Then("the RP receives a valid ID Token", async function () {
     await validateIdToken(encodedJWT, true);
 });
 
+Then("the RP receives a valid ID Token from the simulator", async function () {
+    const page = new RpStubUserInfoPage(this.driver);
+    const encodedJWT = await page.getIdToken();
+    await validateIdToken(encodedJWT, false);
+});
+
 Then("the RP receives a valid CoreIdentityJWT", async function () {
     const page = new RpStubUserInfoPage(this.driver);
     const encodedJWT = await page.getCoreIdentityJwt();
     await validateCoreIdentityJwt(encodedJWT, true);
+});
+
+Then("the RP receives a valid CoreIdentityJWT from the simulator", async function () {
+    const page = new RpStubUserInfoPage(this.driver);
+    const encodedJWT = await page.getCoreIdentityJwt();
+    await validateCoreIdentityJwt(encodedJWT, false);
 });
 
 Then("the user is returned to the service", async function () {
