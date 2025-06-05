@@ -19,24 +19,17 @@ jobs:
       ENVIRONMENT: ${{secrets.ENVIRONMENT}}
       RP_CLIENT_ID: ${{secrets.RP_CLIENT_ID}}
       RP_URL: ${{secrets.RP_URL}}
-    services:
-      selenium:
-        image: selenium/standalone-chrome:latest
-        options: --shm-size=2gb
-        ports:
-          - 4444:4444
-      simulator:
-        image: ghcr.io/govuk-one-login/simulator:latest
-        env:
-          REDIRECT_URLS: "http://localhost:3001/callback"
-          CLAIMS: "https://vocab.account.gov.uk/v1/coreIdentityJWT,https://vocab.account.gov.uk/v1/address,https://vocab.account.gov.uk/v1/passport"
-        ports:
-          - 3000:3000
+      RP_PUBLIC_KEY: ${{secrets.RP_PUBLIC_KEY}}
+      RP_PRIVATE_KEY: ${{secrets.RP_PRIVATE_KEY}}
     steps:
       - name: Pull repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - name: Set up micro RP
-        run: cd tests/acceptance/micro-rp && docker compose up --build -d
+      - name: Setup containers for acceptance tests
+        run: docker compose --file acceptance-tests.docker-compose.yaml up -d
+      - name: Sleep wait for port to open
+        run: |
+          echo "Waiting two seconds for micro RP to start"
+          sleep 2
       - name: Get Node.js version
         run: |
           version=$(grep -oP -m1 'node:\K.*(?=@)' Dockerfile)
@@ -65,4 +58,4 @@ jobs:
             level: "ERROR"
       - name: Stop Docker
         if: ${{ always() }}
-        run: cd tests/acceptance/micro-rp && docker compose down
+        run: docker compose down

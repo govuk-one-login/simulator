@@ -10,7 +10,7 @@ services:
     restart: on-failure
     network_mode: host
   selenium:
-    image: ${SELENIUM_IMAGE}
+    image: ${SELENIUM_IMAGE:-selenium/standalone-chrome:latest}
     network_mode: host
   micro-rp:
     build:
