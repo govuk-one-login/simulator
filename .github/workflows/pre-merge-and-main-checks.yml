@@ -47,6 +47,11 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
         run: npm install
+      - name: Install micro RP dependencies
+        run: |
+          cd tests/acceptance/micro-rp
+          npm install 
+          cd ../../..
       - name: Run lint
         run: npm run check:lint
       - name: Run prettier
