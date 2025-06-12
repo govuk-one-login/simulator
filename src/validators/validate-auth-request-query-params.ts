@@ -7,6 +7,7 @@ import { vtrValidator } from "./vtr-validator";
 import { Config } from "../config";
 import { AuthRequest } from "src/parse/parse-auth-request";
 import { validatePKCECodeChallengeAndMethod } from "./code-challenge-validator";
+import { VALID_CHANNELS } from "../constants";
 
 export const validateAuthRequestQueryParams = (
   queryParams: AuthRequest,
@@ -122,5 +123,15 @@ export const validateAuthRequestQueryParams = (
       queryParams.code_challenge,
       queryParams.code_challenge_method
     );
+  }
+
+  if (queryParams.channel && !VALID_CHANNELS.includes(queryParams.channel)) {
+    throw new AuthoriseRequestError({
+      errorCode: "invalid_request",
+      errorDescription: "Invalid value for channel parameter.",
+      httpStatusCode: 302,
+      redirectUri: queryParams.redirect_uri,
+      state: queryParams.state,
+    });
   }
 };

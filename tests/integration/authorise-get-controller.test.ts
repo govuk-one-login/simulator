@@ -1275,6 +1275,28 @@ describe("Authorise controller tests", () => {
         );
       });
 
+      it("returns a 302 with invalid request if the channel parameter in the request object is an invalid channel", async () => {
+        const app = createApp();
+        const requestParams = createRequestParams({
+          client_id: knownClientId,
+          redirect_uri: knownRedirectUri,
+          response_type: "code",
+          scope: "openid email",
+          request: await encodedJwtWithParams({
+            channel: "invalid-channel",
+          }),
+        });
+
+        const response = await request(app).get(
+          authoriseEndpoint + "?" + requestParams
+        );
+
+        expect(response.status).toBe(302);
+        expect(response.headers.location).toBe(
+          `${knownRedirectUri}?error=invalid_request&error_description=${encodeURIComponent("Invalid value for channel parameter.")}&state=${state}`
+        );
+      });
+
       it("returns a 302 with unmet authentication requirements if the prompt includes select_account", async () => {
         const app = createApp();
         const requestParams = createRequestParams({
@@ -1355,6 +1377,7 @@ describe("Authorise controller tests", () => {
               '{"userinfo": { "https://vocab.account.gov.uk/v1/coreIdentityJWT": { "essential": true }}}',
             ui_locales: "en",
             login_hint: "email@email.com",
+            channel: "generic_app",
           }),
         });
 
