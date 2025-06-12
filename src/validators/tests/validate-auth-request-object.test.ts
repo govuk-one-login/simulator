@@ -459,6 +459,42 @@ describe("Validate auth request object tests", () => {
     );
   });
 
+  it("throw authorise request error when channel is invalid in request object", async () => {
+    const requestObject = requestObjectWithParams({
+      channel: "invalid-channel",
+    });
+    const authRequest = {
+      ...defaultAuthRequest,
+      requestObject,
+    };
+
+    await expect(
+      validateAuthRequestObject(authRequest, config)
+    ).rejects.toThrow(
+      new AuthoriseRequestError({
+        httpStatusCode: 302,
+        errorCode: "invalid_request",
+        errorDescription: "Invalid value for channel parameter.",
+        redirectUri: defaultRedirectUri,
+        state: defaultState,
+      })
+    );
+  });
+
+  it("not throw an error when channel is valid in request object", async () => {
+    const requestObject = requestObjectWithParams({
+      channel: "generic_app",
+    });
+    const authRequest = {
+      ...defaultAuthRequest,
+      requestObject,
+    };
+
+    await expect(
+      validateAuthRequestObject(authRequest, config)
+    ).resolves.not.toThrow();
+  });
+
   it("throw bad request error response_mode for unknown response_mode", async () => {
     const requestObject = requestObjectWithParams({
       response_mode: "code",

@@ -15,6 +15,7 @@ import { areScopesValid } from "./scope-validator";
 import { vtrValidator } from "./vtr-validator";
 import { areClaimsValid } from "./claims-validator";
 import { validatePKCECodeChallengeAndMethod } from "./code-challenge-validator";
+import { VALID_CHANNELS } from "../constants";
 
 export const validateAuthRequestObject = async (
   authRequest: AuthRequest,
@@ -187,6 +188,8 @@ export const validateAuthRequestObject = async (
 
   validateLoginHint(payload);
 
+  validateChannel(payload);
+
   logger.info("RequestObject has passed initial validation");
 };
 
@@ -253,6 +256,22 @@ const validateLoginHint = (payload: JWTPayload) => {
         httpStatusCode: 302,
         errorCode: "invalid_request",
         errorDescription: "login_hint parameter is invalid",
+        redirectUri: payload.redirect_uri as string,
+        state: payload.state as string,
+      });
+    }
+  }
+};
+
+const validateChannel = (payload: JWTPayload) => {
+  if (payload.channel) {
+    const parsedChannel = payload.channel as string;
+
+    if (parsedChannel !== null && !VALID_CHANNELS.includes(parsedChannel)) {
+      throw new AuthoriseRequestError({
+        errorCode: "invalid_request",
+        errorDescription: "Invalid value for channel parameter.",
+        httpStatusCode: 302,
         redirectUri: payload.redirect_uri as string,
         state: payload.state as string,
       });

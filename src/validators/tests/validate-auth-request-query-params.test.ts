@@ -194,6 +194,38 @@ describe("validateAuthRequestQueryParams tests", () => {
     );
   });
 
+  it("throws an invalid request error for an invalid channel", () => {
+    expect(() =>
+      validateAuthRequestQueryParams(
+        {
+          ...defaultAuthRequest,
+          channel: "invalid-channel",
+        },
+        config
+      )
+    ).toThrow(
+      new AuthoriseRequestError({
+        errorCode: "invalid_request",
+        errorDescription: "Invalid value for channel parameter.",
+        httpStatusCode: 302,
+        redirectUri: defaultAuthRequest.redirect_uri,
+        state: defaultAuthRequest.state,
+      })
+    );
+  });
+
+  it("does not throw an error for a valid channel", () => {
+    expect(() =>
+      validateAuthRequestQueryParams(
+        {
+          ...defaultAuthRequest,
+          channel: "generic_app",
+        },
+        config
+      )
+    ).not.toThrow();
+  });
+
   it("throw authorise request error when response mode is not query or fragment", () => {
     expect(() =>
       validateAuthRequestQueryParams(
