@@ -10,11 +10,15 @@ services:
     restart: on-failure
     network_mode: host
   selenium:
-    image: ${SELENIUM_IMAGE}
+    image: ${SELENIUM_IMAGE:-selenium/standalone-chrome:latest}
     network_mode: host
   micro-rp:
     build:
       context: ./tests/acceptance/micro-rp
       dockerfile: Dockerfile
+    environment:
+      - RP_CLIENT_ID=${RP_CLIENT_ID}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - RP_PRIVATE_KEY=${RP_PRIVATE_KEY}
     restart: on-failure
     network_mode: host
