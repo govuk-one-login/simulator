@@ -88,6 +88,9 @@ export const authoriseController = async (
       ...(parsedAuthRequest.login_hint && {
         login_hint: parsedAuthRequest.login_hint,
       }),
+      ...(parsedAuthRequest.channel && {
+        channel: parsedAuthRequest.channel,
+      }),
     };
 
     if (config.isInteractiveModeEnabled()) {
