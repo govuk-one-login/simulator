@@ -38,7 +38,7 @@ export const generateResponseConfigurationPropertyValidators = (
     bodyOptional(
       `${prefix}${nameof<ResponseConfiguration>("emailVerified")}`
     ).isBoolean({ strict: true }),
-    bodyOptional(
+    bodyOptionalAllowNull(
       `${prefix}${nameof<ResponseConfiguration>("phoneNumber")}`
     ).isString(),
     bodyOptional(
