@@ -1,7 +1,7 @@
 const { By, until } = require('selenium-webdriver');
 
 module.exports = class BasePage {
-    RP_URL = process.env.RP_URL ?? "https://acceptance-test-rp-build.build.stubs.account.gov.uk/";
+    RP_URL = process.env.RP_URL ?? "http://localhost:3001/";
     SELENIUM_HEADLESS = process.env.SELENIUM_HEADLESS === "true";
     DEFAULT_PAGE_LOAD_WAIT_TIME = 20 * 1000;
     driver;

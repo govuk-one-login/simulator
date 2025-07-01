@@ -10,3 +10,8 @@ When("the user clicks the continue button", async function () {
     const page = new BasePage(this.driver);
     await page.findAndClickContinue()
 });
+
+When("the user clicks the {string} button", async function (buttonText) {
+    const page = new BasePage(this.driver);
+    await page.findAndClickButtonByText(buttonText)
+});
