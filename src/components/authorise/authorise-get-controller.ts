@@ -75,6 +75,19 @@ export const authoriseController = async (
       });
     }
 
+    if (config.getAuthoriseErrors().includes("TEMPORARILY_UNAVAILABLE")) {
+      logger.warn(
+        "Client configured to return temporarily_unavailable error response"
+      );
+      throw new AuthoriseRequestError({
+        errorCode: "temporarily_unavailable",
+        errorDescription: "",
+        httpStatusCode: 302,
+        redirectUri: parsedAuthRequest.redirect_uri,
+        state: parsedAuthRequest.state,
+      });
+    }
+
     const authCode = generateAuthCode();
     const authRequestParams = {
       claims: parsedAuthRequest.claims,
