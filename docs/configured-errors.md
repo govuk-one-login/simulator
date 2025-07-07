@@ -26,6 +26,7 @@ These are errors returned at the point in which a user hits the `/authorize` end
 | Error type    | Description                                                                                                                                                                                            |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | ACCESS_DENIED | Returns the access denied error that would be returned to an RP when a user has issues with identity, but does not have return codes switched on. It is returned just before an auth code is generated |
+| TEMPORARILY_UNAVAILABLE | Returns the temporarily unavailable error that would be returned to an RP when an RP is being rate limited. It is returned just after the authorisation request is validated |
 
 #### ID token errors:
 
