@@ -517,6 +517,31 @@ describe("Authorise controller tests", () => {
         );
       });
 
+      it("returns 302 and redirects with a temporarily_unavailable error when the client has enabled TEMPORARILY_UNAVAILABLE", async () => {
+        jest
+          .spyOn(Config.getInstance(), "getAuthoriseErrors")
+          .mockReturnValue(["TEMPORARILY_UNAVAILABLE"]);
+
+        const app = createApp();
+        const requestParams = createRequestParams({
+          client_id: knownClientId,
+          redirect_uri: knownRedirectUri,
+          response_type: "code",
+          scope: "openid email",
+          state,
+          nonce,
+        });
+
+        const response = await request(app).get(
+          authoriseEndpoint + "?" + requestParams
+        );
+
+        expect(response.status).toBe(302);
+        expect(response.header.location).toBe(
+          `${knownRedirectUri}?error=temporarily_unavailable&error_description=&state=${state}`
+        );
+      });
+
       it("returns 302 and redirect with an auth code for a valid minimal auth request", async () => {
         const app = createApp();
         const requestParams = createRequestParams({
