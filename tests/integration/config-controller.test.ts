@@ -88,6 +88,21 @@ describe("Integration: Config POST", () => {
     expect(config.getSimulatorUrl()).toStrictEqual(TEST_SIMULATOR_URL);
   });
 
+  test("Null is accepted as a value for the phone number", async () => {
+    const app = createApp();
+    const response = await request(app)
+      .post("/config")
+      .send({
+        responseConfiguration: {
+          phoneNumber: null,
+        },
+      });
+    expect(response.status).toEqual(200);
+
+    const config = Config.getInstance();
+    expect(config.getPhoneNumber()).toEqual(null);
+  });
+
   test("If a config value is not included, the default value stands", async () => {
     const app = createApp();
     const response = await request(app)

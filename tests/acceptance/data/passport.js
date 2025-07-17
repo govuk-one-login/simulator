@@ -1,9 +1,5 @@
-const PASSPORT = [
-    {
-        expiryDate: "2032-02-02",
-        icaoIssuerCode: "GBR",
-        documentNumber: "1223456",
-    },
-]
+const { tryParseJSON } = require("./../util/try-parse-json");
+
+const PASSPORT = [tryParseJSON(process.env.TEST_USER_PASSPORT ?? "{}")];
 
 module.exports = { PASSPORT };

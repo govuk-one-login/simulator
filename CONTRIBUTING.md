@@ -74,10 +74,9 @@ npm run test
 ### Acceptance tests
 
 To run the acceptance tests locally:
-1. Create an account in the build environment that is a test client (email starts with `orch-test-user`).
-2. Make a copy of the `.env.template` file and rename it to `.env`.
-3. Update the test variables in `.env` to point to the account you have setup in step 1.
-4. Run the acceptance tests with the following command:
+1. Go to the dev account and find the secret storing a copy of the valid `.env` file
+2. Retrieve the value and make a copy of this in a local `.env` file
+3. Run the acceptance tests with the following command:
 ```shell script
 ./run-acceptance-tests.sh
 ```
