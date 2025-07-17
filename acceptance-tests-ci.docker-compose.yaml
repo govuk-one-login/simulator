@@ -1,7 +1,7 @@
 services:
   simulator:
     image: ghcr.io/govuk-one-login/simulator:latest
-    env:
+    environment:
       REDIRECT_URLS: "http://localhost:3001/callback"
       CLAIMS: "https://vocab.account.gov.uk/v1/coreIdentityJWT,https://vocab.account.gov.uk/v1/address,https://vocab.account.gov.uk/v1/passport"
     restart: on-failure
