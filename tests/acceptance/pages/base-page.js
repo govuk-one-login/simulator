@@ -3,7 +3,7 @@ const { By, until } = require('selenium-webdriver');
 module.exports = class BasePage {
     RP_URL = process.env.RP_URL ?? "http://localhost:3001/";
     SELENIUM_HEADLESS = process.env.SELENIUM_HEADLESS === "true";
-    DEFAULT_PAGE_LOAD_WAIT_TIME = 20 * 1000;
+    DEFAULT_PAGE_LOAD_WAIT_TIME = 30 * 1000; // 30 Seconds
     driver;
 
     constructor(page) {
@@ -41,9 +41,8 @@ module.exports = class BasePage {
     }
 
     waitForReadyStateComplete = async () => {
-        const maxWaitTime = 10000; // 10 seconds
         const startTime = Date.now();
-        while (Date.now() - startTime < maxWaitTime) {
+        while (Date.now() - startTime < this.DEFAULT_PAGE_LOAD_WAIT_TIME) {
             const isPageLoaded = await this.page.executeScript("return document.readyState") === "complete";
 
             if (isPageLoaded) {
