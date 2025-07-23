@@ -11,6 +11,7 @@ import {
 } from "../../../../constants";
 import AuthRequestParameters from "../../../../types/auth-request-parameters";
 import { createIdToken } from "../../helper/create-id-token";
+import { INVALID_KEY_KID } from "../../../utils/make-header-invalid";
 
 describe("createIdToken tests", () => {
   const mockAuthRequestParams: AuthRequestParameters = {
@@ -169,6 +170,7 @@ describe("createIdToken tests", () => {
 
     expect(tokenParts.length).toBe(3);
     expect(header).toStrictEqual({
+      kid: INVALID_KEY_KID,
       alg: "HS256",
     });
   });

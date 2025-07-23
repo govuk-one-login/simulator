@@ -22,6 +22,7 @@ import {
 } from "../../src/constants";
 import { decodeJwtNoVerify } from "./helper/decode-jwt-no-verify";
 import { exampleResponseConfig } from "./helper/test-constants";
+import { INVALID_KEY_KID } from "../../src/components/utils/make-header-invalid";
 
 const TOKEN_ENDPOINT = "/token";
 
@@ -501,6 +502,7 @@ describe("/token endpoint, configured error responses", () => {
     const { id_token } = response.body;
     const { protectedHeader } = decodeJwtNoVerify(id_token);
     expect(protectedHeader).toStrictEqual({
+      kid: INVALID_KEY_KID,
       alg: "HS256",
     });
   });
