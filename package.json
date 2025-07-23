@@ -47,7 +47,7 @@
     "husky": "^9.1.6",
     "jest": "^29.7.0",
     "selenium-webdriver": "^4.23.0",
-    "supertest": "^7.0.0",
+    "supertest": "^7.1.4",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
