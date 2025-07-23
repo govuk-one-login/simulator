@@ -1,4 +1,4 @@
-import { makeHeaderInvalid } from "../make-header-invalid";
+import { INVALID_KEY_KID, makeHeaderInvalid } from "../make-header-invalid";
 
 describe("makeHeaderInvalid tests", () => {
   const testToken =
@@ -11,6 +11,7 @@ describe("makeHeaderInvalid tests", () => {
       Buffer.from(header, "base64url").toString()
     );
     expect(parsedHeader).toStrictEqual({
+      kid: INVALID_KEY_KID,
       alg: "HS256",
     });
   });

@@ -1,6 +1,7 @@
 services:
   simulator:
     container_name: simulator
+    env_file: ".env"
     build:
       context: .
       dockerfile: Dockerfile
