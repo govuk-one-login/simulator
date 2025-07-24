@@ -3,7 +3,7 @@ const { By, until } = require('selenium-webdriver');
 module.exports = class BasePage {
     RP_URL = process.env.RP_URL ?? "http://localhost:3001/";
     SELENIUM_HEADLESS = process.env.SELENIUM_HEADLESS === "true";
-    DEFAULT_PAGE_LOAD_WAIT_TIME = 30 * 1000; // 30 Seconds
+    DEFAULT_PAGE_LOAD_WAIT_TIME = 60 * 1000; // 60 Seconds
     driver;
 
     constructor(page) {

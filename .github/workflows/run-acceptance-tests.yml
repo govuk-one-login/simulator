@@ -2,7 +2,7 @@ name: Run Acceptance Tests
 
 on:
   schedule:
-    - cron: "0 3 * * *"
+    - cron: "0 15 * * *"
   workflow_dispatch:
 
 jobs:

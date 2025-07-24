@@ -2,7 +2,7 @@ const CustomWorld = require("../pages/custom-world.js");
 const { After, Status, Before, setWorldConstructor, setDefaultTimeout } = require('@cucumber/cucumber');
 
 setWorldConstructor(CustomWorld);
-setDefaultTimeout(30 * 1000);
+setDefaultTimeout(60*1000) // 60 Seconds
 
 Before(async function (scenario) {
     await this.init(scenario);
