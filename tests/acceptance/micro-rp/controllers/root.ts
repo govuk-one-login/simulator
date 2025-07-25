@@ -175,40 +175,34 @@ export const rootGet = (req: Request, res: Response): void => {
                                     Level of confidence
                                 </h3>
                             </legend>
-                            <div class="govuk-radios">
-                                <div class="govuk-radios__item">
-                                    <input class="govuk-radios__input" id="loc-none" name="loc" type="radio" value="" checked>
-                                    <label class="govuk-label govuk-radios__label" for="loc-none">
-                                        Do not request LoC
+                            <div class="govuk-checkboxes">
+                                <div class="govuk-checkboxes__item">
+                                    <input class="govuk-checkboxes__input" id="loc-P0" name="loc-P0" type="checkbox" value="P0">
+                                    <label class="govuk-label govuk-checkboxes__label" for="loc-P0">
+                                        P0 (None - equivalent to not requesting LoC)
                                     </label>
                                 </div>
-                                <div class="govuk-radios__item">
-                                    <input class="govuk-radios__input" id="loc-P0" name="loc" type="radio" value="P0">
-                                    <label class="govuk-label govuk-radios__label" for="loc-P0">
-                                        P0 (None - equivalent to above)
-                                    </label>
-                                </div>
-                                <div class="govuk-radios__item">
-                                    <input class="govuk-radios__input" id="loc-P1" name="loc" type="radio" value="P1">
-                                    <label class="govuk-label govuk-radios__label" for="loc-P1">
+                                <div class="govuk-checkboxes__item">
+                                    <input class="govuk-checkboxes__input" id="loc-P1" name="loc-P1" type="checkbox" value="P1">
+                                    <label class="govuk-label govuk-checkboxes__label" for="loc-P1">
                                         P1 (Low)
                                     </label>
                                 </div>
-                                <div class="govuk-radios__item">
-                                    <input class="govuk-radios__input" id="loc-P2" name="loc" type="radio" value="P2">
-                                    <label class="govuk-label govuk-radios__label" for="loc-P2">
+                                <div class="govuk-checkboxes__item">
+                                    <input class="govuk-checkboxes__input" id="loc-P2" name="loc-P2" type="checkbox" value="P2">
+                                    <label class="govuk-label govuk-checkboxes__label" for="loc-P2">
                                         P2 (Medium)
                                     </label>
                                 </div>
-                                <div class="govuk-radios__item">
-                                    <input class="govuk-radios__input" id="loc-P3" name="loc" type="radio" value="P3" disabled>
-                                    <label class="govuk-label govuk-radios__label" for="loc-P3">
-                                        P3
+                                <div class="govuk-checkboxes__item">
+                                    <input class="govuk-checkboxes__input" id="loc-P3" name="loc-P3" type="checkbox" value="P3">
+                                    <label class="govuk-label govuk-checkboxes__label" for="loc-P3">
+                                        P3 (High)
                                     </label>
                                 </div>
-                                <div class="govuk-radios__item">
-                                    <input class="govuk-radios__input" id="loc-P4" name="loc" type="radio" value="P4" disabled>
-                                    <label class="govuk-label govuk-radios__label" for="loc-P4">
+                                <div class="govuk-checkboxes__item">
+                                    <input class="govuk-checkboxes__input" id="loc-P4" name="loc-P4" type="checkbox" value="P4" disabled>
+                                    <label class="govuk-label govuk-checkboxes__label" for="loc-P4">
                                         P4
                                     </label>
                                 </div>
@@ -477,6 +471,7 @@ export const formPost = (req: Request, res: Response): void => {
   };
 
   const userinfo = {} as Record<string, unknown>;
+  const vtr = [];
 
   let idp = `https://oidc.${process.env.ENVIRONMENT}.account.gov.uk`;
   let cookieValue = "OL";
@@ -490,8 +485,20 @@ export const formPost = (req: Request, res: Response): void => {
     params.vtr = '["Cl"]';
   }
 
-  if (formOpts.loc?.length > 0) {
-    params.vtr = `["${formOpts.loc}.Cl.Cm"]`;
+  if (formOpts["loc-P0"]) {
+    vtr.push(`"${formOpts["loc-P0"]}.Cl.Cm"`);
+  }
+
+  if (formOpts["loc-P1"]) {
+    vtr.push(`"${formOpts["loc-P1"]}.Cl.Cm"`);
+  }
+
+  if (formOpts["loc-P2"]) {
+    vtr.push(`"${formOpts["loc-P2"]}.Cl.Cm"`);
+  }
+
+  if (formOpts["loc-P3"]) {
+    vtr.push(`"${formOpts["loc-P3"]}.Cl.Cm"`);
   }
 
   if (formOpts["scopes-email"]) {
@@ -511,6 +518,10 @@ export const formPost = (req: Request, res: Response): void => {
 
   if (Object.keys(userinfo).length > 0) {
     params["claims"] = JSON.stringify({ userinfo });
+  }
+
+  if (vtr.length > 0) {
+    params.vtr = JSON.stringify(vtr);
   }
 
   params.scope = params.scope.join(" ");
