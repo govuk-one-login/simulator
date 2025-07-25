@@ -9,6 +9,6 @@ export const trustmarkController = async (
 
   res.header("Content-Type", "application/json");
   res.send(
-    `{"idp":"${config.getSimulatorUrl()}/","trustmark_provider":"${config.getSimulatorUrl()}/","C":["Cl","Cl.Cm"],"P":["P0","P1","P2"]}`
+    `{"idp":"${config.getSimulatorUrl()}/","trustmark_provider":"${config.getSimulatorUrl()}/","C":["Cl","Cl.Cm"],"P":["P0","P1","P2","P3"]}`
   );
 };
