@@ -35,5 +35,10 @@
       "typescript": true,
       "node": true
     }
-  }
+  },
+  "ignorePatterns": [
+    "*.d.ts",
+    "node_modules",
+    "dist"
+  ]
 }
