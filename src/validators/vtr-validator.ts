@@ -107,7 +107,8 @@ const parseSingleVtr = (singleVtr: string): VectorOfTrust => {
   const credentialTrustIsNotMedium = parsedVtr.credentialTrust !== "Cl.Cm";
   const identityBeenRequested =
     parsedVtr.levelOfConfidence === "P1" ||
-    parsedVtr.levelOfConfidence === "P2";
+    parsedVtr.levelOfConfidence === "P2" ||
+    parsedVtr.levelOfConfidence === "P3";
 
   if (identityBeenRequested && credentialTrustIsNotMedium) {
     throw new Error(
@@ -124,7 +125,8 @@ const isCredentialTrust = (
 
 const isVectorOfTrust = (
   levelOfConfidence: string
-): levelOfConfidence is "P0" | "P1" | "P2" => levelOfConfidence.startsWith("P");
+): levelOfConfidence is "P0" | "P1" | "P2" | "P3" =>
+  levelOfConfidence.startsWith("P");
 
 const isUnknown = (vtr: string): boolean =>
   !isCredentialTrust(vtr) && !isVectorOfTrust(vtr);
