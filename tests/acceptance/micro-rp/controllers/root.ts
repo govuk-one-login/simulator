@@ -486,19 +486,19 @@ export const formPost = (req: Request, res: Response): void => {
   }
 
   if (formOpts["loc-P0"]) {
-    vtr.push(`"${formOpts["loc-P0"]}.Cl.Cm"`);
+    vtr.push(`${formOpts["loc-P0"]}.Cl.Cm`);
   }
 
   if (formOpts["loc-P1"]) {
-    vtr.push(`"${formOpts["loc-P1"]}.Cl.Cm"`);
+    vtr.push(`${formOpts["loc-P1"]}.Cl.Cm`);
   }
 
   if (formOpts["loc-P2"]) {
-    vtr.push(`"${formOpts["loc-P2"]}.Cl.Cm"`);
+    vtr.push(`${formOpts["loc-P2"]}.Cl.Cm`);
   }
 
   if (formOpts["loc-P3"]) {
-    vtr.push(`"${formOpts["loc-P3"]}.Cl.Cm"`);
+    vtr.push(`${formOpts["loc-P3"]}.Cl.Cm`);
   }
 
   if (formOpts["scopes-email"]) {
