@@ -11,7 +11,7 @@ describe("/trustmark endpoint test", () => {
       idp: "http://localhost:3000/",
       trustmark_provider: "http://localhost:3000/",
       C: ["Cl", "Cl.Cm"],
-      P: ["P0", "P1", "P2"],
+      P: ["P0", "P1", "P2", "P3"],
     });
   });
 });

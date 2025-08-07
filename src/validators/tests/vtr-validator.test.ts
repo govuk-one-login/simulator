@@ -89,7 +89,7 @@ describe("vtrValidator tests", () => {
     levelOfConfidenceSpy.mockReturnValue(["P0", "P2"]);
 
     expect(() =>
-      vtrValidator('["Cl.Cm.P3"]', config, state, redirectUri)
+      vtrValidator('["Cl.Cm.P4"]', config, state, redirectUri)
     ).toThrow(
       new AuthoriseRequestError({
         errorCode: "invalid_request",
@@ -210,11 +210,20 @@ describe("vtrValidator tests", () => {
   });
 
   it("returns a parsed valid vtr set", () => {
-    levelOfConfidenceSpy.mockReturnValue(["P1", "P2"]);
+    levelOfConfidenceSpy.mockReturnValue(["P1", "P2", "P3"]);
 
     expect(
-      vtrValidator('["Cl.Cm.P2", "Cl.Cm.P1"]', config, state, redirectUri)
+      vtrValidator(
+        '["Cl.Cm.P3", "Cl.Cm.P2", "Cl.Cm.P1"]',
+        config,
+        state,
+        redirectUri
+      )
     ).toStrictEqual([
+      {
+        levelOfConfidence: "P3",
+        credentialTrust: "Cl.Cm",
+      },
       {
         levelOfConfidence: "P2",
         credentialTrust: "Cl.Cm",

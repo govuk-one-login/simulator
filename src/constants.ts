@@ -12,7 +12,7 @@ export const VALID_CLAIMS: UserIdentityClaim[] = [
 
 export const VALID_CREDENTIAL_TRUST_VALUES = ["Cl", "Cl.Cm"];
 
-export const VALID_LOC_VALUES = ["P0", "P1", "P2"];
+export const VALID_LOC_VALUES = ["P0", "P1", "P2", "P3"];
 
 export const NON_IDENTITY_LOC_VALUES = ["P0", null];
 
