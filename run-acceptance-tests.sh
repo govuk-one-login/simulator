@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # shellcheck source=/dev/null
-set -o allexport && source .env && set +o allexport
+set -o allexport && source .env && set +o allexport && set -e
 
 ARCH=$(uname -m)
 if [ "$ARCH" = "arm64" ]; then
