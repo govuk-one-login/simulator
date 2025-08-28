@@ -206,7 +206,7 @@ const tryAddCoreIdentityJwt = async (
       .sign(signingKey);
     coreIdentityJwt = !coreIdentityErrors.includes("INVALID_ALG_HEADER")
       ? coreIdentityJwt
-      : makeHeaderInvalid(coreIdentityJwt);
+      : makeHeaderInvalid(coreIdentityJwt, config.getDidController());
 
     coreIdentityJwt = !coreIdentityErrors.includes("INVALID_SIGNATURE")
       ? coreIdentityJwt
