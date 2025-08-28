@@ -553,6 +553,9 @@ describe("/userinfo endpoint with identity verification enabled", () => {
       response.body["https://vocab.account.gov.uk/v1/coreIdentityJWT"];
     const { protectedHeader } = await decodeJwtNoVerify(coreIdentityJwt);
     expect(protectedHeader.alg).not.toEqual("ES256");
+    expect(protectedHeader.kid).toStrictEqual(
+      "did:web:localhost%3A3000#60c01993-94cd-4d32-a4da-2a44dba7e45b"
+    );
   });
 
   it("for scenario INVALID_SIGNATURE: returns coreIdentityJWT with invalid signature", async () => {
