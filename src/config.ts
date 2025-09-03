@@ -77,6 +77,7 @@ CQIDAQAB
       )
         ? (process.env.TOKEN_AUTH_METHOD as TokenAuthMethod)
         : "private_key_jwt",
+      client_secret_hash: process.env.CLIENT_SECRET_HASH,
     };
 
     this.responseConfiguration = {

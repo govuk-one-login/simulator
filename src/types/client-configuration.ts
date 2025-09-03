@@ -21,6 +21,7 @@ export default interface ClientConfiguration {
   clientLoCs?: string[];
   postLogoutRedirectUrls?: string[];
   token_auth_method: TokenAuthMethod;
+  client_secret_hash?: string;
 }
 
 export const generateClientConfigurationPropertyValidators = (
