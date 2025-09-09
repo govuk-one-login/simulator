@@ -16,6 +16,10 @@ describe("parseClientSecretHashTests tests", () => {
         memoryCost: 65536,
         timeCost: 3,
         parallelism: 4,
+        hashLength: Buffer.from(
+          "vwlByTzODE0z1Aj8wRAo7qJ+ZKrM/cP+CgEKowvwNgY",
+          "base64"
+        ).length,
       },
     });
   });

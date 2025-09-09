@@ -41,6 +41,7 @@ export const parseClientSecretHashIntoParams = (
 
   params["salt"] = Buffer.from(parts[currentPart++], "base64");
   const hash = Buffer.from(parts[currentPart], "base64");
+  params.hashLength = hash.length;
   return {
     hash,
     options: params,
