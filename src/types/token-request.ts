@@ -7,4 +7,5 @@ export type TokenRequest = {
   //We do not expect RPs to add this but it may be present
   client_id?: string;
   code_verifier?: string;
+  client_secret?: string;
 };
