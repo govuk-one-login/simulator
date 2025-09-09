@@ -241,6 +241,14 @@ CQIDAQAB
     this.clientConfiguration.clientLoCs = clientLoCs;
   }
 
+  public getTokenAuthMethod(): TokenAuthMethod {
+    return this.clientConfiguration.token_auth_method;
+  }
+
+  public getClientSecretHash(): string {
+    return this.clientConfiguration.client_secret_hash!;
+  }
+
   public getResponseConfiguration(): ResponseConfiguration {
     return this.responseConfiguration;
   }
