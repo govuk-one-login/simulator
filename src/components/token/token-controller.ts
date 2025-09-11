@@ -52,6 +52,13 @@ export const tokenController = async (
       });
     }
 
+    if (config.isPKCEEnabled()) {
+      comparePKCECodeChallengeAndVerifier(
+        authCodeParams.code_challenge,
+        validatedTokenRequest.code_verifier
+      );
+    }
+
     const accessToken = await createAccessToken(authCodeParams);
 
     const idToken = await createIdToken(authCodeParams, accessToken);
@@ -65,13 +72,6 @@ export const tokenController = async (
       config.addToAccessTokenStore(
         `${config.getClientId()}.${config.getSub()}`,
         accessToken
-      );
-    }
-
-    if (config.isPKCEEnabled()) {
-      comparePKCECodeChallengeAndVerifier(
-        authCodeParams.code_challenge,
-        validatedTokenRequest.code_verifier
       );
     }
 
