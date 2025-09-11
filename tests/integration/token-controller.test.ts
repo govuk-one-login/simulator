@@ -23,6 +23,7 @@ import {
 import { decodeJwtNoVerify } from "./helper/decode-jwt-no-verify";
 import { exampleResponseConfig } from "./helper/test-constants";
 import { INVALID_KEY_KID } from "../../src/components/utils/make-header-invalid";
+import { argon2id, hash } from "argon2";
 
 const TOKEN_ENDPOINT = "/token";
 
@@ -468,6 +469,151 @@ describe("/token endpoint tests, invalid client assertion", () => {
   });
 });
 
+describe("/token endpoint tests, invalid client_secret_post", () => {
+  beforeEach(() => {
+    setupClientConfig(knownClientId);
+  });
+
+  afterEach(() => {
+    delete process.env.TOKEN_AUTH_METHOD;
+    delete process.env.CLIENT_SECRET_HASH;
+  });
+
+  it("returns invalid_request for a no client_secret in a client_secret_post request", async () => {
+    const app = createApp();
+
+    const response = await request(app).post(TOKEN_ENDPOINT).send({
+      grant_type: "authorization_code",
+      code: "123456",
+      client_assertion_type:
+        "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+      redirect_uri: redirectUri,
+      client_id: knownClientId,
+    });
+
+    expect(response.status).toEqual(400);
+    expect(response.body).toStrictEqual({
+      error: "invalid_request",
+      error_description: "Invalid token authentication method used",
+    });
+  });
+
+  it("returns invalid_request for a no client_id in a client_secret_post request", async () => {
+    const app = createApp();
+
+    const response = await request(app).post(TOKEN_ENDPOINT).send({
+      grant_type: "authorization_code",
+      code: "123456",
+      client_assertion_type:
+        "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+      redirect_uri: redirectUri,
+      client_secret: "super-secret-secret",
+    });
+
+    expect(response.status).toEqual(400);
+    expect(response.body).toStrictEqual({
+      error: "invalid_request",
+      error_description: "Invalid token authentication method used",
+    });
+  });
+
+  it("returns invalid_client for an unknown client_id ", async () => {
+    const app = createApp();
+    const response = await request(app).post(TOKEN_ENDPOINT).send({
+      grant_type: "authorization_code",
+      code: "123456",
+      client_assertion_type:
+        "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+      redirect_uri: redirectUri,
+      client_secret: "super-secret-secret",
+      client_id: "unknown_client_id",
+    });
+
+    expect(response.status).toEqual(400);
+    expect(response.body).toStrictEqual({
+      error: "invalid_client",
+      error_description: "Client authentication failed",
+    });
+  });
+
+  it("returns invalid_client for a client configured with private_key_jwt ", async () => {
+    const app = createApp();
+
+    const response = await request(app).post(TOKEN_ENDPOINT).send({
+      grant_type: "authorization_code",
+      code: "123456",
+      client_assertion_type:
+        "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+      redirect_uri: redirectUri,
+      client_secret: "super-secret-secret",
+      client_id: knownClientId,
+    });
+
+    expect(response.status).toEqual(400);
+    expect(response.body).toStrictEqual({
+      error: "invalid_client",
+      error_description: "Client is not registered to use client_secret_post",
+    });
+  });
+
+  it("returns invalid_client for a client configured no client secret hash ", async () => {
+    process.env.TOKEN_AUTH_METHOD = "client_secret_post";
+    Config.resetInstance();
+
+    const app = createApp();
+    const response = await request(app).post(TOKEN_ENDPOINT).send({
+      grant_type: "authorization_code",
+      code: "123456",
+      client_assertion_type:
+        "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+      redirect_uri: redirectUri,
+      client_secret: "super-secret-secret",
+      client_id: knownClientId,
+    });
+
+    expect(response.status).toEqual(400);
+    expect(response.body).toStrictEqual({
+      error: "invalid_client",
+      error_description: "No client secret registered",
+    });
+  });
+
+  it("returns invalid_client for an invalid client_secret provided ", async () => {
+    process.env.TOKEN_AUTH_METHOD = "client_secret_post";
+    const secret = randomBytes(40).toString("base64");
+    const salt = randomBytes(64);
+    const hashedSecret = await hash(secret, {
+      salt,
+      memoryCost: 15360,
+      parallelism: 1,
+      hashLength: 16,
+      timeCost: 2,
+      type: argon2id,
+    });
+    process.env.CLIENT_SECRET_HASH = hashedSecret;
+    Config.resetInstance();
+
+    const app = createApp();
+    const response = await request(app)
+      .post(TOKEN_ENDPOINT)
+      .send({
+        grant_type: "authorization_code",
+        code: "123456",
+        client_assertion_type:
+          "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+        redirect_uri: redirectUri,
+        client_secret: randomBytes(40).toString("base64"),
+        client_id: knownClientId,
+      });
+
+    expect(response.status).toEqual(400);
+    expect(response.body).toStrictEqual({
+      error: "invalid_client",
+      error_description: "Invalid client secret",
+    });
+  });
+});
+
 describe("/token endpoint, configured error responses", () => {
   jest.spyOn(Config.getInstance(), "getIdTokenErrors");
   let validRequest: Record<string, string>;
@@ -760,6 +906,88 @@ describe("/token endpoint valid client_assertion", () => {
         "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
       redirect_uri: redirectUri,
       client_assertion: clientAssertion,
+    });
+
+    expect(response.status).toEqual(200);
+
+    const { access_token, expires_in, id_token, token_type } = response.body;
+
+    const decodedAccessToken = decodeJwtNoVerify(access_token);
+    const decodedIdToken = decodeJwtNoVerify(id_token);
+
+    expect(expires_in).toEqual(180);
+    expect(token_type).toEqual("Bearer");
+
+    expect(decodedAccessToken.protectedHeader).toStrictEqual({
+      alg: "RS256",
+      kid: RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
+    });
+    expect(decodedAccessToken.payload.sub).toBe(knownSub);
+    expect(decodedAccessToken.payload.client_id).toBe(knownClientId);
+    expect(decodedAccessToken.payload.sid).toBe(SESSION_ID);
+    expect(decodedAccessToken.payload.scope).toStrictEqual(
+      validAuthRequestParams.scopes
+    );
+    expect(decodedAccessToken.payload.claims).toEqual(VALID_CLAIMS);
+    expect(decodedIdToken.protectedHeader).toStrictEqual({
+      alg: "RS256",
+      kid: RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
+    });
+    expect(decodedIdToken.payload.sub).toBe(knownSub);
+    expect(decodedIdToken.payload.iss).toBe("http://localhost:3000/");
+    expect(decodedIdToken.payload.vtm).toBe("http://localhost:3000/trustmark");
+    expect(decodedIdToken.payload.aud).toBe(knownClientId);
+    expect(decodedIdToken.payload.sid).toBe(SESSION_ID);
+    expect(decodedIdToken.payload.nonce).toBe(validAuthRequestParams.nonce);
+    expect(decodedIdToken.payload.vot).toBe(
+      validAuthRequestParams.vtr.credentialTrust
+    );
+    expect(decodedIdToken.payload.iat).toBe(Math.floor(TIME_NOW / 1000));
+    expect(decodedIdToken.payload.exp).toBe(
+      Math.floor(TIME_NOW / 1000) + ID_TOKEN_EXPIRY
+    );
+    expect(decodedIdToken.payload.auth_time).toBe(Math.floor(TIME_NOW / 1000));
+  });
+});
+
+describe("/token endpoint tests, valid client_secret_post", () => {
+  beforeEach(() => {
+    setupClientConfig(knownClientId);
+  });
+
+  afterEach(() => {
+    delete process.env.TOKEN_AUTH_METHOD;
+    delete process.env.CLIENT_SECRET_HASH;
+  });
+
+  it("returns valid tokens for a valid client_secret request ", async () => {
+    process.env.TOKEN_AUTH_METHOD = "client_secret_post";
+    const secret = randomBytes(40).toString("base64");
+    const salt = randomBytes(64);
+    const hashedSecret = await hash(secret, {
+      salt,
+      memoryCost: 15360,
+      parallelism: 1,
+      hashLength: 16,
+      timeCost: 2,
+      type: argon2id,
+    });
+    process.env.CLIENT_SECRET_HASH = hashedSecret;
+    Config.resetInstance();
+
+    jest
+      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
+      .mockReturnValue(validAuthRequestParams);
+
+    const app = createApp();
+    const response = await request(app).post(TOKEN_ENDPOINT).send({
+      grant_type: "authorization_code",
+      code: knownAuthCode,
+      client_assertion_type:
+        "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+      redirect_uri: redirectUri,
+      client_secret: secret,
+      client_id: knownClientId,
     });
 
     expect(response.status).toEqual(200);
