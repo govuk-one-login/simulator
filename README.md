@@ -27,7 +27,7 @@ sequenceDiagram
 
 The simulator aims to mirror GOV.UK One Login but does not support all of the features, therefore there are some limitations to what RP features it supports:
 
-- You **must** use the[`private_key_jwt` authentication method](https://openid.net/specs/openid-connect-core-1_0.html#:~:text=OAuth.JWT%5D.-,private_key_jwt,-Clients%20that%20have) at the `/token` endpoint
+- You **must** use the[`private_key_jwt` authentication method](https://openid.net/specs/openid-connect-core-1_0.html#:~:text=OAuth.JWT%5D.-,private_key_jwt,-Clients%20that%20have) or the [`client_secret_post` authentication method](https://openid.net/specs/openid-connect-core-1_0.html#:~:text=Basic%20authentication%20scheme.-,client_secret_post,-Clients%20that%20have) at the `/token` endpoint
 - You **must** attach a `nonce` parameter in the `/authorize` request
 - You **must** use a `GET` request with either query parameters or a [request object](https://openid.net/specs/openid-connect-core-1_0.html#:~:text=%C2%A0TOC-,3.1.2.1.%C2%A0%20Authentication%20Request,-An%20Authentication%20Request) when making a request to `/authorize`.
 
