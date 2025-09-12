@@ -471,12 +471,14 @@ describe("/token endpoint tests, invalid client assertion", () => {
 
 describe("/token endpoint tests, invalid client_secret_post", () => {
   beforeEach(() => {
+    process.env.IDENTITY_VERIFICATION_SUPPORTED = "false";
     setupClientConfig(knownClientId);
   });
 
   afterEach(() => {
     delete process.env.TOKEN_AUTH_METHOD;
     delete process.env.CLIENT_SECRET_HASH;
+    delete process.env.IDENTITY_VERIFICATION_SUPPORTED;
   });
 
   it("returns invalid_request for a no client_secret in a client_secret_post request", async () => {
@@ -952,10 +954,12 @@ describe("/token endpoint valid client_assertion", () => {
 
 describe("/token endpoint tests, valid client_secret_post", () => {
   beforeEach(() => {
+    process.env.IDENTITY_VERIFICATION_SUPPORTED = "false";
     setupClientConfig(knownClientId);
   });
 
   afterEach(() => {
+    delete process.env.IDENTITY_VERIFICATION_SUPPORTED;
     delete process.env.TOKEN_AUTH_METHOD;
     delete process.env.CLIENT_SECRET_HASH;
   });

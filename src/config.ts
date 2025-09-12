@@ -19,6 +19,7 @@ import {
   isValidTokenAuthMethod,
   TokenAuthMethod,
 } from "./validators/token-auth-method-validator";
+import { logger } from "./logger";
 
 export class Config {
   private static instance: Config;
@@ -149,6 +150,18 @@ CQIDAQAB
     this.simulatorUrl = process.env.SIMULATOR_URL ?? "http://localhost:3000";
     this.interactiveMode = process.env.INTERACTIVE_MODE === "true";
     this.pkceEnabled = process.env.PKCE_ENABLED === "true";
+
+    if (
+      this.getTokenAuthMethod() === "client_secret_post" &&
+      this.getIdentityVerificationSupported()
+    ) {
+      logger.error(
+        "Clients configured with client_secret_post cannot support identity verification. For more information see our documentation here: https://docs.sign-in.service.gov.uk/before-integrating/integrating-third-party-platform/#set-up-client-secret-using-client-secret-post"
+      );
+      throw new Error(
+        "Clients configured with client_secret_post cannot support identity verification."
+      );
+    }
   }
 
   public static getInstance(): Config {

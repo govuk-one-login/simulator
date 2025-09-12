@@ -92,3 +92,9 @@ Alternatively the url can be updated using the `/config` endpoint with the follo
 **Note: When modifying the simulator URL, this will affect the other endpoints and any validation that includes these endpoints.**
 
 > For example: The token endpoint will become`${SIMULATOR_URL}/token`, so the expected audience of the client assertion should be updated to reflect this.
+
+#### Mutually exclusive configuration values:
+
+Some features of the simulator are not available to be enabled together. In these cases the simulator will throw an error describing the invalid configuration. These are also listed below:
+
+- Identity Verification Enabled **must** be set to `false` when the Token Authentication mechanism is set to `client_secret_post`.
