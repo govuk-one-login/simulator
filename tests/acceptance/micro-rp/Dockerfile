@@ -3,6 +3,7 @@ WORKDIR /app
 COPY . ./
 RUN npm ci 
 RUN npm run build
+RUN npm ci --omit=dev
 
 FROM node:22.9.0@sha256:69e667a79aa41ec0db50bc452a60e705ca16f35285eaf037ebe627a65a5cdf52 as release
 WORKDIR /app
