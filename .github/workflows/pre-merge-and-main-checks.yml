@@ -28,7 +28,7 @@ jobs:
       - name: Get NPM version
         run: echo "Using npm:$(npm -version)"
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Build app
         run: npm run build
 
@@ -46,11 +46,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Install micro RP dependencies
         run: |
           cd tests/acceptance/micro-rp
-          npm install 
+          npm ci 
           cd ../../..
       - name: Run lint
         run: npm run check:lint
@@ -73,7 +73,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Run tests
         run: npm run test
       - name: Report coverage
