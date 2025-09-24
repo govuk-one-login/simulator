@@ -1,8 +1,9 @@
 FROM node:24.7.0@sha256:701c8a634cb3ddbc1dc9584725937619716882525356f0989f11816ba3747a22 as base
 WORKDIR /app
 COPY . ./
-RUN npm install 
+RUN npm ci 
 RUN npm run build
+RUN npm ci --omit=dev
 
 FROM node:24.7.0@sha256:701c8a634cb3ddbc1dc9584725937619716882525356f0989f11816ba3747a22 as release
 WORKDIR /app
