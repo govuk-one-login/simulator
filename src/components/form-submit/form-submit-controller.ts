@@ -62,8 +62,7 @@ export const formSubmitController = (req: Request, res: Response): void => {
     );
   } catch (error) {
     logger.error(
-      "Failed to put form configuration: ",
-      (error as Error).message
+      `Failed to put form configuration: ${(error as Error).message}`
     );
     res.status(400);
     res.json({

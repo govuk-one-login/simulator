@@ -25,7 +25,7 @@ export const signedJwtValidator = async <PayloadType = JWTPayload>(
       payload: payload,
     };
   } catch (error) {
-    logger.error("Error validating signature", error);
+    logger.error(`Error validating signature: ${(error as Error).message}`);
     return { valid: false };
   }
 };
