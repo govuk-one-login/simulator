@@ -178,9 +178,8 @@ const isValidUrl = (url: string): boolean => {
     new URL(url);
     return true;
   } catch (error) {
-    logger.warn(
-      "Post logout redirect uri is not valid url: " + url,
-      "error: " + (error as Error).message
+    logger.error(
+      `Post logout redirect uri is not valid url: ${url} error: ${(error as Error).message}`
     );
     return false;
   }
