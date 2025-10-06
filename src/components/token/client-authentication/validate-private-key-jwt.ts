@@ -268,7 +268,7 @@ const isSignatureValid = async (
     await jwtVerify(token, parsedPublicKey);
     return true;
   } catch (error) {
-    logger.error("Error validating signature", error);
+    logger.error("Error validating signature: " + (error as Error).message);
     return false;
   }
 };
