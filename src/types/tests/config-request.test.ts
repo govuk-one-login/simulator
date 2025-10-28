@@ -3,6 +3,7 @@ import { createTestValidationApp } from "./validator-helper";
 import ConfigRequest, {
   generateConfigRequestPropertyValidators,
 } from "../config-request";
+import ClientConfiguration from "../client-configuration";
 
 describe("config request validator", () => {
   const app = createTestValidationApp(
@@ -11,7 +12,7 @@ describe("config request validator", () => {
 
   test("returns 200 for valid config request", async () => {
     const body: ConfigRequest = {
-      clientConfiguration: {},
+      clientConfiguration: {} as ClientConfiguration,
       responseConfiguration: {},
       errorConfiguration: {},
     };

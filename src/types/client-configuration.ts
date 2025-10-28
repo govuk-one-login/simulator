@@ -8,6 +8,7 @@ import {
 } from "../constants";
 import { UserIdentityClaim } from "./user-info";
 import { bodyOptional } from "./util/body-helpers";
+import { TokenAuthMethod } from "../validators/token-auth-method-validator";
 
 export default interface ClientConfiguration {
   clientId?: string;
@@ -19,6 +20,7 @@ export default interface ClientConfiguration {
   idTokenSigningAlgorithm?: string;
   clientLoCs?: string[];
   postLogoutRedirectUrls?: string[];
+  token_auth_method: TokenAuthMethod;
 }
 
 export const generateClientConfigurationPropertyValidators = (

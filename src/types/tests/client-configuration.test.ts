@@ -10,7 +10,7 @@ describe("client configuration validator", () => {
   );
 
   test("returns 200 for valid client configuration", async () => {
-    const body: ClientConfiguration = {
+    const body: Omit<ClientConfiguration, "token_auth_method"> = {
       clientId: "Client_ID",
       publicKey: "98VgdzMgIYl0RdtlYu7ji21GEqD7op9v",
       scopes: ["email"],

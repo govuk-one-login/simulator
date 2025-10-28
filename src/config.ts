@@ -15,6 +15,10 @@ import { AuthoriseError } from "./types/authorise-errors";
 import ReturnCode from "./types/return-code";
 import { UserIdentityClaim } from "./types/user-info";
 import { ResponseConfigurationStore } from "./types/response-configuration-store";
+import {
+  isValidTokenAuthMethod,
+  TokenAuthMethod,
+} from "./validators/token-auth-method-validator";
 
 export class Config {
   private static instance: Config;
@@ -68,6 +72,11 @@ CQIDAQAB
       clientLoCs: process.env.CLIENT_LOCS
         ? process.env.CLIENT_LOCS.split(",")
         : ["P0", "P2"],
+      token_auth_method: isValidTokenAuthMethod(
+        process.env.TOKEN_AUTH_METHOD ?? ""
+      )
+        ? (process.env.TOKEN_AUTH_METHOD as TokenAuthMethod)
+        : "private_key_jwt",
     };
 
     this.responseConfiguration = {
