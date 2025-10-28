@@ -18,14 +18,16 @@ export const tokenController = async (
     const config = Config.getInstance();
 
     const parsedTokenRequest = await parseTokenRequest(req.body, config);
+    const validatedTokenRequest =
+      await parsedTokenRequest.validateClientAuthentication();
 
     const authCodeParams = config.getAuthCodeRequestParams(
-      parsedTokenRequest.tokenRequest.code
+      validatedTokenRequest.code
     );
 
     if (!authCodeParams) {
       logger.warn(
-        { code: parsedTokenRequest.tokenRequest.code },
+        { code: validatedTokenRequest.code },
         "Could not find auth code params for provided auth code"
       );
       throw new TokenRequestError({
@@ -35,13 +37,11 @@ export const tokenController = async (
       });
     }
 
-    if (
-      authCodeParams.redirectUri !== parsedTokenRequest.tokenRequest.redirectUri
-    ) {
+    if (authCodeParams.redirectUri !== validatedTokenRequest.redirect_uri) {
       logger.warn(
         {
           authCodeRedirect: authCodeParams.redirectUri,
-          tokenRequestRedirect: parsedTokenRequest.tokenRequest.redirectUri,
+          tokenRequestRedirect: validatedTokenRequest.redirect_uri,
         },
         "Mismatch in redirect uri between auth code params and token request"
       );
@@ -50,6 +50,13 @@ export const tokenController = async (
         errorDescription: "Invalid grant",
         httpStatusCode: 400,
       });
+    }
+
+    if (config.isPKCEEnabled()) {
+      comparePKCECodeChallengeAndVerifier(
+        authCodeParams.code_challenge,
+        validatedTokenRequest.code_verifier
+      );
     }
 
     const accessToken = await createAccessToken(authCodeParams);
@@ -65,13 +72,6 @@ export const tokenController = async (
       config.addToAccessTokenStore(
         `${config.getClientId()}.${config.getSub()}`,
         accessToken
-      );
-    }
-
-    if (config.isPKCEEnabled()) {
-      comparePKCECodeChallengeAndVerifier(
-        authCodeParams.code_challenge,
-        parsedTokenRequest.tokenRequest.code_verifier
       );
     }
 

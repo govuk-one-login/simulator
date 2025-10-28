@@ -15,6 +15,11 @@ import { AuthoriseError } from "./types/authorise-errors";
 import ReturnCode from "./types/return-code";
 import { UserIdentityClaim } from "./types/user-info";
 import { ResponseConfigurationStore } from "./types/response-configuration-store";
+import {
+  isValidTokenAuthMethod,
+  TokenAuthMethod,
+} from "./validators/token-auth-method-validator";
+import { logger } from "./logger";
 
 export class Config {
   private static instance: Config;
@@ -68,6 +73,12 @@ CQIDAQAB
       clientLoCs: process.env.CLIENT_LOCS
         ? process.env.CLIENT_LOCS.split(",")
         : ["P0", "P2"],
+      token_auth_method: isValidTokenAuthMethod(
+        process.env.TOKEN_AUTH_METHOD ?? ""
+      )
+        ? (process.env.TOKEN_AUTH_METHOD as TokenAuthMethod)
+        : "private_key_jwt",
+      client_secret_hash: process.env.CLIENT_SECRET_HASH,
     };
 
     this.responseConfiguration = {
@@ -139,6 +150,18 @@ CQIDAQAB
     this.simulatorUrl = process.env.SIMULATOR_URL ?? "http://localhost:3000";
     this.interactiveMode = process.env.INTERACTIVE_MODE === "true";
     this.pkceEnabled = process.env.PKCE_ENABLED === "true";
+
+    if (
+      this.getTokenAuthMethod() === "client_secret_post" &&
+      this.getIdentityVerificationSupported()
+    ) {
+      logger.error(
+        "Clients configured with client_secret_post cannot support identity verification. For more information see our documentation here: https://docs.sign-in.service.gov.uk/before-integrating/integrating-third-party-platform/#set-up-client-secret-using-client-secret-post"
+      );
+      throw new Error(
+        "Clients configured with client_secret_post cannot support identity verification."
+      );
+    }
   }
 
   public static getInstance(): Config {
@@ -229,6 +252,14 @@ CQIDAQAB
 
   public setClientLoCs(clientLoCs: string[]): void {
     this.clientConfiguration.clientLoCs = clientLoCs;
+  }
+
+  public getTokenAuthMethod(): TokenAuthMethod {
+    return this.clientConfiguration.token_auth_method;
+  }
+
+  public getClientSecretHash(): string {
+    return this.clientConfiguration.client_secret_hash!;
   }
 
   public getResponseConfiguration(): ResponseConfiguration {
