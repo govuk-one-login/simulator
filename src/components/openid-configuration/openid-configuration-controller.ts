@@ -56,5 +56,6 @@ export const openidConfigurationController = async (
   };
 
   res.header("Content-Type", "application/json");
+  res.header("Cache-Control", "max-age=86400");
   res.send(openidConfig);
 };

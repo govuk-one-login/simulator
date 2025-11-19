@@ -24,5 +24,6 @@ export const didController = async (
     ],
   };
   res.header("Content-Type", "application/json");
+  res.header("Cache-Control", "max-age=3600, private");
   res.send(body);
 };
