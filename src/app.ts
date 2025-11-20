@@ -42,6 +42,7 @@ const createApp = (): Application => {
   app.get("/.well-known/openid-configuration", openidConfigurationController);
   app.get("/.well-known/jwks.json", async (_req: Request, res: Response) => {
     res.header("Content-Type", "application/json");
+    res.header("Cache-Control", "max-age=86400");
     res.send(JSON.stringify(await generateJWKS()));
   });
   app.get("/.well-known/did.json", didController);
