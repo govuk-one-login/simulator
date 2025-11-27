@@ -17,6 +17,8 @@ export default interface ConfigRequest {
   clientConfiguration?: ClientConfiguration;
   responseConfiguration?: ResponseConfiguration;
   errorConfiguration?: ErrorConfiguration;
+  publishNewIdTokenSigningKeys?: boolean;
+  useNewIdTokenSigningKeys?: boolean;
 }
 
 export const generateConfigRequestPropertyValidators = (
@@ -42,5 +44,11 @@ export const generateConfigRequestPropertyValidators = (
     ...generateErrorConfigPropertyValidators(
       `${prefix}${nameof<ConfigRequest>("errorConfiguration")}.`
     ),
+    bodyOptional(
+      `${prefix}${nameof<ConfigRequest>("publishNewIdTokenSigningKeys")}`
+    ).isBoolean(),
+    bodyOptional(
+      `${prefix}${nameof<ConfigRequest>("useNewIdTokenSigningKeys")}`
+    ).isBoolean(),
   ];
 };
