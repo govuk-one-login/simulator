@@ -24,7 +24,7 @@ _Please ensure you are using the correct node version locally (Found in Dockerfi
 > To build the app
 
 ```shell script
-npm install && npm run build
+npm ci && npm run build
 ```
 
 #### Start
