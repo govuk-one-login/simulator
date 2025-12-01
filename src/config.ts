@@ -21,6 +21,7 @@ import {
 } from "./validators/token-auth-method-validator";
 import { logger } from "./logger";
 import { JWK } from "jose";
+import { getSigningKeyFromJwksUrl } from "./utils/utils";
 
 export class Config {
   private static instance: Config;
@@ -482,5 +483,23 @@ CQIDAQAB
 
   public isPKCEEnabled(): boolean {
     return this.pkceEnabled;
+  }
+
+  public async getRpSigningKey(kid: string): Promise<JWK> {
+    const jwksUrl = this.clientConfiguration.jwksUrl;
+    if (jwksUrl === undefined) {
+      throw new Error("No JWKS url set, returning");
+    }
+    const cachedKey = this.signingJwksCache[jwksUrl];
+    if (cachedKey === undefined) {
+      logger.info(
+        `No signing key found in cache for JWKS URL. Retrieving key with kid ${kid} and caching`
+      );
+      const newKey = await getSigningKeyFromJwksUrl(jwksUrl, kid);
+      this.signingJwksCache[jwksUrl] = newKey;
+    } else {
+      logger.info("Using cached JWKS key");
+    }
+    return this.signingJwksCache[jwksUrl];
   }
 }
