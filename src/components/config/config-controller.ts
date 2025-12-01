@@ -67,8 +67,14 @@ const populateClientConfiguration = (
   if (clientConfiguration.clientId !== undefined) {
     config.setClientId(clientConfiguration.clientId);
   }
+  if (clientConfiguration.publicKeySource !== undefined) {
+    config.setPublicKeySource(clientConfiguration.publicKeySource);
+  }
   if (clientConfiguration.publicKey !== undefined) {
     config.setPublicKey(clientConfiguration.publicKey);
+  }
+  if (clientConfiguration.jwksUrl !== undefined) {
+    config.setJwksUrl(clientConfiguration.jwksUrl);
   }
   if (clientConfiguration.scopes !== undefined) {
     config.setScopes(clientConfiguration.scopes);

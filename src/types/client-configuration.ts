@@ -3,15 +3,16 @@ import { nameof } from "./util/nameof";
 import {
   VALID_CLAIMS,
   VALID_LOC_VALUES,
+  VALID_PUBLIC_KEY_SOURCE,
   VALID_SCOPES,
   VALID_TOKEN_SIGNING_ALGORITHMS,
 } from "../constants";
 import { UserIdentityClaim } from "./user-info";
 import { bodyOptional } from "./util/body-helpers";
 import { TokenAuthMethod } from "../validators/token-auth-method-validator";
-
 export default interface ClientConfiguration {
   clientId?: string;
+  publicKeySource: string;
   publicKey?: string;
   scopes?: string[];
   redirectUrls?: string[];
@@ -22,6 +23,7 @@ export default interface ClientConfiguration {
   postLogoutRedirectUrls?: string[];
   token_auth_method: TokenAuthMethod;
   client_secret_hash?: string;
+  jwksUrl?: string;
 }
 
 export const generateClientConfigurationPropertyValidators = (
@@ -59,5 +61,9 @@ export const generateClientConfigurationPropertyValidators = (
     bodyOptional(
       `${prefix}${nameof<ClientConfiguration>("postLogoutRedirectUrls")}.*`
     ).isURL(),
+    bodyOptional(`${prefix}${nameof<ClientConfiguration>("jwksUrl")}`).isURL(),
+    bodyOptional(`${prefix}${nameof<ClientConfiguration>("publicKeySource")}`)
+      .isIn(VALID_PUBLIC_KEY_SOURCE)
+      .default("STATIC"),
   ];
 };

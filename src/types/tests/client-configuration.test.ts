@@ -13,6 +13,7 @@ describe("client configuration validator", () => {
     const body: Omit<ClientConfiguration, "token_auth_method"> = {
       clientId: "Client_ID",
       publicKey: "98VgdzMgIYl0RdtlYu7ji21GEqD7op9v",
+      publicKeySource: "STATIC",
       scopes: ["email"],
       redirectUrls: ["https://rp.redirect.gov.uk"],
       claims: ["https://vocab.account.gov.uk/v1/coreIdentityJWT"],
@@ -96,5 +97,19 @@ describe("client configuration validator", () => {
     const response = await request(app).post("/test-validation").send(body);
     expect(response.status).toEqual(400);
     expect(response.body.errors["clientLoCs[0]"].msg).toEqual("Invalid value");
+  });
+
+  test("returns 400 invalid publicKeySource", async () => {
+    const body: object = { publicKeySource: "not-a-source" };
+    const response = await request(app).post("/test-validation").send(body);
+    expect(response.status).toEqual(400);
+    expect(response.body.errors.publicKeySource.msg).toEqual("Invalid value");
+  });
+
+  test("returns 400 invalid JWKS url", async () => {
+    const body: object = { jwksUrl: "invalid-url%^&*($£%^" };
+    const response = await request(app).post("/test-validation").send(body);
+    expect(response.status).toEqual(400);
+    expect(response.body.errors.jwksUrl.msg).toEqual("Invalid value");
   });
 });
