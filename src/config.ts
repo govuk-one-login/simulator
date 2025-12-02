@@ -156,7 +156,7 @@ CQIDAQAB
       process.env.PUBLISH_NEW_ID_TOKEN_SIGNING_KEYS === "true";
     this.useSecondaryIdTokenSigningKeys =
       this.isPublishNewIdTokenSigningKeysEnabled() &&
-      process.env.USE_NEW_ID_TOKEN__SIGNING_KEYS === "true";
+      process.env.USE_NEW_ID_TOKEN_SIGNING_KEYS === "true";
 
     if (
       this.getTokenAuthMethod() === "client_secret_post" &&

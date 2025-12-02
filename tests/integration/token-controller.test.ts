@@ -19,11 +19,16 @@ import {
   VALID_CLAIMS,
   RSA_PRIVATE_TOKEN_SIGNING_KEY,
   ID_TOKEN_EXPIRY,
+  RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID,
+  EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID,
+  EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY,
+  RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY,
 } from "../../src/constants";
 import { decodeJwtNoVerify } from "./helper/decode-jwt-no-verify";
 import { exampleResponseConfig } from "./helper/test-constants";
 import { INVALID_KEY_KID } from "../../src/components/utils/make-header-invalid";
 import { argon2id, hash } from "argon2";
+import { publicJwkWithKidFromPrivateKey } from "../../src/components/token/helper/key-helpers";
 
 const TOKEN_ENDPOINT = "/token";
 
@@ -92,7 +97,11 @@ const createClientAssertionHeader = (alg?: string) =>
 
 const fakeSignature = () => randomBytes(16).toString("hex");
 
-const setupClientConfig = async (clientId: string, errors: string[] = []) => {
+const setupClientConfig = async (
+  clientId: string,
+  errors: string[] = [],
+  signingAlgorithm = "RS256"
+) => {
   process.env.CLIENT_ID = clientId;
   process.env.REDIRECT_URLS = redirectUri;
   process.env.SUB = knownSub;
@@ -100,7 +109,7 @@ const setupClientConfig = async (clientId: string, errors: string[] = []) => {
   process.env.CLAIMS = VALID_CLAIMS.join(",");
   const publicKey = await exportSPKI(rsaKeyPair.publicKey);
   process.env.PUBLIC_KEY = publicKey;
-  process.env.ID_TOKEN_SIGNING_ALGORITHM = "RS256";
+  process.env.ID_TOKEN_SIGNING_ALGORITHM = signingAlgorithm;
   Config.resetInstance();
 };
 
@@ -1272,5 +1281,115 @@ describe('when PKCE_ENABLED is set to "true"', () => {
       error: "invalid_grant",
       error_description: "PKCE code verification failed",
     });
+  });
+});
+
+describe("With new signing keys enabled ", () => {
+  beforeAll(() => {
+    process.env.PUBLISH_NEW_ID_TOKEN_SIGNING_KEYS = "true";
+    process.env.USE_NEW_ID_TOKEN_SIGNING_KEYS = "true";
+  });
+
+  afterAll(() => {
+    delete process.env.PUBLISH_NEW_ID_TOKEN_SIGNING_KEYS;
+    delete process.env.USE_NEW_ID_TOKEN_SIGNING_KEYS;
+  });
+
+  it("uses the new signing keys for an RSA client", async () => {
+    await setupClientConfig(knownClientId);
+
+    jest
+      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
+      .mockReturnValue(validAuthRequestParams);
+
+    const clientAssertion = await createValidClientAssertion({
+      iss: knownClientId,
+      sub: knownClientId,
+      aud: audience,
+      jti: randomUUID(),
+      iat: Math.floor(TIME_NOW / 1000),
+      exp: Math.floor(TIME_NOW / 1000) + 3600,
+    });
+
+    const app = createApp();
+    const response = await request(app).post(TOKEN_ENDPOINT).send({
+      grant_type: "authorization_code",
+      code: knownAuthCode,
+      client_assertion_type:
+        "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+      redirect_uri: redirectUri,
+      client_assertion: clientAssertion,
+      code_verifier: "eR_WWqemjlNa509bCR7_d4QlvhM1OYLmv5AmlEdjrlE",
+    });
+
+    expect(response.status).toEqual(200);
+
+    const { expires_in, id_token, token_type } = response.body;
+
+    const decodedIdToken = decodeJwtNoVerify(id_token);
+
+    expect(expires_in).toEqual(180);
+    expect(token_type).toEqual("Bearer");
+
+    expect(decodedIdToken.protectedHeader).toStrictEqual({
+      alg: "RS256",
+      kid: RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID,
+    });
+
+    const expectedPublicKey = await publicJwkWithKidFromPrivateKey(
+      RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY,
+      RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID
+    );
+
+    await jwtVerify(id_token, expectedPublicKey);
+  });
+
+  it("uses the new signing keys for an ES client", async () => {
+    await setupClientConfig(knownClientId, [], "ES256");
+
+    jest
+      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
+      .mockReturnValue(validAuthRequestParams);
+
+    const clientAssertion = await createValidClientAssertion({
+      iss: knownClientId,
+      sub: knownClientId,
+      aud: audience,
+      jti: randomUUID(),
+      iat: Math.floor(TIME_NOW / 1000),
+      exp: Math.floor(TIME_NOW / 1000) + 3600,
+    });
+
+    const app = createApp();
+    const response = await request(app).post(TOKEN_ENDPOINT).send({
+      grant_type: "authorization_code",
+      code: knownAuthCode,
+      client_assertion_type:
+        "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+      redirect_uri: redirectUri,
+      client_assertion: clientAssertion,
+      code_verifier: "eR_WWqemjlNa509bCR7_d4QlvhM1OYLmv5AmlEdjrlE",
+    });
+
+    expect(response.status).toEqual(200);
+
+    const { expires_in, id_token, token_type } = response.body;
+
+    const decodedIdToken = decodeJwtNoVerify(id_token);
+
+    expect(expires_in).toEqual(180);
+    expect(token_type).toEqual("Bearer");
+
+    expect(decodedIdToken.protectedHeader).toStrictEqual({
+      alg: "ES256",
+      kid: EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID,
+    });
+
+    const expectedPublicKey = await publicJwkWithKidFromPrivateKey(
+      EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY,
+      EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID
+    );
+
+    await jwtVerify(id_token, expectedPublicKey);
   });
 });

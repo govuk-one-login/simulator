@@ -15,20 +15,35 @@ import { Buffer } from "node:buffer";
 import { Config } from "../../../config";
 
 export const getTokenSigningKey = async (
-  tokenSigningAlgorithm: string
+  tokenSigningAlgorithm: string,
+  config: Config
 ): Promise<{
   key: KeyLike;
   keyId: string;
 }> => {
   if (tokenSigningAlgorithm === "ES256") {
     return {
-      key: await importPKCS8(EC_PRIVATE_TOKEN_SIGNING_KEY, "EC"),
-      keyId: EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
+      key: await importPKCS8(
+        config.isUseNewIdTokenSigningKeysEnabled()
+          ? EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY
+          : EC_PRIVATE_TOKEN_SIGNING_KEY,
+        "EC"
+      ),
+      keyId: config.isUseNewIdTokenSigningKeysEnabled()
+        ? EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID
+        : EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
     };
   } else {
     return {
-      key: await importPKCS8(RSA_PRIVATE_TOKEN_SIGNING_KEY, "RSA"),
-      keyId: RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
+      key: await importPKCS8(
+        config.isUseNewIdTokenSigningKeysEnabled()
+          ? RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY
+          : RSA_PRIVATE_TOKEN_SIGNING_KEY,
+        "RSA"
+      ),
+      keyId: config.isUseNewIdTokenSigningKeysEnabled()
+        ? RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID
+        : RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
     };
   }
 };

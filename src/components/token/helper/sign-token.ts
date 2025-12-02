@@ -6,10 +6,13 @@ import { logger } from "../../../logger";
 export const signToken = async (
   claimSet: Record<string, unknown>
 ): Promise<string> => {
-  const clientConfig = Config.getInstance();
-  const tokenSigningAlgorithm = clientConfig.getIdTokenSigningAlgorithm();
+  const config = Config.getInstance();
+  const tokenSigningAlgorithm = config.getIdTokenSigningAlgorithm();
 
-  const { key, keyId } = await getTokenSigningKey(tokenSigningAlgorithm);
+  const { key, keyId } = await getTokenSigningKey(
+    tokenSigningAlgorithm,
+    config
+  );
 
   const signedJWT = await new SignJWT(claimSet)
     .setProtectedHeader({
