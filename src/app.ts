@@ -4,7 +4,6 @@ import { tokenController } from "./components/token/token-controller";
 import { authoriseController } from "./components/authorise/authorise-get-controller";
 import { dedupeQueryParams } from "./middleware/dedupe-query-params";
 import { userInfoController } from "./components/user-info/user-info-controller";
-import { generateJWKS } from "./components/token/helper/key-helpers";
 import { openidConfigurationController } from "./components/openid-configuration/openid-configuration-controller";
 import { trustmarkController } from "./components/trustmark/trustmark-controller";
 import { generateConfigRequestPropertyValidators } from "./types/config-request";
@@ -14,6 +13,7 @@ import { logoutController } from "./components/logout/logout-controller";
 import { getConfigController } from "./components/config/get-config-controller";
 import { formSubmitController } from "./components/form-submit/form-submit-controller";
 import { generateConfigFormFieldValidator } from "./types/response-configuration";
+import { jwksController } from "./components/jwks/jwks-controller";
 
 const createApp = (): Application => {
   const app: Express = express();
@@ -40,11 +40,7 @@ const createApp = (): Application => {
   app.get("/userinfo", userInfoController);
   app.get("/trustmark", trustmarkController);
   app.get("/.well-known/openid-configuration", openidConfigurationController);
-  app.get("/.well-known/jwks.json", async (_req: Request, res: Response) => {
-    res.header("Content-Type", "application/json");
-    res.header("Cache-Control", "max-age=86400");
-    res.send(JSON.stringify(await generateJWKS()));
-  });
+  app.get("/.well-known/jwks.json", jwksController);
   app.get("/.well-known/did.json", didController);
   app.get("/logout", logoutController);
   app.post(

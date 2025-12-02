@@ -8,6 +8,7 @@ describe("/.well-known/jwks.json endpoint test", () => {
 
     expect(response.status).toEqual(200);
     expect(response.body).toHaveProperty("keys");
+    expect(response.header["cache-control"]).toEqual("max-age=86400");
 
     const keys = response.body["keys"];
     expect(keys).toEqual(
