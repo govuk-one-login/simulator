@@ -1,4 +1,5 @@
 jest.mock("crypto", () => ({
+  ...jest.requireActual("crypto"),
   randomUUID: () => "1234567",
 }));
 

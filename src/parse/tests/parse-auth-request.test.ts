@@ -77,7 +77,7 @@ describe("parseAuthRequest tests", () => {
           prompt: "none",
         })
       ).toThrow(
-        new ParseAuthRequestError(
+        new MissingParameterError(
           "Invalid Request: Missing redirect_uri parameter"
         )
       );
