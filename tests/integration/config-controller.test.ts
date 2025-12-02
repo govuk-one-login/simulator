@@ -249,7 +249,7 @@ describe("Integration: Config POST", () => {
 
     const config = Config.getInstance();
 
-    expect(config.isPublishNewTokenSigningKeysEnabled()).toEqual(true);
-    expect(config.isUseNewTokenSigningKeysEnabled()).toEqual(true);
+    expect(config.isPublishNewIdTokenSigningKeysEnabled()).toEqual(true);
+    expect(config.isUseNewIdTokenSigningKeysEnabled()).toEqual(true);
   });
 });

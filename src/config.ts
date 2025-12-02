@@ -153,10 +153,10 @@ CQIDAQAB
     this.interactiveMode = process.env.INTERACTIVE_MODE === "true";
     this.pkceEnabled = process.env.PKCE_ENABLED === "true";
     this.publishSecondaryIdTokenSigningKeys =
-      process.env.PUBLISH_NEW_SIGNING_KEYS === "true";
+      process.env.PUBLISH_NEW_ID_TOKEN_SIGNING_KEYS === "true";
     this.useSecondaryIdTokenSigningKeys =
-      this.isPublishNewTokenSigningKeysEnabled() &&
-      process.env.USE_NEW_SIGNING_KEYS === "true";
+      this.isPublishNewIdTokenSigningKeysEnabled() &&
+      process.env.USE_NEW_ID_TOKEN__SIGNING_KEYS === "true";
 
     if (
       this.getTokenAuthMethod() === "client_secret_post" &&
@@ -470,19 +470,19 @@ CQIDAQAB
     return this.pkceEnabled;
   }
 
-  public isPublishNewTokenSigningKeysEnabled(): boolean {
+  public isPublishNewIdTokenSigningKeysEnabled(): boolean {
     return this.publishSecondaryIdTokenSigningKeys;
   }
 
-  public setPublishNewTokenSigningKeysEnabled(publishNewKeys: boolean): void {
+  public setPublishNewIdTokenSigningKeysEnabled(publishNewKeys: boolean): void {
     this.publishSecondaryIdTokenSigningKeys = publishNewKeys;
   }
 
-  public isUseNewTokenSigningKeysEnabled(): boolean {
+  public isUseNewIdTokenSigningKeysEnabled(): boolean {
     return this.useSecondaryIdTokenSigningKeys;
   }
 
-  public setUseNewTokenSigningKeysEnabled(useNewKeys: boolean): void {
+  public setUseNewIdTokenSigningKeysEnabled(useNewKeys: boolean): void {
     this.useSecondaryIdTokenSigningKeys = useNewKeys;
   }
 }

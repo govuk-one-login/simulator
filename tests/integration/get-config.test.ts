@@ -14,8 +14,9 @@ test("returns 200 response with current configuration", async () => {
     responseConfiguration: config.getResponseConfiguration(),
     errorConfiguration: config.getErrorConfiguration(),
     simulatorUrl: config.getSimulatorUrl(),
-    publishNewIdTokenKeysEnabled: config.isPublishNewTokenSigningKeysEnabled(),
-    usingNewIdTokenSigningKeys: config.isUseNewTokenSigningKeysEnabled(),
+    publishNewIdTokenKeysEnabled:
+      config.isPublishNewIdTokenSigningKeysEnabled(),
+    usingNewIdTokenSigningKeys: config.isUseNewIdTokenSigningKeysEnabled(),
   };
   expect(response.body).toEqual(expectedBody);
 });

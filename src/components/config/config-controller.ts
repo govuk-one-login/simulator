@@ -33,7 +33,7 @@ export const configController = (
   populateErrorConfiguration(req.body.errorConfiguration);
 
   if (req.body.publishNewIdTokenSigningKeys) {
-    config.setPublishNewTokenSigningKeysEnabled(
+    config.setPublishNewIdTokenSigningKeysEnabled(
       //The validators on the config controller will reject bad string booly values so this is fine
       req.body.publishNewIdTokenSigningKeys === true ||
         req.body.publishNewIdTokenSigningKeys === "true"
@@ -41,8 +41,8 @@ export const configController = (
   }
 
   if (req.body.useNewIdTokenSigningKeys) {
-    if (config.isPublishNewTokenSigningKeysEnabled()) {
-      config.setUseNewTokenSigningKeysEnabled(
+    if (config.isPublishNewIdTokenSigningKeysEnabled()) {
+      config.setUseNewIdTokenSigningKeysEnabled(
         //The validators on the config controller will reject bad string booly values so this is fine
         req.body.useNewIdTokenSigningKeys === true ||
           req.body.useNewIdTokenSigningKeys === "true"

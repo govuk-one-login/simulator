@@ -8,8 +8,9 @@ export const getConfigController = (req: Request, res: Response): void => {
     errorConfiguration: config.getErrorConfiguration(),
     responseConfiguration: config.getResponseConfiguration(),
     simulatorUrl: config.getSimulatorUrl(),
-    publishNewIdTokenKeysEnabled: config.isPublishNewTokenSigningKeysEnabled(),
-    usingNewIdTokenSigningKeys: config.isUseNewTokenSigningKeysEnabled(),
+    publishNewIdTokenKeysEnabled:
+      config.isPublishNewIdTokenSigningKeysEnabled(),
+    usingNewIdTokenSigningKeys: config.isUseNewIdTokenSigningKeysEnabled(),
   };
   res.header("Content-Type", "application/json");
   res.status(200);
