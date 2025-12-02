@@ -2,11 +2,12 @@ import { RequestObject } from "../../parse/parse-auth-request";
 import { validateAuthRequestObject } from "../validate-auth-request-object";
 import { Config } from "../../config";
 import { BadRequestError } from "../../errors/bad-request-error";
-import { jwtVerify } from "jose";
+import { JWK, jwtVerify } from "jose";
 import { AuthoriseRequestError } from "../../errors/authorise-request-error";
 import { TrustChainValidationError } from "../../errors/trust-chain-validation-error";
 
 const config = Config.getInstance();
+const jwksUrlSpy = jest.spyOn(config, "getJwksUrl");
 const defaultRedirectUri = config.getRedirectUrls()[0];
 const defaultState = "123456789";
 const defaultClientId = config.getClientId();
@@ -31,7 +32,107 @@ jest.mock("jose");
 describe("Validate auth request object tests", () => {
   beforeEach(() => {
     (jwtVerify as jest.Mock).mockImplementation();
+    config.setPublicKeySource("STATIC");
   });
+
+  describe("Using public key source = JWKS", () => {
+    beforeEach(() => {
+      config.setPublicKeySource("JWKS");
+      jwksUrlSpy.mockReturnValue("http://example.com/well-known/jwks.json");
+      mockJwks([{ alg: "RS256", kty: "RSA", kid: "test-key-id", use: "sig" }]);
+      config.clearJwksCache();
+    });
+
+    it("throw error when kid not in request object header", async () => {
+      const requestObject = {
+        ...requestObjectWithParams({}),
+        header: {
+          alg: "RS256",
+        },
+      };
+      const authRequest = {
+        ...defaultAuthRequest,
+        requestObject,
+      };
+      await expect(
+        validateAuthRequestObject(authRequest, config)
+      ).rejects.toThrow(
+        new Error(
+          "No kid present in request object header, cannot verify JWT signature"
+        )
+      );
+    });
+    it("throw error when JWKS URL not set in config", async () => {
+      jwksUrlSpy.mockReturnValue(undefined);
+      const requestObject = {
+        ...requestObjectWithParams({}),
+        header: {
+          alg: "RS256",
+          kid: "test-key-id",
+        },
+      };
+      const authRequest = {
+        ...defaultAuthRequest,
+        requestObject,
+      };
+      await expect(
+        validateAuthRequestObject(authRequest, config)
+      ).rejects.toThrow(new Error("No JWKS url set, returning"));
+    });
+
+    it("throw error when key with kid not found", async () => {
+      const requestObject = {
+        ...requestObjectWithParams({}),
+        header: {
+          alg: "RS256",
+          kid: "not-a-key-on-jwks-endpoint",
+        },
+      };
+      const authRequest = {
+        ...defaultAuthRequest,
+        requestObject,
+      };
+      await expect(
+        validateAuthRequestObject(authRequest, config)
+      ).rejects.toThrow(
+        new Error(
+          "No RSA signing key found on JWKS URL http://example.com/well-known/jwks.json"
+        )
+      );
+    });
+
+    it("does not throw error when key found on JWKS endpoint with kid", async () => {
+      const requestObject = {
+        ...requestObjectWithParams({}),
+        header: {
+          alg: "RS256",
+          kid: "test-key-id",
+        },
+      };
+      const authRequest = {
+        ...defaultAuthRequest,
+        requestObject,
+      };
+      await expect(
+        validateAuthRequestObject(authRequest, config)
+      ).resolves.not.toThrow();
+    });
+
+    const mockJwks = (jwks: JWK[]): void => {
+      jest.spyOn(global, "fetch").mockImplementation(
+        jest.fn(() =>
+          Promise.resolve({
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                keys: jwks,
+              }),
+          })
+        ) as jest.Mock
+      );
+    };
+  });
+
   it("throw parse request error when signature check fails", async () => {
     (jwtVerify as jest.Mock).mockImplementation(() => {
       throw new Error();
