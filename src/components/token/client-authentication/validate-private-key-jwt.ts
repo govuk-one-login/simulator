@@ -2,9 +2,11 @@ import {
   decodeJwt,
   decodeProtectedHeader,
   errors,
+  importJWK,
   importSPKI,
   JWTPayload,
   jwtVerify,
+  KeyLike,
 } from "jose";
 import { Config } from "../../../config";
 import { logger } from "../../../logger";
@@ -15,15 +17,12 @@ import {
 } from "src/types/private-key-jwt";
 import { ParseTokenRequestError } from "../../../errors/parse-token-request-error";
 import { TokenRequest } from "../../../types/token-request";
+import { JwksError } from "../../../errors/jwks-error";
 
 export const validatePrivateKeyJwt = async (
   tokenRequestBody: Record<string, string>,
   config: Config
 ): Promise<TokenRequest> => {
-  const clientPublicKey = addAffixesToPublicKeyIfNotPresent(
-    config.getPublicKey()
-  );
-
   if (
     tokenRequestBody.client_assertion_type !==
     "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
@@ -102,14 +101,22 @@ export const validatePrivateKeyJwt = async (
       httpStatusCode: 400,
     });
   }
-
-  if (
-    !(await isSignatureValid(
-      clientPublicKey,
-      parsedClientAssertion.header.alg,
+  let signatureValid = false;
+  try {
+    signatureValid = await isSignatureValid(
+      config,
+      parsedClientAssertion.header,
       parsedClientAssertion.token
-    ))
-  ) {
+    );
+  } catch (error) {
+    logger.warn(
+      `Error thrown when trying to validate signature: ${(error as Error).message}`
+    );
+    throw new JwksError(
+      "Failed to fetch or parse JWKS to verify signature of private_key_jwt"
+    );
+  }
+  if (!signatureValid) {
     logger.warn("Could not verify signature of private_key_jwt");
     throw new TokenRequestError({
       errorCode: "invalid_client",
@@ -117,7 +124,6 @@ export const validatePrivateKeyJwt = async (
       httpStatusCode: 400,
     });
   }
-
   return tokenRequestBody as TokenRequest;
 };
 
@@ -259,12 +265,28 @@ const isPrivateKeyJwtExpired = (exp: number): boolean => {
 };
 
 const isSignatureValid = async (
-  publicKey: string,
-  alg: string,
+  config: Config,
+  header: ClientAssertionHeader,
+  token: string
+): Promise<boolean> => {
+  let parsedPublicKey;
+  if (config.getPublicKeySource() === "STATIC") {
+    const clientPublicKey = addAffixesToPublicKeyIfNotPresent(
+      config.getPublicKey()
+    );
+    parsedPublicKey = await importSPKI(clientPublicKey, header.alg);
+  } else {
+    const jwk = await config.getRpSigningKey(header.kid);
+    parsedPublicKey = await importJWK(jwk);
+  }
+  return isSignatureValidUsingKeyLike(parsedPublicKey, token);
+};
+
+const isSignatureValidUsingKeyLike = async (
+  parsedPublicKey: KeyLike | Uint8Array,
   token: string
 ): Promise<boolean> => {
   try {
-    const parsedPublicKey = await importSPKI(publicKey, alg);
     await jwtVerify(token, parsedPublicKey);
     return true;
   } catch (error) {
