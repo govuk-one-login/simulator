@@ -1,6 +1,6 @@
 import { SignJWT } from "jose";
 import { Config } from "../../../config";
-import { getKeyId, getTokenSigningKey } from "./key-helpers";
+import { getTokenSigningKey } from "./key-helpers";
 import { logger } from "../../../logger";
 
 export const signToken = async (
@@ -9,18 +9,17 @@ export const signToken = async (
   const clientConfig = Config.getInstance();
   const tokenSigningAlgorithm = clientConfig.getIdTokenSigningAlgorithm();
 
-  const privateKey = await getTokenSigningKey(tokenSigningAlgorithm);
-  const kid = getKeyId(tokenSigningAlgorithm);
+  const { key, keyId } = await getTokenSigningKey(tokenSigningAlgorithm);
 
   const signedJWT = await new SignJWT(claimSet)
     .setProtectedHeader({
       alg: tokenSigningAlgorithm,
-      kid,
+      kid: keyId,
     })
-    .sign(privateKey);
+    .sign(key);
 
   logger.info(
-    `Created Signed JWT with signing algorithm: "${tokenSigningAlgorithm}" using keyId: ${kid}`
+    `Created Signed JWT with signing algorithm: "${tokenSigningAlgorithm}" using keyId: ${keyId}`
   );
 
   return signedJWT;

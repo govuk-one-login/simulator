@@ -14,21 +14,22 @@ import {
 import { Buffer } from "node:buffer";
 import { Config } from "../../../config";
 
-export const getTokenSigningKey = (
+export const getTokenSigningKey = async (
   tokenSigningAlgorithm: string
-): Promise<KeyLike> => {
+): Promise<{
+  key: KeyLike;
+  keyId: string;
+}> => {
   if (tokenSigningAlgorithm === "ES256") {
-    return importPKCS8(EC_PRIVATE_TOKEN_SIGNING_KEY, "EC");
+    return {
+      key: await importPKCS8(EC_PRIVATE_TOKEN_SIGNING_KEY, "EC"),
+      keyId: EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
+    };
   } else {
-    return importPKCS8(RSA_PRIVATE_TOKEN_SIGNING_KEY, "RSA");
-  }
-};
-
-export const getKeyId = (tokenSigningAlgorithm: string): string => {
-  if (tokenSigningAlgorithm === "ES256") {
-    return EC_PRIVATE_TOKEN_SIGNING_KEY_ID;
-  } else {
-    return RSA_PRIVATE_TOKEN_SIGNING_KEY_ID;
+    return {
+      key: await importPKCS8(RSA_PRIVATE_TOKEN_SIGNING_KEY, "RSA"),
+      keyId: RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
+    };
   }
 };
 
