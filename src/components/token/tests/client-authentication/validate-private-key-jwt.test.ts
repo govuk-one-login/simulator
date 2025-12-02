@@ -1,4 +1,4 @@
-import { exportSPKI, SignJWT } from "jose";
+import { exportSPKI, JWK, SignJWT } from "jose";
 import { Config } from "../../../../config";
 import { ParseTokenRequestError } from "../../../../errors/parse-token-request-error";
 import { TokenRequestError } from "../../../../errors/token-request-error";
@@ -30,11 +30,17 @@ const testTimestamp = 1723707024;
 const knownClientId = "b1a80190cf07983fca7e46375385a8ed";
 const audience = "http://localhost:3000/token";
 const issuer = "http://localhost:3000/";
-
+jest.mock("jose", () => {
+  return {
+    ...jest.requireActual("jose"),
+    createRemoteJWKSet: jest.fn(),
+  };
+});
 describe("validatePrivateKeyJwt tests", () => {
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(testTimestamp);
+    config.setPublicKeySource("STATIC");
   });
 
   afterEach(() => {
@@ -817,5 +823,125 @@ describe("validatePrivateKeyJwt tests", () => {
     expect(infoLoggerSpy).toHaveBeenCalledWith(
       "Public key does not have expected suffix. Adding suffix."
     );
+  });
+  describe("With publicKeySource = JWKS", () => {
+    beforeEach(() => {
+      config.setPublicKeySource("JWKS");
+      config.setJwksUrl("http://example.com/well-known/jwks.json");
+    });
+    it("returns a parsed tokenRequest and clientAssertion for a valid request when publicKeySource = JWKS", async () => {
+      clientIdSpy.mockReturnValue(knownClientId);
+      const publicKey = await exportSPKI(rsaKeyPair.publicKey);
+      publicKeySpy.mockReturnValue(publicKey);
+      idTokenSigningSpy.mockReturnValue("RS256");
+
+      const publicKeyJwk = rsaKeyPair.publicKey.export({ format: "jwk" });
+      mockJwks([
+        {
+          ...(publicKeyJwk as JWK),
+          kid: "test-key-id",
+          use: "sig",
+          alg: "RS256",
+        },
+      ]);
+
+      const header = {
+        alg: "RS256",
+        kid: "test-key-id",
+      };
+      const payload = {
+        sub: knownClientId,
+        exp: Math.floor(testTimestamp / 1000) + 300,
+        iss: knownClientId,
+        aud: audience,
+        jti: randomUUID(),
+      };
+
+      const clientAssertion = await new SignJWT(payload)
+        .setProtectedHeader(header)
+        .sign(rsaKeyPair.privateKey);
+
+      const tokenRequest = {
+        grant_type: "authorization_code",
+        code: "123456",
+        redirect_uri: "https://example.com/authentication-callback/",
+        client_assertion_type:
+          "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+        client_assertion: clientAssertion,
+      };
+
+      const parsedTokenRequest = await validatePrivateKeyJwt(
+        tokenRequest,
+        config
+      );
+
+      expect(parsedTokenRequest).toStrictEqual({
+        grant_type: "authorization_code",
+        code: "123456",
+        redirect_uri: "https://example.com/authentication-callback/",
+        client_assertion_type:
+          "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+        client_assertion: clientAssertion,
+      });
+    });
+    it("throws an error if publicKeySource = JWKS and token has no kid in header", async () => {
+      clientIdSpy.mockReturnValue(knownClientId);
+      const publicKey = await exportSPKI(rsaKeyPair.publicKey);
+      publicKeySpy.mockReturnValue(publicKey);
+      idTokenSigningSpy.mockReturnValue("RS256");
+
+      const publicKeyJwk = rsaKeyPair.publicKey.export({ format: "jwk" });
+      mockJwks([
+        {
+          ...(publicKeyJwk as JWK),
+          kid: "test-key-id",
+          use: "sig",
+          alg: "RS256",
+        },
+      ]);
+
+      const header = {
+        alg: "RS256",
+      };
+      const payload = {
+        sub: knownClientId,
+        exp: Math.floor(testTimestamp / 1000) + 300,
+        iss: knownClientId,
+        aud: audience,
+        jti: randomUUID(),
+      };
+
+      const clientAssertion = await new SignJWT(payload)
+        .setProtectedHeader(header)
+        .sign(rsaKeyPair.privateKey);
+
+      const tokenRequest = {
+        grant_type: "authorization_code",
+        code: "123456",
+        redirect_uri: "https://example.com/authentication-callback/",
+        client_assertion_type:
+          "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+        client_assertion: clientAssertion,
+      };
+
+      await expect(validatePrivateKeyJwt(tokenRequest, config)).rejects.toThrow(
+        new Error(
+          "No kid present in request object header, cannot verify JWT signature"
+        )
+      );
+    });
+    const mockJwks = (jwks: JWK[]): void => {
+      jest.spyOn(global, "fetch").mockImplementation(
+        jest.fn(() =>
+          Promise.resolve({
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                keys: jwks,
+              }),
+          })
+        ) as jest.Mock
+      );
+    };
   });
 });
