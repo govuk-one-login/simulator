@@ -4,8 +4,12 @@ import { Config } from "../../config";
 import { logger } from "../../logger";
 import { publicJwkWithKidFromPrivateKey } from "../token/helper/key-helpers";
 import {
+  EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY,
+  EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID,
   EC_PRIVATE_TOKEN_SIGNING_KEY,
   EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
+  RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY,
+  RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID,
   RSA_PRIVATE_TOKEN_SIGNING_KEY,
   RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
 } from "../../constants";
@@ -32,7 +36,7 @@ export const logoutController = async (
     return res.redirect(buildRedirectUri(defaultLogoutUrl, stateParam));
   }
 
-  if (!(await isIdTokenSignatureValid(idTokenHint))) {
+  if (!(await isIdTokenSignatureValid(idTokenHint, config))) {
     return res.redirect(
       buildRedirectUri(defaultLogoutUrl, stateParam, {
         error_code: "invalid_request",
@@ -120,7 +124,10 @@ export const logoutController = async (
   );
 };
 
-const isIdTokenSignatureValid = async (idToken: string): Promise<boolean> => {
+const isIdTokenSignatureValid = async (
+  idToken: string,
+  config: Config
+): Promise<boolean> => {
   try {
     if (idToken.split(".").length !== 3) {
       return false;
@@ -132,15 +139,23 @@ const isIdTokenSignatureValid = async (idToken: string): Promise<boolean> => {
     decodeJwt(idToken);
     if (header.alg === "RS256") {
       const rsaKey = await publicJwkWithKidFromPrivateKey(
-        RSA_PRIVATE_TOKEN_SIGNING_KEY,
-        RSA_PRIVATE_TOKEN_SIGNING_KEY_ID
+        config.isUseNewIdTokenSigningKeysEnabled()
+          ? RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY
+          : RSA_PRIVATE_TOKEN_SIGNING_KEY,
+        config.isUseNewIdTokenSigningKeysEnabled()
+          ? RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID
+          : RSA_PRIVATE_TOKEN_SIGNING_KEY_ID
       );
       await jwtVerify(idToken, rsaKey, { currentDate: new Date(0) });
       return true;
     } else {
       const ecKey = await publicJwkWithKidFromPrivateKey(
-        EC_PRIVATE_TOKEN_SIGNING_KEY,
-        EC_PRIVATE_TOKEN_SIGNING_KEY_ID
+        config.isUseNewIdTokenSigningKeysEnabled()
+          ? EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY
+          : EC_PRIVATE_TOKEN_SIGNING_KEY,
+        config.isUseNewIdTokenSigningKeysEnabled()
+          ? EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID
+          : EC_PRIVATE_TOKEN_SIGNING_KEY_ID
       );
       await jwtVerify(idToken, ecKey, { currentDate: new Date(0) });
       //We shouldn't validate the exp claim here, hence the Date(0)
