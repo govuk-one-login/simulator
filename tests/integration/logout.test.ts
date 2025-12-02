@@ -4,6 +4,8 @@ import request from "supertest";
 import {
   EC_PRIVATE_TOKEN_SIGNING_KEY,
   EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
+  RSA_PRIVATE_TOKEN_SIGNING_KEY,
+  RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
 } from "../../src/constants";
 import { importPKCS8, SignJWT } from "jose";
 import { Config } from "../../src/config";
@@ -13,14 +15,25 @@ const DEFAULT_LOGGED_OUT_URL = "https://gov.uk";
 const DEFAULT_CLIENT_ID = "HGIOgho9HIRhgoepdIOPFdIUWgewi0jw";
 
 const fakeIdToken = async (
-  payload: Record<string, unknown>
+  payload: Record<string, unknown>,
+  algorithm: "ES256" | "RS256" = "ES256"
 ): Promise<string> => {
-  const keyId = EC_PRIVATE_TOKEN_SIGNING_KEY_ID;
-  const privateKey = await importPKCS8(EC_PRIVATE_TOKEN_SIGNING_KEY, "ES256");
-  return await new SignJWT(payload)
-    .setExpirationTime("5m")
-    .setProtectedHeader({ kid: keyId, alg: "ES256" })
-    .sign(privateKey);
+  if (algorithm === "ES256") {
+    const keyId = EC_PRIVATE_TOKEN_SIGNING_KEY_ID;
+    const privateKey = await importPKCS8(EC_PRIVATE_TOKEN_SIGNING_KEY, "ES256");
+    return await new SignJWT(payload)
+      .setProtectedHeader({ kid: keyId, alg: "ES256" })
+      .sign(privateKey);
+  } else {
+    const keyId = RSA_PRIVATE_TOKEN_SIGNING_KEY_ID;
+    const privateKey = await importPKCS8(
+      RSA_PRIVATE_TOKEN_SIGNING_KEY,
+      algorithm
+    );
+    return await new SignJWT(payload)
+      .setProtectedHeader({ kid: keyId, alg: algorithm })
+      .sign(privateKey);
+  }
 };
 
 describe("logout endpoint", () => {
@@ -168,6 +181,7 @@ describe("logout endpoint", () => {
       aud: DEFAULT_CLIENT_ID,
       sid: randomUUID(),
       sub: randomUUID(),
+      exp: Date.now() / 1000,
     });
 
     const app = createApp();
@@ -206,25 +220,31 @@ describe("logout endpoint", () => {
 
   //https://github.com/govuk-one-login/simulator/issues/290
   //https://openid.net/specs/openid-connect-rpinitiated-1_0.html#:~:text=When%20an%20id_token_hint,act%20upon%20it.
-  test("It accepts an expired valid id_token_hint and redirects to the post logout redirect url", async () => {
-    const postLogoutRedirectUri = "https://example.com/oidc/post-logout";
-    Config.getInstance().setPostLogoutRedirectUrls([postLogoutRedirectUri]);
-    const state = randomUUID();
-    const idTokenHint = await fakeIdToken({
-      aud: DEFAULT_CLIENT_ID,
-      sid: randomUUID(),
-      sub: randomUUID(),
-      //Thu Jan 01 1970 03:25:45 in Unix timestamp
-      exp: 12345,
-    });
+  test.each(["RS256", "ES256"])(
+    "It accepts an expired valid id_token_hint and redirects to the post logout redirect url signed with %s",
+    async (alg) => {
+      const postLogoutRedirectUri = "https://example.com/oidc/post-logout";
+      Config.getInstance().setPostLogoutRedirectUrls([postLogoutRedirectUri]);
+      const state = randomUUID();
+      const idTokenHint = await fakeIdToken(
+        {
+          aud: DEFAULT_CLIENT_ID,
+          sid: randomUUID(),
+          sub: randomUUID(),
+          //Thu Jan 01 1970 03:25:45 in Unix timestamp
+          exp: 12345,
+        },
+        alg as "ES256" | "RS256"
+      );
 
-    const app = createApp();
-    const response = await request(app).get(
-      `${LOGOUT_ENDPOINT}?&state=${state}&id_token_hint=${idTokenHint}&post_logout_redirect_uri=${encodeURIComponent(postLogoutRedirectUri)}`
-    );
-    expect(response.status).toEqual(302);
-    expect(response.headers.location).toStrictEqual(
-      `${postLogoutRedirectUri}?state=${state}`
-    );
-  });
+      const app = createApp();
+      const response = await request(app).get(
+        `${LOGOUT_ENDPOINT}?&state=${state}&id_token_hint=${idTokenHint}&post_logout_redirect_uri=${encodeURIComponent(postLogoutRedirectUri)}`
+      );
+      expect(response.status).toEqual(302);
+      expect(response.headers.location).toStrictEqual(
+        `${postLogoutRedirectUri}?state=${state}`
+      );
+    }
+  );
 });

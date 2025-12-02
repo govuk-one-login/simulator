@@ -135,7 +135,7 @@ const isIdTokenSignatureValid = async (idToken: string): Promise<boolean> => {
         RSA_PRIVATE_TOKEN_SIGNING_KEY,
         RSA_PRIVATE_TOKEN_SIGNING_KEY_ID
       );
-      await jwtVerify(idToken, rsaKey);
+      await jwtVerify(idToken, rsaKey, { currentDate: new Date(0) });
       return true;
     } else {
       const ecKey = await publicJwkWithKidFromPrivateKey(
