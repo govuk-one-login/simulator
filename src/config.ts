@@ -20,6 +20,8 @@ import {
   TokenAuthMethod,
 } from "./validators/token-auth-method-validator";
 import { logger } from "./logger";
+import { JWK } from "jose";
+import { getSigningKeyFromJwksUrl } from "./utils/utils";
 
 export class Config {
   private static instance: Config;
@@ -28,6 +30,7 @@ export class Config {
   private responseConfiguration: ResponseConfiguration;
   private errorConfiguration: ErrorConfiguration;
   private authCodeRequestParamsStore: Record<string, AuthRequestParameters>;
+  private signingJwksCache: Record<string, JWK>;
   private accessTokenStore: AccessTokenStore;
   private responseConfigurationStore: ResponseConfigurationStore;
 
@@ -49,7 +52,9 @@ CQIDAQAB
 
     this.clientConfiguration = {
       clientId: process.env.CLIENT_ID ?? "HGIOgho9HIRhgoepdIOPFdIUWgewi0jw",
+      publicKeySource: process.env.PUBLIC_KEY_SOURCE ?? "STATIC",
       publicKey: process.env.PUBLIC_KEY ?? defaultPublicKey,
+      jwksUrl: process.env.JWKS_URL,
       scopes: process.env.SCOPES
         ? process.env.SCOPES.split(",")
         : ["openid", "email", "phone"],
@@ -146,6 +151,7 @@ CQIDAQAB
     this.authCodeRequestParamsStore = {};
     this.accessTokenStore = {};
     this.responseConfigurationStore = {};
+    this.signingJwksCache = {};
 
     this.simulatorUrl = process.env.SIMULATOR_URL ?? "http://localhost:3000";
     this.interactiveMode = process.env.INTERACTIVE_MODE === "true";
@@ -193,6 +199,22 @@ CQIDAQAB
 
   public setPublicKey(publicKey: string): void {
     this.clientConfiguration.publicKey = publicKey;
+  }
+
+  public getPublicKeySource(): string {
+    return this.clientConfiguration.publicKeySource;
+  }
+
+  public setPublicKeySource(publicKeySource: string): void {
+    this.clientConfiguration.publicKeySource = publicKeySource;
+  }
+
+  public getJwksUrl(): string | undefined {
+    return this.clientConfiguration.jwksUrl;
+  }
+
+  public setJwksUrl(jwksUrl: string): void {
+    this.clientConfiguration.jwksUrl = jwksUrl;
   }
 
   public getScopes(): string[] {
@@ -461,5 +483,23 @@ CQIDAQAB
 
   public isPKCEEnabled(): boolean {
     return this.pkceEnabled;
+  }
+
+  public async getRpSigningKey(kid: string): Promise<JWK> {
+    const jwksUrl = this.clientConfiguration.jwksUrl;
+    if (jwksUrl === undefined) {
+      throw new Error("No JWKS url set, returning");
+    }
+    const cachedKey = this.signingJwksCache[jwksUrl];
+    if (cachedKey === undefined) {
+      logger.info(
+        `No signing key found in cache for JWKS URL. Retrieving key with kid ${kid} and caching`
+      );
+      const newKey = await getSigningKeyFromJwksUrl(jwksUrl, kid);
+      this.signingJwksCache[jwksUrl] = newKey;
+    } else {
+      logger.info("Using cached JWKS key");
+    }
+    return this.signingJwksCache[jwksUrl];
   }
 }

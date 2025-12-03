@@ -20,4 +20,5 @@ type ClientAssertionClaims = {
 
 export interface ClientAssertionHeader extends ProtectedHeaderParameters {
   alg: string;
+  kid?: string;
 }

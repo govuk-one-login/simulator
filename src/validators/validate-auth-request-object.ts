@@ -1,4 +1,4 @@
-import { importSPKI, JWTPayload, jwtVerify } from "jose";
+import { importJWK, importSPKI, JWTPayload, jwtVerify, KeyLike } from "jose";
 import { Config } from "../config";
 import { AuthoriseRequestError } from "../errors/authorise-request-error";
 import { BadRequestError } from "../errors/bad-request-error";
@@ -22,7 +22,19 @@ export const validateAuthRequestObject = async (
   config: Config
 ): Promise<void> => {
   const requestObject = authRequest.requestObject!;
-  await validateJwtSignature(requestObject, config.getPublicKey());
+  if (config.getPublicKeySource() === "STATIC") {
+    await validateJwtSignature(requestObject, config.getPublicKey());
+  } else if (config.getPublicKeySource() === "JWKS") {
+    const kid = authRequest.requestObject?.header.kid;
+    if (kid === undefined) {
+      throw new Error(
+        "No kid present in request object header, cannot verify JWT signature"
+      );
+    }
+    const publicJwk = await config.getRpSigningKey(kid);
+    const publicKey = await importJWK(publicJwk);
+    await validateJwtSignatureWithKey(requestObject, publicKey);
+  }
 
   const payload = requestObject.payload;
   const redirectUri = payload["redirect_uri"] as string;
@@ -198,6 +210,13 @@ async function validateJwtSignature(
   publicKey: string
 ) {
   const signingKey = await importSPKI(publicKey, requestObject.header.alg!);
+  await validateJwtSignatureWithKey(requestObject, signingKey);
+}
+
+async function validateJwtSignatureWithKey(
+  requestObject: RequestObject,
+  signingKey: KeyLike | Uint8Array
+) {
   try {
     await jwtVerify(requestObject?.encodedJwt, signingKey);
   } catch (error) {

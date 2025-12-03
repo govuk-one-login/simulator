@@ -2,9 +2,11 @@ import {
   decodeJwt,
   decodeProtectedHeader,
   errors,
+  importJWK,
   importSPKI,
   JWTPayload,
   jwtVerify,
+  KeyLike,
 } from "jose";
 import { Config } from "../../../config";
 import { logger } from "../../../logger";
@@ -20,10 +22,6 @@ export const validatePrivateKeyJwt = async (
   tokenRequestBody: Record<string, string>,
   config: Config
 ): Promise<TokenRequest> => {
-  const clientPublicKey = addAffixesToPublicKeyIfNotPresent(
-    config.getPublicKey()
-  );
-
   if (
     tokenRequestBody.client_assertion_type !==
     "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
@@ -105,8 +103,8 @@ export const validatePrivateKeyJwt = async (
 
   if (
     !(await isSignatureValid(
-      clientPublicKey,
-      parsedClientAssertion.header.alg,
+      config,
+      parsedClientAssertion.header,
       parsedClientAssertion.token
     ))
   ) {
@@ -259,12 +257,33 @@ const isPrivateKeyJwtExpired = (exp: number): boolean => {
 };
 
 const isSignatureValid = async (
-  publicKey: string,
-  alg: string,
+  config: Config,
+  header: ClientAssertionHeader,
+  token: string
+): Promise<boolean> => {
+  let parsedPublicKey;
+  if (config.getPublicKeySource() === "STATIC") {
+    const clientPublicKey = addAffixesToPublicKeyIfNotPresent(
+      config.getPublicKey()
+    );
+    parsedPublicKey = await importSPKI(clientPublicKey, header.alg);
+  } else {
+    if (header.kid === undefined) {
+      throw new Error(
+        "No kid present in request object header, cannot verify JWT signature"
+      );
+    }
+    const jwk = await config.getRpSigningKey(header.kid);
+    parsedPublicKey = await importJWK(jwk);
+  }
+  return isSignatureValidUsingKeyLike(parsedPublicKey, token);
+};
+
+const isSignatureValidUsingKeyLike = async (
+  parsedPublicKey: KeyLike | Uint8Array,
   token: string
 ): Promise<boolean> => {
   try {
-    const parsedPublicKey = await importSPKI(publicKey, alg);
     await jwtVerify(token, parsedPublicKey);
     return true;
   } catch (error) {
