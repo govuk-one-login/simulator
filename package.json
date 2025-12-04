@@ -27,7 +27,7 @@
     "argon2": "^0.44.0",
     "cookie-parser": "^1.4.7",
     "express": "^4.21.2",
-    "express-validator": "^7.3.0",
+    "express-validator": "^7.3.1",
     "jose": "^5.9.6",
     "pino": "^9.12.0"
   },
