@@ -2,17 +2,7 @@ import { Request, Response } from "express";
 import { decodeJwt, decodeProtectedHeader, jwtVerify } from "jose";
 import { Config } from "../../config";
 import { logger } from "../../logger";
-import { publicJwkWithKidFromPrivateKey } from "../token/helper/key-helpers";
-import {
-  EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY,
-  EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID,
-  EC_PRIVATE_TOKEN_SIGNING_KEY,
-  EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
-  RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY,
-  RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID,
-  RSA_PRIVATE_TOKEN_SIGNING_KEY,
-  RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
-} from "../../constants";
+import { getTokenSigningKey } from "../token/helper/key-helpers";
 
 export const logoutController = async (
   req: Request,
@@ -137,31 +127,12 @@ const isIdTokenSignatureValid = async (
     // at this point we don't actually need to parse it
     // just check that parsing it doesn't throw an error
     decodeJwt(idToken);
-    if (header.alg === "RS256") {
-      const rsaKey = await publicJwkWithKidFromPrivateKey(
-        config.isUseNewIdTokenSigningKeysEnabled()
-          ? RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY
-          : RSA_PRIVATE_TOKEN_SIGNING_KEY,
-        config.isUseNewIdTokenSigningKeysEnabled()
-          ? RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID
-          : RSA_PRIVATE_TOKEN_SIGNING_KEY_ID
-      );
-      await jwtVerify(idToken, rsaKey, { currentDate: new Date(0) });
-      return true;
-    } else {
-      const ecKey = await publicJwkWithKidFromPrivateKey(
-        config.isUseNewIdTokenSigningKeysEnabled()
-          ? EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY
-          : EC_PRIVATE_TOKEN_SIGNING_KEY,
-        config.isUseNewIdTokenSigningKeysEnabled()
-          ? EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID
-          : EC_PRIVATE_TOKEN_SIGNING_KEY_ID
-      );
-      await jwtVerify(idToken, ecKey, { currentDate: new Date(0) });
-      //We shouldn't validate the exp claim here, hence the Date(0)
-      // https://openid.net/specs/openid-connect-rpinitiated-1_0.html#:~:text=When%20an%20id_token_hint,act%20upon%20it.
-      return true;
-    }
+
+    const idTokenSigningKey = await getTokenSigningKey(header.alg!, config);
+    await jwtVerify(idToken, idTokenSigningKey.key, {
+      currentDate: new Date(0),
+    });
+    return true;
   } catch (error) {
     logger.error(
       "Failed to verify signature of ID token: " + (error as Error).message
