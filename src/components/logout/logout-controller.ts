@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { decodeJwt, decodeProtectedHeader, jwtVerify } from "jose";
 import { Config } from "../../config";
 import { logger } from "../../logger";
-import { getTokenSigningKey } from "../token/helper/key-helpers";
+import { generateJWKS } from "../token/helper/key-helpers";
 
 export const logoutController = async (
   req: Request,
@@ -26,7 +26,7 @@ export const logoutController = async (
     return res.redirect(buildRedirectUri(defaultLogoutUrl, stateParam));
   }
 
-  if (!(await isIdTokenSignatureValid(idTokenHint, config))) {
+  if (!(await isIdTokenSignatureValid(idTokenHint))) {
     return res.redirect(
       buildRedirectUri(defaultLogoutUrl, stateParam, {
         error_code: "invalid_request",
@@ -114,31 +114,38 @@ export const logoutController = async (
   );
 };
 
-const isIdTokenSignatureValid = async (
-  idToken: string,
-  config: Config
-): Promise<boolean> => {
-  try {
-    if (idToken.split(".").length !== 3) {
-      return false;
-    }
-    const header = decodeProtectedHeader(idToken);
-    // This is akin to calling SignedJWT.parse in the real code
-    // at this point we don't actually need to parse it
-    // just check that parsing it doesn't throw an error
-    decodeJwt(idToken);
+const isIdTokenSignatureValid = async (idToken: string): Promise<boolean> => {
+  const header = decodeProtectedHeader(idToken);
+  // This is akin to calling SignedJWT.parse in the real code
+  // at this point we don't actually need to parse it
+  // just check that parsing it doesn't throw an error
+  decodeJwt(idToken);
 
-    const idTokenSigningKey = await getTokenSigningKey(header.alg!, config);
-    await jwtVerify(idToken, idTokenSigningKey.key, {
-      currentDate: new Date(0),
-    });
-    return true;
-  } catch (error) {
+  let { keys } = await generateJWKS();
+
+  if (header.alg === "RS256") {
+    keys = keys.filter((k) => k.alg === "RS256");
+  } else {
+    keys = keys.filter((k) => k.alg === "ES256");
+  }
+
+  const signatureValidationResult = await Promise.allSettled(
+    keys.map((k) => {
+      return jwtVerify(idToken, k, {
+        currentDate: new Date(0),
+      });
+    })
+  );
+
+  if (signatureValidationResult.every((r) => r.status === "rejected")) {
     logger.error(
-      "Failed to verify signature of ID token: " + (error as Error).message
+      "Failed to verify signature of ID token: " +
+        signatureValidationResult[0].reason
     );
     return false;
   }
+
+  return true;
 };
 
 const parseIdTokenHint = (

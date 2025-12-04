@@ -301,4 +301,36 @@ describe("logout endpoint", () => {
       );
     }
   );
+
+  // This is something to consider when we do the actual rotation, we keep accepting the old key in the cut-over to ensure that in the course of a session we still accept previously valid signed ID tokens
+  test.each(["RS256", "ES256"])(
+    "When USE_NEW_ID_TOKEN_SIGNING_KEYS enabled it accepts an id token signed by a the previous key with alg % ",
+    async (alg) => {
+      process.env.PUBLISH_NEW_ID_TOKEN_SIGNING_KEYS = "true";
+      process.env.USE_NEW_ID_TOKEN_SIGNING_KEYS = "true";
+      Config.resetInstance();
+
+      const postLogoutRedirectUri = "https://example.com/oidc/post-logout";
+      Config.getInstance().setPostLogoutRedirectUrls([postLogoutRedirectUri]);
+      const state = randomUUID();
+      const idTokenHint = await fakeIdToken(
+        {
+          aud: DEFAULT_CLIENT_ID,
+          sid: randomUUID(),
+          sub: randomUUID(),
+        },
+        alg as "ES256" | "RS256",
+        false
+      );
+
+      const app = createApp();
+      const response = await request(app).get(
+        `${LOGOUT_ENDPOINT}?&state=${state}&id_token_hint=${idTokenHint}&post_logout_redirect_uri=${encodeURIComponent(postLogoutRedirectUri)}`
+      );
+      expect(response.status).toEqual(302);
+      expect(response.headers.location).toStrictEqual(
+        `${postLogoutRedirectUri}?state=${state}`
+      );
+    }
+  );
 });
