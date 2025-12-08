@@ -106,3 +106,7 @@ Some features of the simulator are not available to be enabled together. In thes
 #### Simulating key rotation:
 
 The simulator supports publishing multiple ID token signing keys. This can be used to test how your application handles ID token key rotation. Documentation on key rotation can be found [here](./key-rotation.md).
+
+#### JWKS configuration
+
+The simulator supports using a JWKS endpoint to retrieve public signing keys, instead of defining a public key in the config. Documentation on how to use this can be found [here](./jwks.md)
