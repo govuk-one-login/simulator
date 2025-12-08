@@ -34,6 +34,8 @@ export class Config {
   private simulatorUrl: string;
   private readonly interactiveMode: boolean;
   private readonly pkceEnabled: boolean;
+  private publishSecondaryIdTokenSigningKeys: boolean;
+  private useSecondaryIdTokenSigningKeys: boolean;
 
   private constructor() {
     const defaultPublicKey = `-----BEGIN PUBLIC KEY-----
@@ -150,6 +152,11 @@ CQIDAQAB
     this.simulatorUrl = process.env.SIMULATOR_URL ?? "http://localhost:3000";
     this.interactiveMode = process.env.INTERACTIVE_MODE === "true";
     this.pkceEnabled = process.env.PKCE_ENABLED === "true";
+    this.publishSecondaryIdTokenSigningKeys =
+      process.env.PUBLISH_NEW_ID_TOKEN_SIGNING_KEYS === "true";
+    this.useSecondaryIdTokenSigningKeys =
+      this.isPublishNewIdTokenSigningKeysEnabled() &&
+      process.env.USE_NEW_ID_TOKEN_SIGNING_KEYS === "true";
 
     if (
       this.getTokenAuthMethod() === "client_secret_post" &&
@@ -461,5 +468,21 @@ CQIDAQAB
 
   public isPKCEEnabled(): boolean {
     return this.pkceEnabled;
+  }
+
+  public isPublishNewIdTokenSigningKeysEnabled(): boolean {
+    return this.publishSecondaryIdTokenSigningKeys;
+  }
+
+  public setPublishNewIdTokenSigningKeysEnabled(publishNewKeys: boolean): void {
+    this.publishSecondaryIdTokenSigningKeys = publishNewKeys;
+  }
+
+  public isUseNewIdTokenSigningKeysEnabled(): boolean {
+    return this.useSecondaryIdTokenSigningKeys;
+  }
+
+  public setUseNewIdTokenSigningKeysEnabled(useNewKeys: boolean): void {
+    this.useSecondaryIdTokenSigningKeys = useNewKeys;
   }
 }

@@ -6,28 +6,53 @@ import {
   RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
   RSA_PRIVATE_TOKEN_SIGNING_KEY,
   EC_PRIVATE_IDENTITY_SIGNING_KEY,
+  EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY,
+  EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID,
+  RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY,
+  RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID,
 } from "../../../constants";
 import { Buffer } from "node:buffer";
+import { Config } from "../../../config";
 
-export const getTokenSigningKey = (
-  tokenSigningAlgorithm: string
-): Promise<KeyLike> => {
+export const getTokenSigningKey = async (
+  tokenSigningAlgorithm: string,
+  config: Config
+): Promise<{
+  key: KeyLike;
+  keyId: string;
+}> => {
   if (tokenSigningAlgorithm === "ES256") {
-    return importPKCS8(EC_PRIVATE_TOKEN_SIGNING_KEY, "EC");
+    return {
+      key: await importPKCS8(
+        config.isUseNewIdTokenSigningKeysEnabled()
+          ? EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY
+          : EC_PRIVATE_TOKEN_SIGNING_KEY,
+        "EC"
+      ),
+      keyId: config.isUseNewIdTokenSigningKeysEnabled()
+        ? EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID
+        : EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
+    };
   } else {
-    return importPKCS8(RSA_PRIVATE_TOKEN_SIGNING_KEY, "RSA");
-  }
-};
-
-export const getKeyId = (tokenSigningAlgorithm: string): string => {
-  if (tokenSigningAlgorithm === "ES256") {
-    return EC_PRIVATE_TOKEN_SIGNING_KEY_ID;
-  } else {
-    return RSA_PRIVATE_TOKEN_SIGNING_KEY_ID;
+    return {
+      key: await importPKCS8(
+        config.isUseNewIdTokenSigningKeysEnabled()
+          ? RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY
+          : RSA_PRIVATE_TOKEN_SIGNING_KEY,
+        "RSA"
+      ),
+      keyId: config.isUseNewIdTokenSigningKeysEnabled()
+        ? RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID
+        : RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
+    };
   }
 };
 
 export const generateJWKS = async (): Promise<JSONWebKeySet> => {
+  const keys: JWK[] = [];
+
+  const config = Config.getInstance();
+
   const ecPubJwk = await publicJwkWithKidFromPrivateKey(
     EC_PRIVATE_TOKEN_SIGNING_KEY,
     EC_PRIVATE_TOKEN_SIGNING_KEY_ID
@@ -39,8 +64,26 @@ export const generateJWKS = async (): Promise<JSONWebKeySet> => {
     RSA_PRIVATE_TOKEN_SIGNING_KEY_ID
   );
   rsPubJwk.alg = "RS256";
+
+  keys.push(ecPubJwk, rsPubJwk);
+
+  if (config.isPublishNewIdTokenSigningKeysEnabled()) {
+    const secondaryEcPubJwk = await publicJwkWithKidFromPrivateKey(
+      EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY,
+      EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID
+    );
+    secondaryEcPubJwk.alg = "ES256";
+
+    const secondaryRsPubJwk = await publicJwkWithKidFromPrivateKey(
+      RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY,
+      RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID
+    );
+
+    secondaryRsPubJwk.alg = "RS256";
+    keys.push(secondaryEcPubJwk, secondaryRsPubJwk);
+  }
   return {
-    keys: [ecPubJwk, rsPubJwk],
+    keys,
   };
 };
 

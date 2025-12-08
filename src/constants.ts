@@ -46,11 +46,26 @@ export const RSA_PRIVATE_TOKEN_SIGNING_KEY =
 export const RSA_PRIVATE_TOKEN_SIGNING_KEY_ID =
   "7334b718-3f29-44ef-8b65-e266a17daea5";
 
-//This is not a secret, this is the simulator's provider key used to sign tokens
+//Not a secret! The simulator is a test product and this is used to sign dummy ID tokens it generates
+export const RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY =
+  "-----BEGIN PRIVATE KEY-----MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDH7UWbqJkzVIR9KwHOLd3lQkMPEHY8/L3L1jTgvlaj1a8Hf3IRtFzD6Kj5jF2Ij6J66LoemcLg3JCed94LzW7jZPCwLJm/Ongq5R8GjFfoYKLRFupzbs4YBEzEBXLeutjQRI6AkJx4BauMoDyAs8Z5N2M6f62hCDHimk244XAGwLb9yMuQxW+2sX7M+Qt0uEDQxKqB+BJ7jmo8SAkFNDBGe2MJ/VvUQkN+dWG/6EC2wBW/tYzGlO6sSlQ7VDdFp0gAO+YvgaoFFXko0TzAukE/Yrxy9Q6cFiTRuIm+/0ZzQ0/MWQn/AHmZey/t2fsTFtRPu2zlzyxShKMjeqf1fxcRAgMBAAECggEAX/viN2EybBpfoVhMfZg3uCGf4FOe8JjG5l3o9R1sqyuj5I2jTiyxfLzuoyBop2+OKkQhVx+rGBnMtMgHqtLuMe38QBipl82Sc8Wcp6ApdD8w7AF8ff7so0stL88N3zEFdrfzUnYbKORQACvN4FxvJTMaSLOTwIQWrxw1xFU3W4XAWV0UGyYzaflyyoiRZlzEmBlP/TW/22qCH0jLkz7flLLf9SGZdNOZoHxFn63+vw6mNtK/PK+HsIlFW6X6UFwsPvBAVggIGmrxlgc5ZgIBwzxr2DBQJumKh3dgjS0NnNo8Xuz+jt1P6zClH8YT2oT/gZmLH7hlaf224z/2pqaWoQKBgQD133SIuVxoxJi98M2kUyo4kovr3EY4XXaydZnM0Eggat6gmlQJfYnCcF0AVUtWSqZ8UXWEp3AkBdGVEwonhq8EGDuK2TbNfbxqomgG40eoLAgKw0HpaiS60EUpdrV/5PMfX0R1NQNQ/3XN0P044Torxa39Fjou7abbZOTa7LrIxwKBgQDQKVmvJliSLB4d+MgsXP9D5CddahcoBWd5NbNrTJhVNwtPW0aGryMichdKFP1kbOb7N4BbT8azWPD8TV0VnhyMU48bCrg6bxwI2rI/ELYIiFYUhVt3R7wHQWs9W2EOI8L/mVSmhvrCmeLiAv7WG4dwUAxsBn1R/e7kT65CZzw5ZwKBgF1yTAwaxvBap+Kovr+RjB5sNBm0YkvR2ecBoy6gioknlO1dOktRFyZ7Jh2WTUfCn3voSc3dBVXrkDgkQFu9aI8Z1qdy3s1C2HV+vCLCBt33via5Bzf7S3Jk7aRQpbKyBWULBC23tEb4kIFkyJjxoPY572KdLAfh8uS3d/NsvaDJAoGASOeCkpZihOdQsPyV1vvHJ1b79nqWm5yw7cHCEf1kiMvbeTKlk7w5GPJOd9K8IHUHvMpmeRSKqfungyXxSQX0R61oPHdXqJeLgQpfTTkkF/7v7wX5z9/e2ceusHGVn2ck/3ILNLunjYpp7PBRollH6S0P/LGVKKdACNRjWrxfWlcCgYAIkua2Rz7M8gt/ZFB8cgaPl8Y4HYXgef8uaVDKKTliMlpLLxdPODfaSeYeOKHQma8fTH5XMm33/ZtDmF8Hdyc2js+OZzrOzobynlWl4i2Ahsss/ON0y93syWjyAWarDI6n5bsc9IfvcPPdtReHqRG5QwafdIEy+QhpBjx3mPw3pw==-----END PRIVATE KEY-----";
+
+export const RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID =
+  "5cdf2d21-3a7f-496a-bf00-74829f55d953";
+
+//This is not a secret, this is the simulator's provider key used to sign ID tokens
 export const EC_PRIVATE_TOKEN_SIGNING_KEY =
   "-----BEGIN PRIVATE KEY-----MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgJx+BhLSXqIdFrPhFmAkifXysPRgVHCmyKi8DqMHH1XihRANCAAT/AhlQkClTY+FuaQUEoGvTMPaJq5IQY0HbItiGtjLEu18alBOIfHfW8BgjynlTmYvsdJ0+sJ80r14YDsbPBjNZ-----END PRIVATE KEY-----";
+
 export const EC_PRIVATE_TOKEN_SIGNING_KEY_ID =
   "b9162667-e025-4d93-8c5b-e538e6c792ac";
+
+//Not a secret! The simulator is a test product and this is used to sign dummy ID tokens it generates
+export const EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY =
+  "-----BEGIN PRIVATE KEY-----MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg9tf7MBsxMHind+Qybp5uCIQYH0UbUelnjUwE/7IXwhWhRANCAARVsV3TC+8AtEA3WCxwPTVq57Qq84ECllw8FVeqnCV1W5S1+7qSyGoywYQ9TPOTpKm2Geek936yEyYj7X4q7y+1-----END PRIVATE KEY-----";
+
+export const EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID =
+  "305e00b4-cfee-4966-bdab-1d8928a30e89";
 
 //This is not a secret, this is the simulator's provider key used to sign Core /
 export const EC_PRIVATE_IDENTITY_SIGNING_KEY =

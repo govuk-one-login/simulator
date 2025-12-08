@@ -238,4 +238,18 @@ describe("Integration: Config POST", () => {
     expect(config.getCoreIdentityErrors()).toStrictEqual([]);
     expect(config.getAuthoriseErrors()).toStrictEqual([]);
   });
+
+  test("It sets the value of publishNewIdTokenSigningKeys and useNewIdTokenSigningKeys", async () => {
+    const app = createApp();
+    const response = await request(app).post("/config").send({
+      publishNewIdTokenSigningKeys: "true",
+      useNewIdTokenSigningKeys: "true",
+    });
+    expect(response.status).toEqual(200);
+
+    const config = Config.getInstance();
+
+    expect(config.isPublishNewIdTokenSigningKeysEnabled()).toEqual(true);
+    expect(config.isUseNewIdTokenSigningKeysEnabled()).toEqual(true);
+  });
 });

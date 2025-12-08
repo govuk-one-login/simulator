@@ -2,8 +2,14 @@ import { randomUUID } from "crypto";
 import { createApp } from "../../src/app";
 import request from "supertest";
 import {
+  EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY,
+  EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID,
   EC_PRIVATE_TOKEN_SIGNING_KEY,
   EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
+  RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY,
+  RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID,
+  RSA_PRIVATE_TOKEN_SIGNING_KEY,
+  RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
 } from "../../src/constants";
 import { importPKCS8, SignJWT } from "jose";
 import { Config } from "../../src/config";
@@ -13,17 +19,47 @@ const DEFAULT_LOGGED_OUT_URL = "https://gov.uk";
 const DEFAULT_CLIENT_ID = "HGIOgho9HIRhgoepdIOPFdIUWgewi0jw";
 
 const fakeIdToken = async (
-  payload: Record<string, unknown>
+  payload: Record<string, unknown>,
+  algorithm: "ES256" | "RS256" = "ES256",
+  useNewKeysToSign = false
 ): Promise<string> => {
-  const keyId = EC_PRIVATE_TOKEN_SIGNING_KEY_ID;
-  const privateKey = await importPKCS8(EC_PRIVATE_TOKEN_SIGNING_KEY, "ES256");
-  return await new SignJWT(payload)
-    .setExpirationTime("5m")
-    .setProtectedHeader({ kid: keyId, alg: "ES256" })
-    .sign(privateKey);
+  if (algorithm === "ES256") {
+    const keyId = useNewKeysToSign
+      ? EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID
+      : EC_PRIVATE_TOKEN_SIGNING_KEY_ID;
+    const privateKey = await importPKCS8(
+      useNewKeysToSign
+        ? EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY
+        : EC_PRIVATE_TOKEN_SIGNING_KEY,
+      "ES256"
+    );
+    return await new SignJWT(payload)
+      .setProtectedHeader({ kid: keyId, alg: "ES256" })
+      .sign(privateKey);
+  } else {
+    const keyId = useNewKeysToSign
+      ? RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID
+      : RSA_PRIVATE_TOKEN_SIGNING_KEY_ID;
+
+    const privateKey = await importPKCS8(
+      useNewKeysToSign
+        ? RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY
+        : RSA_PRIVATE_TOKEN_SIGNING_KEY,
+      algorithm
+    );
+    return await new SignJWT(payload)
+      .setProtectedHeader({ kid: keyId, alg: algorithm })
+      .sign(privateKey);
+  }
 };
 
 describe("logout endpoint", () => {
+  beforeEach(() => {
+    delete process.env.PUBLISH_NEW_ID_TOKEN_SIGNING_KEYS;
+    delete process.env.USE_NEW_ID_TOKEN_SIGNING_KEYS;
+    Config.resetInstance();
+  });
+
   test("An empty logout request just redirects to the default logout endpoint", async () => {
     const app = createApp();
     const response = await request(app).get(LOGOUT_ENDPOINT);
@@ -168,6 +204,7 @@ describe("logout endpoint", () => {
       aud: DEFAULT_CLIENT_ID,
       sid: randomUUID(),
       sub: randomUUID(),
+      exp: Date.now() / 1000,
     });
 
     const app = createApp();
@@ -206,25 +243,94 @@ describe("logout endpoint", () => {
 
   //https://github.com/govuk-one-login/simulator/issues/290
   //https://openid.net/specs/openid-connect-rpinitiated-1_0.html#:~:text=When%20an%20id_token_hint,act%20upon%20it.
-  test("It accepts an expired valid id_token_hint and redirects to the post logout redirect url", async () => {
-    const postLogoutRedirectUri = "https://example.com/oidc/post-logout";
-    Config.getInstance().setPostLogoutRedirectUrls([postLogoutRedirectUri]);
-    const state = randomUUID();
-    const idTokenHint = await fakeIdToken({
-      aud: DEFAULT_CLIENT_ID,
-      sid: randomUUID(),
-      sub: randomUUID(),
-      //Thu Jan 01 1970 03:25:45 in Unix timestamp
-      exp: 12345,
-    });
+  test.each(["RS256", "ES256"])(
+    "It accepts an expired valid id_token_hint and redirects to the post logout redirect url signed with %s",
+    async (alg) => {
+      const postLogoutRedirectUri = "https://example.com/oidc/post-logout";
+      Config.getInstance().setPostLogoutRedirectUrls([postLogoutRedirectUri]);
+      const state = randomUUID();
+      const idTokenHint = await fakeIdToken(
+        {
+          aud: DEFAULT_CLIENT_ID,
+          sid: randomUUID(),
+          sub: randomUUID(),
+          //Thu Jan 01 1970 03:25:45 in Unix timestamp
+          exp: 12345,
+        },
+        alg as "ES256" | "RS256"
+      );
 
-    const app = createApp();
-    const response = await request(app).get(
-      `${LOGOUT_ENDPOINT}?&state=${state}&id_token_hint=${idTokenHint}&post_logout_redirect_uri=${encodeURIComponent(postLogoutRedirectUri)}`
-    );
-    expect(response.status).toEqual(302);
-    expect(response.headers.location).toStrictEqual(
-      `${postLogoutRedirectUri}?state=${state}`
-    );
-  });
+      const app = createApp();
+      const response = await request(app).get(
+        `${LOGOUT_ENDPOINT}?&state=${state}&id_token_hint=${idTokenHint}&post_logout_redirect_uri=${encodeURIComponent(postLogoutRedirectUri)}`
+      );
+      expect(response.status).toEqual(302);
+      expect(response.headers.location).toStrictEqual(
+        `${postLogoutRedirectUri}?state=${state}`
+      );
+    }
+  );
+
+  test.each(["RS256", "ES256"])(
+    "When USE_NEW_ID_TOKEN_SIGNING_KEYS enabled it validates using the new id_token signing keys with alg % ",
+    async (alg) => {
+      process.env.PUBLISH_NEW_ID_TOKEN_SIGNING_KEYS = "true";
+      process.env.USE_NEW_ID_TOKEN_SIGNING_KEYS = "true";
+      Config.resetInstance();
+
+      const postLogoutRedirectUri = "https://example.com/oidc/post-logout";
+      Config.getInstance().setPostLogoutRedirectUrls([postLogoutRedirectUri]);
+      const state = randomUUID();
+      const idTokenHint = await fakeIdToken(
+        {
+          aud: DEFAULT_CLIENT_ID,
+          sid: randomUUID(),
+          sub: randomUUID(),
+        },
+        alg as "ES256" | "RS256",
+        true
+      );
+
+      const app = createApp();
+      const response = await request(app).get(
+        `${LOGOUT_ENDPOINT}?&state=${state}&id_token_hint=${idTokenHint}&post_logout_redirect_uri=${encodeURIComponent(postLogoutRedirectUri)}`
+      );
+      expect(response.status).toEqual(302);
+      expect(response.headers.location).toStrictEqual(
+        `${postLogoutRedirectUri}?state=${state}`
+      );
+    }
+  );
+
+  // This is something to consider when we do the actual rotation, we keep accepting the old key in the cut-over to ensure that in the course of a session we still accept previously valid signed ID tokens
+  test.each(["RS256", "ES256"])(
+    "When USE_NEW_ID_TOKEN_SIGNING_KEYS enabled it accepts an id token signed by a the previous key with alg % ",
+    async (alg) => {
+      process.env.PUBLISH_NEW_ID_TOKEN_SIGNING_KEYS = "true";
+      process.env.USE_NEW_ID_TOKEN_SIGNING_KEYS = "true";
+      Config.resetInstance();
+
+      const postLogoutRedirectUri = "https://example.com/oidc/post-logout";
+      Config.getInstance().setPostLogoutRedirectUrls([postLogoutRedirectUri]);
+      const state = randomUUID();
+      const idTokenHint = await fakeIdToken(
+        {
+          aud: DEFAULT_CLIENT_ID,
+          sid: randomUUID(),
+          sub: randomUUID(),
+        },
+        alg as "ES256" | "RS256",
+        false
+      );
+
+      const app = createApp();
+      const response = await request(app).get(
+        `${LOGOUT_ENDPOINT}?&state=${state}&id_token_hint=${idTokenHint}&post_logout_redirect_uri=${encodeURIComponent(postLogoutRedirectUri)}`
+      );
+      expect(response.status).toEqual(302);
+      expect(response.headers.location).toStrictEqual(
+        `${postLogoutRedirectUri}?state=${state}`
+      );
+    }
+  );
 });

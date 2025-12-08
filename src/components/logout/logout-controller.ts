@@ -2,13 +2,7 @@ import { Request, Response } from "express";
 import { decodeJwt, decodeProtectedHeader, jwtVerify } from "jose";
 import { Config } from "../../config";
 import { logger } from "../../logger";
-import { publicJwkWithKidFromPrivateKey } from "../token/helper/key-helpers";
-import {
-  EC_PRIVATE_TOKEN_SIGNING_KEY,
-  EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
-  RSA_PRIVATE_TOKEN_SIGNING_KEY,
-  RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
-} from "../../constants";
+import { generateJWKS } from "../token/helper/key-helpers";
 
 export const logoutController = async (
   req: Request,
@@ -121,38 +115,37 @@ export const logoutController = async (
 };
 
 const isIdTokenSignatureValid = async (idToken: string): Promise<boolean> => {
-  try {
-    if (idToken.split(".").length !== 3) {
-      return false;
-    }
-    const header = decodeProtectedHeader(idToken);
-    // This is akin to calling SignedJWT.parse in the real code
-    // at this point we don't actually need to parse it
-    // just check that parsing it doesn't throw an error
-    decodeJwt(idToken);
-    if (header.alg === "RS256") {
-      const rsaKey = await publicJwkWithKidFromPrivateKey(
-        RSA_PRIVATE_TOKEN_SIGNING_KEY,
-        RSA_PRIVATE_TOKEN_SIGNING_KEY_ID
-      );
-      await jwtVerify(idToken, rsaKey);
-      return true;
-    } else {
-      const ecKey = await publicJwkWithKidFromPrivateKey(
-        EC_PRIVATE_TOKEN_SIGNING_KEY,
-        EC_PRIVATE_TOKEN_SIGNING_KEY_ID
-      );
-      await jwtVerify(idToken, ecKey, { currentDate: new Date(0) });
-      //We shouldn't validate the exp claim here, hence the Date(0)
-      // https://openid.net/specs/openid-connect-rpinitiated-1_0.html#:~:text=When%20an%20id_token_hint,act%20upon%20it.
-      return true;
-    }
-  } catch (error) {
+  const header = decodeProtectedHeader(idToken);
+  // This is akin to calling SignedJWT.parse in the real code
+  // at this point we don't actually need to parse it
+  // just check that parsing it doesn't throw an error
+  decodeJwt(idToken);
+
+  let { keys } = await generateJWKS();
+
+  if (header.alg === "RS256") {
+    keys = keys.filter((k) => k.alg === "RS256");
+  } else {
+    keys = keys.filter((k) => k.alg === "ES256");
+  }
+
+  const signatureValidationResult = await Promise.allSettled(
+    keys.map((k) => {
+      return jwtVerify(idToken, k, {
+        currentDate: new Date(0),
+      });
+    })
+  );
+
+  if (signatureValidationResult.every((r) => r.status === "rejected")) {
     logger.error(
-      "Failed to verify signature of ID token: " + (error as Error).message
+      "Failed to verify signature of ID token: " +
+        signatureValidationResult[0].reason
     );
     return false;
   }
+
+  return true;
 };
 
 const parseIdTokenHint = (

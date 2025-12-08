@@ -13,6 +13,7 @@ export const configController = (
   req: Request<ConfigRequest>,
   res: Response
 ): void => {
+  const config = Config.getInstance();
   const validationFailures = validationResult(req);
   if (!validationFailures.isEmpty()) {
     res.status(400).send({ errors: validationFailures.mapped() });
@@ -26,10 +27,34 @@ export const configController = (
     populateResponseConfiguration(req.body.responseConfiguration);
   }
   if (req.body.simulatorUrl !== undefined) {
-    Config.getInstance().setSimulatorUrl(req.body.simulatorUrl);
+    config.setSimulatorUrl(req.body.simulatorUrl);
   }
 
   populateErrorConfiguration(req.body.errorConfiguration);
+
+  if (req.body.publishNewIdTokenSigningKeys) {
+    config.setPublishNewIdTokenSigningKeysEnabled(
+      //The validators on the config controller will reject bad string booly values so this is fine
+      req.body.publishNewIdTokenSigningKeys === true ||
+        req.body.publishNewIdTokenSigningKeys === "true"
+    );
+  }
+
+  if (req.body.useNewIdTokenSigningKeys) {
+    if (config.isPublishNewIdTokenSigningKeysEnabled()) {
+      config.setUseNewIdTokenSigningKeysEnabled(
+        //The validators on the config controller will reject bad string booly values so this is fine
+        req.body.useNewIdTokenSigningKeys === true ||
+          req.body.useNewIdTokenSigningKeys === "true"
+      );
+    } else {
+      res
+        .status(400)
+        .send(
+          "Cannot enabled useNewIdTokenSigningKeys whilst publishNewIdTokenSigningKeys is false"
+        );
+    }
+  }
 
   res.status(200).send();
 };

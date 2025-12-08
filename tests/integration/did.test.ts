@@ -9,6 +9,7 @@ describe("/.well-known/did.json endpoint test", () => {
     const response = await request(app).get("/.well-known/did.json");
 
     expect(response.status).toEqual(200);
+    expect(response.header["cache-control"]).toEqual("max-age=3600, private");
     expect(response.body).toEqual({
       "@context": [
         "https://www.w3.org/ns/did/v1",
