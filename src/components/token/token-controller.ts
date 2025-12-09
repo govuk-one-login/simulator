@@ -9,6 +9,7 @@ import { parseTokenRequest } from "../../parse/parse-token-request";
 import ResponseConfiguration from "src/types/response-configuration";
 import { comparePKCECodeChallengeAndVerifier } from "./helper/code-challenge-comparer";
 import { ACCESS_TOKEN_EXPIRY } from "../../constants";
+import { JwksError } from "../../errors/jwks-error";
 
 export const tokenController = async (
   req: Request,
@@ -95,6 +96,12 @@ export const tokenController = async (
         error_description: "Invalid private_key_jwt",
       });
       return;
+    } else if (error instanceof JwksError) {
+      res.status(500).json({
+        error: "server_error",
+        error_description:
+          "Failed to fetch or parse JWKS to verify signature of private_key_jwt",
+      });
     } else {
       res.status(500).json({
         error: "server_error",

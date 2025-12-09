@@ -2,7 +2,14 @@ import crypto, { generateKeyPairSync } from "crypto";
 import { createApp } from "./../../src/app";
 import request from "supertest";
 import { Config } from "./../../src/config";
-import { base64url, exportSPKI, JWTPayload, SignJWT } from "jose";
+import {
+  base64url,
+  exportSPKI,
+  JWK,
+  JWTHeaderParameters,
+  JWTPayload,
+  SignJWT,
+} from "jose";
 
 const authoriseEndpoint = "/authorize";
 const knownClientId = "43c729a8f8a8bed3441a872039d45180";
@@ -28,7 +35,11 @@ const createRequestParams = (params: Record<string, string>): string => {
 };
 
 const encodedJwtWithParams = async (
-  params: Record<string, unknown>
+  params: Record<string, unknown>,
+  header: JWTHeaderParameters = {
+    alg: "RS256",
+    kid: "test-key-id",
+  }
 ): Promise<string> => {
   const payload = {
     redirect_uri: knownRedirectUri,
@@ -41,15 +52,30 @@ const encodedJwtWithParams = async (
     nonce,
     ...params,
   };
-  return await signPayload(payload);
+  return await signPayload(payload, header);
 };
 
-const signPayload = async (payload: JWTPayload): Promise<string> => {
+const signPayload = async (
+  payload: JWTPayload,
+  header: JWTHeaderParameters
+): Promise<string> => {
   return await new SignJWT(payload)
-    .setProtectedHeader({
-      alg: "RS256",
-    })
+    .setProtectedHeader(header)
     .sign(rsaKeyPair.privateKey);
+};
+
+const mockJwks = (jwks: JWK[]): void => {
+  jest.spyOn(global, "fetch").mockImplementation(
+    jest.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            keys: jwks,
+          }),
+      })
+    ) as jest.Mock
+  );
 };
 
 describe("Authorise controller tests", () => {
@@ -786,6 +812,96 @@ describe("Authorise controller tests", () => {
           })
         );
       });
+
+      it("returns a 500 response when public key source is JWKS and no JWKS URL defined", async () => {
+        const app = createApp();
+        const config = Config.getInstance();
+        config.setPublicKeySource("JWKS");
+        const requestParams = createRequestParams({
+          client_id: knownClientId,
+          redirect_uri: knownRedirectUri,
+          response_type: "code",
+          scope: "openid email",
+          request: await encodedJwtWithParams({
+            scope: "openid email",
+          }),
+        });
+
+        const response = await request(app).get(
+          authoriseEndpoint + "?" + requestParams
+        );
+
+        expect(response.status).toBe(500);
+        expect(response.text).toBe(
+          JSON.stringify({
+            error: "server_error",
+            error_description: "Unexpected server error",
+          })
+        );
+      });
+
+      it("returns a 500 response when public key source is JWKS and no kid present in header of JWT", async () => {
+        const app = createApp();
+        const config = Config.getInstance();
+        config.setPublicKeySource("JWKS");
+        config.setJwksUrl("http://example.com/.well-known/jwks.json");
+        const requestParams = createRequestParams({
+          client_id: knownClientId,
+          redirect_uri: knownRedirectUri,
+          response_type: "code",
+          scope: "openid email",
+          request: await encodedJwtWithParams(
+            {
+              scope: "openid email",
+            },
+            { alg: "RS256" }
+          ),
+        });
+
+        const response = await request(app).get(
+          authoriseEndpoint + "?" + requestParams
+        );
+
+        expect(response.status).toBe(500);
+        expect(response.text).toBe(
+          JSON.stringify({
+            error: "server_error",
+            error_description: "Unexpected server error",
+          })
+        );
+      });
+
+      it("returns a 500 response when public key source is JWKS and no key with kid found on JWKS endpoint", async () => {
+        const app = createApp();
+        const config = Config.getInstance();
+        config.setPublicKeySource("JWKS");
+        config.setJwksUrl("http://example.com/.well-known/jwks.json");
+        const requestParams = createRequestParams({
+          client_id: knownClientId,
+          redirect_uri: knownRedirectUri,
+          response_type: "code",
+          scope: "openid email",
+          request: await encodedJwtWithParams(
+            {
+              scope: "openid email",
+            },
+            { alg: "RS256", kid: "test-key-id" }
+          ),
+        });
+        mockJwks([]);
+
+        const response = await request(app).get(
+          authoriseEndpoint + "?" + requestParams
+        );
+
+        expect(response.status).toBe(500);
+        expect(response.text).toBe(
+          JSON.stringify({
+            error: "server_error",
+            error_description: "Unexpected server error",
+          })
+        );
+      });
     });
 
     describe("/authorize GET controller: invalid request redirecting errors", () => {
@@ -1404,6 +1520,43 @@ describe("Authorise controller tests", () => {
             login_hint: "email@email.com",
             channel: "generic_app",
           }),
+        });
+        const response = await request(app).get(
+          authoriseEndpoint + "?" + requestParams
+        );
+
+        expect(response.status).toBe(302);
+        expect(response.header.location).toBe(
+          `${knownRedirectUri}?code=${knownAuthCode}&state=${state}`
+        );
+      });
+
+      it("returns 302 and redirect with an auth code when validating signature using JWKS", async () => {
+        const app = createApp();
+        const config = Config.getInstance();
+        config.setPublicKeySource("JWKS");
+        config.setJwksUrl("http://example.com/.well-known/jwks.json");
+        const publicKeyJwk = rsaKeyPair.publicKey.export({ format: "jwk" });
+        mockJwks([
+          {
+            ...(publicKeyJwk as JWK),
+            kid: "test-key-id",
+            use: "sig",
+            alg: "RS256",
+          },
+        ]);
+        const requestParams = createRequestParams({
+          client_id: knownClientId,
+          redirect_uri: knownRedirectUri,
+          response_type: "code",
+          scope: "openid email",
+          request: await encodedJwtWithParams(
+            {},
+            {
+              alg: "RS256",
+              kid: "test-key-id",
+            }
+          ),
         });
 
         const response = await request(app).get(

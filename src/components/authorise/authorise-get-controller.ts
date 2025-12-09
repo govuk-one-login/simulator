@@ -15,6 +15,7 @@ import { validateAuthRequestObject } from "../../validators/validate-auth-reques
 import { transformRequestObject } from "../../utils/utils";
 import { TrustChainValidationError } from "../../errors/trust-chain-validation-error";
 import { renderResponseConfigFrom } from "../utils/form/render-response-config-form";
+import { JwksError } from "../../errors/jwks-error";
 
 export const authoriseController = async (
   req: Request,
@@ -164,6 +165,11 @@ const handleRequestError = (
     res.status(405).send(error.message);
   } else if (error instanceof TrustChainValidationError) {
     res.status(400).send(error.message);
+  } else if (error instanceof JwksError) {
+    res.status(500).json({
+      error: "server_error",
+      error_description: "Unexpected server error",
+    });
   } else {
     logger.error("Unknown error occurred: " + (error as Error).message);
     logger.error(error);

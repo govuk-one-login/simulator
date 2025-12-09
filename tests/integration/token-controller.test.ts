@@ -2,6 +2,7 @@ import {
   errors,
   exportSPKI,
   importPKCS8,
+  JWK,
   JWTPayload,
   jwtVerify,
   SignJWT,
@@ -92,8 +93,10 @@ const createClientAssertionPayload = (
     .encode()
     .split(".")[1];
 
-const createClientAssertionHeader = (alg?: string) =>
-  Buffer.from(JSON.stringify({ alg: alg ?? "RS256" })).toString("base64url");
+const createClientAssertionHeader = (alg?: string, kid?: string) =>
+  Buffer.from(JSON.stringify({ alg: alg ?? "RS256", kid })).toString(
+    "base64url"
+  );
 
 const fakeSignature = () => randomBytes(16).toString("hex");
 
@@ -111,6 +114,20 @@ const setupClientConfig = async (
   process.env.PUBLIC_KEY = publicKey;
   process.env.ID_TOKEN_SIGNING_ALGORITHM = signingAlgorithm;
   Config.resetInstance();
+};
+
+const mockJwks = (jwks: JWK[]): void => {
+  jest.spyOn(global, "fetch").mockImplementation(
+    jest.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            keys: jwks,
+          }),
+      })
+    ) as jest.Mock
+  );
 };
 
 describe("/token endpoint tests, invalid request", () => {
@@ -474,6 +491,129 @@ describe("/token endpoint tests, invalid client assertion", () => {
     expect(response.body).toStrictEqual({
       error: "invalid_client",
       error_description: "Invalid signature in private_key_jwt",
+    });
+  });
+
+  it("returns a server error when publicKeySource is JWKS and no JWKS URL is set", async () => {
+    await setupClientConfig(knownClientId);
+    const config = Config.getInstance();
+    config.setPublicKeySource("JWKS");
+
+    jest
+      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
+      .mockReturnValue(undefined);
+
+    const clientAssertion =
+      createClientAssertionHeader("RS256", "test-key-id") +
+      "." +
+      createClientAssertionPayload({
+        iss: knownClientId,
+        sub: knownClientId,
+        aud: "https://identity-provider.example.com/token",
+        jti: randomUUID(),
+        iat: Math.floor(TIME_NOW / 1000),
+        exp: Math.floor(TIME_NOW / 1000) + 3600,
+      }) +
+      "." +
+      fakeSignature();
+
+    const app = createApp();
+    const response = await request(app).post(TOKEN_ENDPOINT).send({
+      grant_type: "authorization_code",
+      code: randomUUID(),
+      client_assertion_type:
+        "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+      redirect_uri: redirectUri,
+      client_assertion: clientAssertion,
+    });
+    expect(response.status).toEqual(500);
+    expect(response.body).toStrictEqual({
+      error: "server_error",
+      error_description:
+        "Failed to fetch or parse JWKS to verify signature of private_key_jwt",
+    });
+  });
+
+  it("returns a server error when publicKeySource is JWKS and no kid set in header", async () => {
+    await setupClientConfig(knownClientId);
+    const config = Config.getInstance();
+    config.setPublicKeySource("JWKS");
+    config.setJwksUrl("https://example.com/.well-known/jwks.json");
+
+    jest
+      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
+      .mockReturnValue(undefined);
+
+    const clientAssertion =
+      createClientAssertionHeader() +
+      "." +
+      createClientAssertionPayload({
+        iss: knownClientId,
+        sub: knownClientId,
+        aud: "https://identity-provider.example.com/token",
+        jti: randomUUID(),
+        iat: Math.floor(TIME_NOW / 1000),
+        exp: Math.floor(TIME_NOW / 1000) + 3600,
+      }) +
+      "." +
+      fakeSignature();
+
+    const app = createApp();
+    const response = await request(app).post(TOKEN_ENDPOINT).send({
+      grant_type: "authorization_code",
+      code: randomUUID(),
+      client_assertion_type:
+        "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+      redirect_uri: redirectUri,
+      client_assertion: clientAssertion,
+    });
+    expect(response.status).toEqual(500);
+    expect(response.body).toStrictEqual({
+      error: "server_error",
+      error_description:
+        "Failed to fetch or parse JWKS to verify signature of private_key_jwt",
+    });
+  });
+
+  it("returns a server error when publicKeySource is JWKS and no key with kid found on JWKS endpoint", async () => {
+    await setupClientConfig(knownClientId);
+    const config = Config.getInstance();
+    config.setPublicKeySource("JWKS");
+    config.setJwksUrl("https://example.com/.well-known/jwks.json");
+    mockJwks([]);
+
+    jest
+      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
+      .mockReturnValue(undefined);
+
+    const clientAssertion =
+      createClientAssertionHeader("RS256", "test-key-id") +
+      "." +
+      createClientAssertionPayload({
+        iss: knownClientId,
+        sub: knownClientId,
+        aud: "https://identity-provider.example.com/token",
+        jti: randomUUID(),
+        iat: Math.floor(TIME_NOW / 1000),
+        exp: Math.floor(TIME_NOW / 1000) + 3600,
+      }) +
+      "." +
+      fakeSignature();
+
+    const app = createApp();
+    const response = await request(app).post(TOKEN_ENDPOINT).send({
+      grant_type: "authorization_code",
+      code: randomUUID(),
+      client_assertion_type:
+        "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+      redirect_uri: redirectUri,
+      client_assertion: clientAssertion,
+    });
+    expect(response.status).toEqual(500);
+    expect(response.body).toStrictEqual({
+      error: "server_error",
+      error_description:
+        "Failed to fetch or parse JWKS to verify signature of private_key_jwt",
     });
   });
 });

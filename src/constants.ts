@@ -99,3 +99,5 @@ export const INVALID_ISSUER = "https://example.com/identity-provider";
 export const ONE_DAY_IN_SECONDS = 86400;
 
 export const VALID_CHANNELS = ["web", "generic_app"];
+
+export const VALID_PUBLIC_KEY_SOURCE = ["STATIC", "JWKS"];

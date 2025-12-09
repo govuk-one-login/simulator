@@ -3,8 +3,9 @@ import { SUPPORTED_UI_LOCALES, VALID_OIDC_PROMPTS } from "../constants";
 import { logger } from "../logger";
 import { AuthRequest, RequestObject } from "../parse/parse-auth-request";
 import { VectorOfTrust } from "../types/vector-of-trust";
-import { JWTPayload } from "jose";
+import { JSONWebKeySet, JWK, JWTPayload } from "jose";
 import { ParseAuthRequestError } from "..//errors/parse-auth-request-error";
+import { JwksError } from "../errors/jwks-error";
 
 export const isValidUri = (uri: string): boolean => {
   try {
@@ -163,4 +164,31 @@ export const getAccessTokenFromHeaders = (
   const match = /^Bearer (?<token>.*)$/.exec(authorisationHeader);
   const accessToken = match?.groups?.token;
   return accessToken;
+};
+
+export const getSigningKeyFromJwksUrl = async (
+  url: string,
+  kid: string
+): Promise<JWK> => {
+  const result = await fetch(url);
+  if (!result.ok) {
+    throw new JwksError(`Failed to fetch JWKS from URL ${url}`);
+  }
+  const jwks = (await result.json()) as JSONWebKeySet;
+  return getSigningKeyFromJwksList(jwks?.keys || [], kid, url);
+};
+
+export const getSigningKeyFromJwksList = (
+  jwks: JWK[],
+  kid: string,
+  url: string
+): JWK => {
+  const validKeys = jwks.filter(
+    (jwk) => jwk.use === "sig" && jwk.kty === "RSA" && jwk.kid === kid
+  );
+  if (validKeys.length > 0) {
+    return validKeys[0];
+  } else {
+    throw new JwksError(`No RSA signing key found on JWKS URL ${url}`);
+  }
 };

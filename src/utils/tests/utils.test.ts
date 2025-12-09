@@ -1,7 +1,9 @@
 import { AuthoriseRequestError } from "../../errors/authorise-request-error";
+import { JwksError } from "../../errors/jwks-error";
 import {
   getClaimsKeys,
   getRequestObjectVtrAsString,
+  getSigningKeyFromJwksList,
   parseRequestObjectClaims,
 } from "../utils";
 
@@ -72,6 +74,47 @@ describe("Utils test", () => {
           '{"userinfo":{"claim1":{"essential":true},"claim2":{"essential":true}}}'
         )
       ).toStrictEqual(["claim1", "claim2"]);
+    });
+  });
+  describe("getSigningKeyJwks tests", () => {
+    const jwksUrl = "https://example.com/well-known/jwks.json";
+    const ecSigningKey = {
+      alg: "ES256",
+      kty: "EC",
+      use: "sig",
+      kid: "test-key-1",
+    };
+    const rsaSigningKey = {
+      alg: "RS256",
+      kty: "RSA",
+      use: "sig",
+      kid: "test-key-2",
+    };
+    const rsaEncryptionKey = {
+      alg: "RS256",
+      kty: "RSA",
+      use: "enc",
+      kid: "test-key-3",
+    };
+    it("finds an RSA signing key", () => {
+      const jwksList = [ecSigningKey, rsaSigningKey, rsaEncryptionKey];
+
+      const selectedKey = getSigningKeyFromJwksList(
+        jwksList,
+        "test-key-2",
+        jwksUrl
+      );
+
+      expect(selectedKey).toBe(rsaSigningKey);
+    });
+    it("throw error if no RSA signing key found", () => {
+      const jwksList = [ecSigningKey, rsaEncryptionKey];
+
+      expect(() =>
+        getSigningKeyFromJwksList(jwksList, "test-key-2", jwksUrl)
+      ).toThrow(
+        new JwksError(`No RSA signing key found on JWKS URL ${jwksUrl}`)
+      );
     });
   });
 });
