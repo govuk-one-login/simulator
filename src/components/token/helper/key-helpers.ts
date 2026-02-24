@@ -1,4 +1,10 @@
-import { exportJWK, importPKCS8, type JSONWebKeySet, JWK, KeyLike } from "jose";
+import {
+  exportJWK,
+  importPKCS8,
+  type JSONWebKeySet,
+  JWK,
+  CryptoKey,
+} from "jose";
 import { createPrivateKey, createPublicKey } from "node:crypto";
 import {
   EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
@@ -18,7 +24,7 @@ export const getTokenSigningKey = async (
   tokenSigningAlgorithm: string,
   config: Config
 ): Promise<{
-  key: KeyLike;
+  key: CryptoKey;
   keyId: string;
 }> => {
   if (tokenSigningAlgorithm === "ES256") {

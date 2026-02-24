@@ -6,7 +6,6 @@ import {
   importSPKI,
   JWTPayload,
   jwtVerify,
-  KeyLike,
 } from "jose";
 import { Config } from "../../../config";
 import { logger } from "../../../logger";
@@ -283,7 +282,7 @@ const isSignatureValid = async (
 };
 
 const isSignatureValidUsingKeyLike = async (
-  parsedPublicKey: KeyLike | Uint8Array,
+  parsedPublicKey: CryptoKey | Uint8Array,
   token: string
 ): Promise<boolean> => {
   try {
