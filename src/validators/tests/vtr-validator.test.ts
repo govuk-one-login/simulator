@@ -6,6 +6,10 @@ describe("vtrValidator tests", () => {
   const config = Config.getInstance();
 
   const levelOfConfidenceSpy = jest.spyOn(config, "getClientLoCs");
+  const identityVerificationSupportedSpy = jest.spyOn(
+    config,
+    "getIdentityVerificationSupported"
+  );
   const state = "4063a64d651d9077adee7c51a26e87e8";
   const redirectUri = "https://example.com/authentication-callback";
 
@@ -209,8 +213,26 @@ describe("vtrValidator tests", () => {
     );
   });
 
+  it("throws an error when an identity vtr is requested and the client has identity verification not supported", () => {
+    levelOfConfidenceSpy.mockReturnValue(["P0", "P2"]);
+    identityVerificationSupportedSpy.mockReturnValue(false);
+
+    expect(() =>
+      vtrValidator('["Cl.Cm.P2"]', config, state, redirectUri)
+    ).toThrow(
+      new AuthoriseRequestError({
+        errorCode: "invalid_request",
+        errorDescription: "Request vtr not valid",
+        httpStatusCode: 302,
+        state,
+        redirectUri,
+      })
+    );
+  });
+
   it("returns a parsed valid vtr set", () => {
     levelOfConfidenceSpy.mockReturnValue(["P1", "P2", "P3"]);
+    identityVerificationSupportedSpy.mockReturnValue(true);
 
     expect(
       vtrValidator(
