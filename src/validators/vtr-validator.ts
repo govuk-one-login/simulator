@@ -62,6 +62,15 @@ export const vtrValidator = (
     );
     throw generateInvalidVtrError(redirectUri, state);
   }
+  if (
+    identityVectors.length > 0 &&
+    !config.getIdentityVerificationSupported()
+  ) {
+    logger.error(
+      "Level of confidence values for an identity journey have been requested, but identity is not supported for this client."
+    );
+    throw generateInvalidVtrError(redirectUri, state);
+  }
 
   return parsedVtrSet;
 };
