@@ -6,10 +6,12 @@ import { VectorOfTrust } from "../types/vector-of-trust";
 import { JSONWebKeySet, JWK, JWTPayload } from "jose";
 import { ParseAuthRequestError } from "..//errors/parse-auth-request-error";
 import { JwksError } from "../errors/jwks-error";
+import { ensureLegalRedirectURI } from "../validators/validate-redirectUri";
 
 export const isValidUri = (uri: string): boolean => {
   try {
-    new URL(uri);
+    const redirectURI = new URL(uri);
+    ensureLegalRedirectURI(redirectURI);
     return true;
   } catch (error) {
     logger.error("Error parsing redirect_uri: " + (error as Error).message);
