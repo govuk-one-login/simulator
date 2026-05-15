@@ -65,8 +65,8 @@ const signPayload = async (
 };
 
 const mockJwks = (jwks: JWK[]): void => {
-  jest.spyOn(global, "fetch").mockImplementation(
-    jest.fn(() =>
+  vi.spyOn(global, "fetch").mockImplementation(
+    vi.fn(() =>
       Promise.resolve({
         ok: true,
         json: () =>
@@ -74,13 +74,13 @@ const mockJwks = (jwks: JWK[]): void => {
             keys: jwks,
           }),
       })
-    ) as jest.Mock
+    ) as vi.Mock
   );
 };
 
 describe("Authorise controller tests", () => {
   beforeEach(async () => {
-    jest.spyOn(crypto, "randomBytes").mockImplementation(() => fixedBuffer);
+    vi.spyOn(crypto, "randomBytes").mockImplementation(() => fixedBuffer);
     process.env.CLIENT_ID = knownClientId;
     process.env.REDIRECT_URLS = knownRedirectUri;
     process.env.SCOPES = "openid,email";
@@ -519,9 +519,9 @@ describe("Authorise controller tests", () => {
 
     describe("valid auth request", () => {
       it("returns 302 and redirects with an access_denied error when the client has enabled ACCESS_DENIED", async () => {
-        jest
-          .spyOn(Config.getInstance(), "getAuthoriseErrors")
-          .mockReturnValue(["ACCESS_DENIED"]);
+        vi.spyOn(Config.getInstance(), "getAuthoriseErrors").mockReturnValue([
+          "ACCESS_DENIED",
+        ]);
 
         const app = createApp();
         const requestParams = createRequestParams({
@@ -544,9 +544,9 @@ describe("Authorise controller tests", () => {
       });
 
       it("returns 302 and redirects with a temporarily_unavailable error when the client has enabled TEMPORARILY_UNAVAILABLE", async () => {
-        jest
-          .spyOn(Config.getInstance(), "getAuthoriseErrors")
-          .mockReturnValue(["TEMPORARILY_UNAVAILABLE"]);
+        vi.spyOn(Config.getInstance(), "getAuthoriseErrors").mockReturnValue([
+          "TEMPORARILY_UNAVAILABLE",
+        ]);
 
         const app = createApp();
         const requestParams = createRequestParams({

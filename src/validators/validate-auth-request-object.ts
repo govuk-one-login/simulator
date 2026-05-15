@@ -1,4 +1,4 @@
-import { importJWK, importSPKI, JWTPayload, jwtVerify, KeyLike } from "jose";
+import { importJWK, importSPKI, JWTPayload, jwtVerify, CryptoKey } from "jose";
 import { Config } from "../config";
 import { AuthoriseRequestError } from "../errors/authorise-request-error";
 import { BadRequestError } from "../errors/bad-request-error";
@@ -210,7 +210,7 @@ async function validateJwtSignature(
 
 async function validateJwtSignatureWithKey(
   requestObject: RequestObject,
-  signingKey: KeyLike | Uint8Array
+  signingKey: CryptoKey | Uint8Array
 ) {
   try {
     await jwtVerify(requestObject?.encodedJwt, signingKey);

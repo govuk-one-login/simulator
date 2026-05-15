@@ -4,7 +4,7 @@ import { areClaimsValid } from "../claims-validator";
 describe("claims validation tests", () => {
   const config = Config.getInstance();
 
-  const claimsSpy = jest.spyOn(config, "getClaims");
+  const claimsSpy = vi.spyOn(config, "getClaims");
 
   it("returns true if the claims are empty", () => {
     claimsSpy.mockReturnValue([

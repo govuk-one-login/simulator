@@ -3,7 +3,7 @@ import { areScopesValid } from "../scope-validator";
 
 describe("scope validator tests", () => {
   const config = Config.getInstance();
-  const scopesSpy = jest.spyOn(config, "getScopes");
+  const scopesSpy = vi.spyOn(config, "getScopes");
 
   it("returns false for any invalid scopes", () => {
     scopesSpy.mockReturnValue(["openid", "phone"]);

@@ -1,5 +1,4 @@
-jest.mock("crypto", () => ({
-  ...jest.requireActual("crypto"),
+vi.mock("crypto", () => ({
   randomUUID: () => "1234567",
 }));
 
@@ -19,9 +18,9 @@ describe("createAccessToken tests", () => {
   const testSubClaim =
     "urn:fdc:gov.uk:2022:56P4CMsGh_02YOlWpd8PAOI-2sVlB2nsNU7mcLZYhYw=";
 
-  const clientIdSpy = jest.spyOn(Config.getInstance(), "getClientId");
-  const subSpy = jest.spyOn(Config.getInstance(), "getSub");
-  const tokenSigningAlgorithmSpy = jest.spyOn(
+  const clientIdSpy = vi.spyOn(Config.getInstance(), "getClientId");
+  const subSpy = vi.spyOn(Config.getInstance(), "getSub");
+  const tokenSigningAlgorithmSpy = vi.spyOn(
     Config.getInstance(),
     "getIdTokenSigningAlgorithm"
   );
@@ -30,12 +29,12 @@ describe("createAccessToken tests", () => {
     JSON.parse(Buffer.from(part, "base64url").toString());
 
   beforeEach(() => {
-    jest.useFakeTimers();
-    jest.setSystemTime(testTimestamp);
+    vi.useFakeTimers();
+    vi.setSystemTime(testTimestamp);
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   test.each<{

@@ -1,15 +1,20 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "ESNext",
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "target": "es2022",
+    "target": "ESNext",
+    "noImplicitAny": true,
+    "moduleResolution": "bundler",
     "strict": true,
     "sourceMap": true,
     "outDir": "dist",
     "baseUrl": ".",
-    "typeRoots": ["@types", "node_modules/@types"]
+    "typeRoots": ["@types", "node_modules/@types", "node_modules"],
+    "types": ["node", "vitest/globals"],
+    "noEmit": true,
+    "allowImportingTsExtensions": true
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["tests", "coverage", "src/**/**/tests"]
+  "exclude": ["tests", "coverage"]
 }

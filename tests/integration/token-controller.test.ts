@@ -34,7 +34,7 @@ import { publicJwkWithKidFromPrivateKey } from "../../src/components/token/helpe
 const TOKEN_ENDPOINT = "/token";
 
 const TIME_NOW = 1736789549;
-jest.useFakeTimers().setSystemTime(TIME_NOW);
+vi.useFakeTimers().setSystemTime(TIME_NOW);
 
 const rsaKeyPair = generateKeyPairSync("rsa", {
   modulusLength: 2048,
@@ -117,8 +117,8 @@ const setupClientConfig = async (
 };
 
 const mockJwks = (jwks: JWK[]): void => {
-  jest.spyOn(global, "fetch").mockImplementation(
-    jest.fn(() =>
+  vi.spyOn(global, "fetch").mockImplementation(
+    vi.fn(() =>
       Promise.resolve({
         ok: true,
         json: () =>
@@ -126,7 +126,7 @@ const mockJwks = (jwks: JWK[]): void => {
             keys: jwks,
           }),
       })
-    ) as jest.Mock
+    ) as vi.Mock
   );
 };
 
@@ -460,9 +460,9 @@ describe("/token endpoint tests, invalid client assertion", () => {
   it("returns an invalid signature for an unknown audience in client_assertion", async () => {
     await setupClientConfig(knownClientId);
 
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(undefined);
+    vi.spyOn(Config.getInstance(), "getAuthCodeRequestParams").mockReturnValue(
+      undefined
+    );
 
     const clientAssertion =
       createClientAssertionHeader() +
@@ -499,9 +499,9 @@ describe("/token endpoint tests, invalid client assertion", () => {
     const config = Config.getInstance();
     config.setPublicKeySource("JWKS");
 
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(undefined);
+    vi.spyOn(Config.getInstance(), "getAuthCodeRequestParams").mockReturnValue(
+      undefined
+    );
 
     const clientAssertion =
       createClientAssertionHeader("RS256", "test-key-id") +
@@ -540,9 +540,9 @@ describe("/token endpoint tests, invalid client assertion", () => {
     config.setPublicKeySource("JWKS");
     config.setJwksUrl("https://example.com/.well-known/jwks.json");
 
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(undefined);
+    vi.spyOn(Config.getInstance(), "getAuthCodeRequestParams").mockReturnValue(
+      undefined
+    );
 
     const clientAssertion =
       createClientAssertionHeader() +
@@ -582,9 +582,9 @@ describe("/token endpoint tests, invalid client assertion", () => {
     config.setJwksUrl("https://example.com/.well-known/jwks.json");
     mockJwks([]);
 
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(undefined);
+    vi.spyOn(Config.getInstance(), "getAuthCodeRequestParams").mockReturnValue(
+      undefined
+    );
 
     const clientAssertion =
       createClientAssertionHeader("RS256", "test-key-id") +
@@ -766,7 +766,7 @@ describe("/token endpoint tests, invalid client_secret_post", () => {
 });
 
 describe("/token endpoint, configured error responses", () => {
-  jest.spyOn(Config.getInstance(), "getIdTokenErrors");
+  vi.spyOn(Config.getInstance(), "getIdTokenErrors");
   let validRequest: Record<string, string>;
 
   beforeEach(async () => {
@@ -789,9 +789,9 @@ describe("/token endpoint, configured error responses", () => {
 
   it("returns an invalid header if the client config has enabled INVALID_ALG_HEADER", async () => {
     await setupClientConfig(knownClientId, ["INVALID_ALG_HEADER"]);
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(validAuthRequestParams);
+    vi.spyOn(Config.getInstance(), "getAuthCodeRequestParams").mockReturnValue(
+      validAuthRequestParams
+    );
 
     const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
@@ -806,9 +806,9 @@ describe("/token endpoint, configured error responses", () => {
 
   it("returns an invalid signature if the client config has enabled INVALID_SIGNATURE", async () => {
     await setupClientConfig(knownClientId, ["INVALID_SIGNATURE"]);
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(validAuthRequestParams);
+    vi.spyOn(Config.getInstance(), "getAuthCodeRequestParams").mockReturnValue(
+      validAuthRequestParams
+    );
 
     const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
@@ -821,9 +821,9 @@ describe("/token endpoint, configured error responses", () => {
 
   it("returns an invalid vot if the client config has enabled INCORRECT_VOT", async () => {
     await setupClientConfig(knownClientId, ["INCORRECT_VOT"]);
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(validAuthRequestParams);
+    vi.spyOn(Config.getInstance(), "getAuthCodeRequestParams").mockReturnValue(
+      validAuthRequestParams
+    );
 
     const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
@@ -835,9 +835,9 @@ describe("/token endpoint, configured error responses", () => {
 
   it("returns an invalid iat in the future if the client config has enabled TOKEN_NOT_VALID_YET", async () => {
     await setupClientConfig(knownClientId, ["TOKEN_NOT_VALID_YET"]);
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(validAuthRequestParams);
+    vi.spyOn(Config.getInstance(), "getAuthCodeRequestParams").mockReturnValue(
+      validAuthRequestParams
+    );
 
     const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
@@ -848,9 +848,9 @@ describe("/token endpoint, configured error responses", () => {
 
   it("returns an expired token if the client config has enabled TOKEN_EXPIRED", async () => {
     await setupClientConfig(knownClientId, ["TOKEN_EXPIRED"]);
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(validAuthRequestParams);
+    vi.spyOn(Config.getInstance(), "getAuthCodeRequestParams").mockReturnValue(
+      validAuthRequestParams
+    );
 
     const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
@@ -861,9 +861,9 @@ describe("/token endpoint, configured error responses", () => {
 
   it("returns an invalid aud if the client config has enabled INVALID_AUD", async () => {
     await setupClientConfig(knownClientId, ["INVALID_AUD"]);
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(validAuthRequestParams);
+    vi.spyOn(Config.getInstance(), "getAuthCodeRequestParams").mockReturnValue(
+      validAuthRequestParams
+    );
 
     const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
@@ -874,9 +874,9 @@ describe("/token endpoint, configured error responses", () => {
 
   it("returns an invalid iss if the client config has enabled INVALID_ISS", async () => {
     await setupClientConfig(knownClientId, ["INVALID_ISS"]);
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(validAuthRequestParams);
+    vi.spyOn(Config.getInstance(), "getAuthCodeRequestParams").mockReturnValue(
+      validAuthRequestParams
+    );
 
     const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
@@ -888,9 +888,9 @@ describe("/token endpoint, configured error responses", () => {
 
   it("returns an invalid nonce if the client config has enabled NONCE_NOT_MATCHING", async () => {
     await setupClientConfig(knownClientId, ["NONCE_NOT_MATCHING"]);
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(validAuthRequestParams);
+    vi.spyOn(Config.getInstance(), "getAuthCodeRequestParams").mockReturnValue(
+      validAuthRequestParams
+    );
 
     const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
@@ -902,15 +902,15 @@ describe("/token endpoint, configured error responses", () => {
 
 describe("/token endpoint valid client_assertion", () => {
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("returns an invalid_grant error when there are no auth request params for auth code", async () => {
     await setupClientConfig(knownClientId);
 
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(undefined);
+    vi.spyOn(Config.getInstance(), "getAuthCodeRequestParams").mockReturnValue(
+      undefined
+    );
 
     const clientAssertion = await createValidClientAssertion({
       iss: knownClientId,
@@ -939,9 +939,9 @@ describe("/token endpoint valid client_assertion", () => {
 
   it("returns an invalid_grant error if the request redirect uri does not match the auth code params", async () => {
     await setupClientConfig(knownClientId);
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(redirectUriMismatchParams);
+    vi.spyOn(Config.getInstance(), "getAuthCodeRequestParams").mockReturnValue(
+      redirectUriMismatchParams
+    );
 
     const clientAssertion = await createValidClientAssertion({
       iss: knownClientId,
@@ -970,9 +970,9 @@ describe("/token endpoint valid client_assertion", () => {
 
   test("returns a valid access_token and id_token for a valid token request with a $tokenSigningAlgorithm signed client assertion", async () => {
     await setupClientConfig(knownClientId);
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(validAuthRequestParams);
+    vi.spyOn(Config.getInstance(), "getAuthCodeRequestParams").mockReturnValue(
+      validAuthRequestParams
+    );
 
     const clientAssertion = await createValidClientAssertion({
       iss: knownClientId,
@@ -1036,9 +1036,9 @@ describe("/token endpoint valid client_assertion", () => {
 
   test("returns a valid access_token and id_token for a valid token request with the issuer as the client assertion audience", async () => {
     await setupClientConfig(knownClientId);
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(validAuthRequestParams);
+    vi.spyOn(Config.getInstance(), "getAuthCodeRequestParams").mockReturnValue(
+      validAuthRequestParams
+    );
 
     const clientAssertion = await createValidClientAssertion({
       iss: knownClientId,
@@ -1128,9 +1128,9 @@ describe("/token endpoint tests, valid client_secret_post", () => {
     process.env.CLIENT_SECRET_HASH = hashedSecret;
     Config.resetInstance();
 
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(validAuthRequestParams);
+    vi.spyOn(Config.getInstance(), "getAuthCodeRequestParams").mockReturnValue(
+      validAuthRequestParams
+    );
 
     const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send({
@@ -1201,7 +1201,7 @@ describe('when INTERACTIVE_MODE is set to "true"', () => {
 
     const config = Config.getInstance();
 
-    jest.spyOn(config, "getAuthCodeRequestParams").mockReturnValue({
+    vi.spyOn(config, "getAuthCodeRequestParams").mockReturnValue({
       ...validAuthRequestParams,
       responseConfiguration,
     });
@@ -1287,9 +1287,9 @@ describe('when PKCE_ENABLED is set to "true"', () => {
       code_challenge: "eIe4S9eBZL3SvHEtvsxhvN4FQ8ln3VmwUQvjdVJ-VEY",
     };
 
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(codeChallengeValidAuthRequestParams);
+    vi.spyOn(Config.getInstance(), "getAuthCodeRequestParams").mockReturnValue(
+      codeChallengeValidAuthRequestParams
+    );
 
     const clientAssertion = await createValidClientAssertion({
       iss: knownClientId,
@@ -1321,9 +1321,9 @@ describe('when PKCE_ENABLED is set to "true"', () => {
       code_challenge: "eIe4S9eBZL3SvHEtvsxhvN4FQ8ln3VmwUQvjdVJ-VLL",
     };
 
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(codeChallengeValidAuthRequestParams);
+    vi.spyOn(Config.getInstance(), "getAuthCodeRequestParams").mockReturnValue(
+      codeChallengeValidAuthRequestParams
+    );
 
     const clientAssertion = await createValidClientAssertion({
       iss: knownClientId,
@@ -1355,9 +1355,9 @@ describe('when PKCE_ENABLED is set to "true"', () => {
   it("returns 400 with missing code challenge", async () => {
     await setupClientConfig(knownClientId);
 
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(validAuthRequestParams);
+    vi.spyOn(Config.getInstance(), "getAuthCodeRequestParams").mockReturnValue(
+      validAuthRequestParams
+    );
 
     const clientAssertion = await createValidClientAssertion({
       iss: knownClientId,
@@ -1393,9 +1393,9 @@ describe('when PKCE_ENABLED is set to "true"', () => {
       code_challenge: "eIe4S9eBZL3SvHEtvsxhvN4FQ8ln3VmwUQvjdVJ-VEY",
     };
 
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(codeChallengeValidAuthRequestParams);
+    vi.spyOn(Config.getInstance(), "getAuthCodeRequestParams").mockReturnValue(
+      codeChallengeValidAuthRequestParams
+    );
 
     const clientAssertion = await createValidClientAssertion({
       iss: knownClientId,
@@ -1438,9 +1438,9 @@ describe("With new signing keys enabled ", () => {
   it("uses the new signing keys for an RSA client", async () => {
     await setupClientConfig(knownClientId);
 
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(validAuthRequestParams);
+    vi.spyOn(Config.getInstance(), "getAuthCodeRequestParams").mockReturnValue(
+      validAuthRequestParams
+    );
 
     const clientAssertion = await createValidClientAssertion({
       iss: knownClientId,
@@ -1487,9 +1487,9 @@ describe("With new signing keys enabled ", () => {
   it("uses the new signing keys for an ES client", async () => {
     await setupClientConfig(knownClientId, [], "ES256");
 
-    jest
-      .spyOn(Config.getInstance(), "getAuthCodeRequestParams")
-      .mockReturnValue(validAuthRequestParams);
+    vi.spyOn(Config.getInstance(), "getAuthCodeRequestParams").mockReturnValue(
+      validAuthRequestParams
+    );
 
     const clientAssertion = await createValidClientAssertion({
       iss: knownClientId,

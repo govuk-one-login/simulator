@@ -8,7 +8,7 @@ import { argon2id, hash } from "argon2";
 
 describe("validateClientSecretPost tests", () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("throws an invalid_request for no client_id", async () => {
@@ -38,7 +38,7 @@ describe("validateClientSecretPost tests", () => {
 
   it("throws an invalid_client for unknown client_id", async () => {
     const config = Config.getInstance();
-    jest.spyOn(config, "getClientId").mockReturnValue("a-different-client-id");
+    vi.spyOn(config, "getClientId").mockReturnValue("a-different-client-id");
 
     const validRequest = {
       client_id: "clientId",
@@ -58,9 +58,9 @@ describe("validateClientSecretPost tests", () => {
   it("throws an invalid_client if the client is not configured to use client_secret_post", async () => {
     const clientId = "clientId";
     const config = Config.getInstance();
-    jest.spyOn(config, "getClientId").mockReturnValue(clientId);
+    vi.spyOn(config, "getClientId").mockReturnValue(clientId);
 
-    jest.spyOn(config, "getTokenAuthMethod").mockReturnValue("private_key_jwt");
+    vi.spyOn(config, "getTokenAuthMethod").mockReturnValue("private_key_jwt");
 
     const validRequest = {
       client_id: clientId,
@@ -81,11 +81,11 @@ describe("validateClientSecretPost tests", () => {
   it("throws an invalid_client if the client is not configured to use client_secret_post", async () => {
     const clientId = "clientId";
     const config = Config.getInstance();
-    jest.spyOn(config, "getClientId").mockReturnValue(clientId);
+    vi.spyOn(config, "getClientId").mockReturnValue(clientId);
 
-    jest
-      .spyOn(config, "getTokenAuthMethod")
-      .mockReturnValue(null as unknown as TokenAuthMethod);
+    vi.spyOn(config, "getTokenAuthMethod").mockReturnValue(
+      null as unknown as TokenAuthMethod
+    );
 
     const validRequest = {
       client_id: clientId,
@@ -106,15 +106,15 @@ describe("validateClientSecretPost tests", () => {
   it("throws an invalid_client if the client is not registered with a client secret hash", async () => {
     const clientId = "clientId";
     const config = Config.getInstance();
-    jest.spyOn(config, "getClientId").mockReturnValue(clientId);
+    vi.spyOn(config, "getClientId").mockReturnValue(clientId);
 
-    jest
-      .spyOn(config, "getTokenAuthMethod")
-      .mockReturnValue("client_secret_post");
+    vi.spyOn(config, "getTokenAuthMethod").mockReturnValue(
+      "client_secret_post"
+    );
 
-    jest
-      .spyOn(config, "getClientSecretHash")
-      .mockReturnValue(null as unknown as string);
+    vi.spyOn(config, "getClientSecretHash").mockReturnValue(
+      null as unknown as string
+    );
 
     const validRequest = {
       client_id: clientId,
@@ -136,11 +136,11 @@ describe("validateClientSecretPost tests", () => {
     const clientId = "clientId";
     const config = Config.getInstance();
 
-    jest.spyOn(config, "getClientId").mockReturnValue(clientId);
+    vi.spyOn(config, "getClientId").mockReturnValue(clientId);
 
-    jest
-      .spyOn(config, "getTokenAuthMethod")
-      .mockReturnValue("client_secret_post");
+    vi.spyOn(config, "getTokenAuthMethod").mockReturnValue(
+      "client_secret_post"
+    );
 
     const secret = randomBytes(40).toString("base64");
     const salt = randomBytes(64);
@@ -154,7 +154,7 @@ describe("validateClientSecretPost tests", () => {
       parallelism: 1,
     });
 
-    jest.spyOn(config, "getClientSecretHash").mockReturnValue(hashedSecret);
+    vi.spyOn(config, "getClientSecretHash").mockReturnValue(hashedSecret);
 
     const validRequest = {
       client_id: clientId,
@@ -178,11 +178,11 @@ describe("validateClientSecretPost tests", () => {
     const clientId = "clientId";
     const config = Config.getInstance();
 
-    jest.spyOn(config, "getClientId").mockReturnValue(clientId);
+    vi.spyOn(config, "getClientId").mockReturnValue(clientId);
 
-    jest
-      .spyOn(config, "getTokenAuthMethod")
-      .mockReturnValue("client_secret_post");
+    vi.spyOn(config, "getTokenAuthMethod").mockReturnValue(
+      "client_secret_post"
+    );
 
     const secret = randomBytes(40).toString("base64");
     const salt = randomBytes(64);
@@ -195,7 +195,7 @@ describe("validateClientSecretPost tests", () => {
       parallelism: 1,
     });
 
-    jest.spyOn(config, "getClientSecretHash").mockReturnValue(hashedSecret);
+    vi.spyOn(config, "getClientSecretHash").mockReturnValue(hashedSecret);
 
     const validRequest = {
       client_id: clientId,

@@ -59,7 +59,7 @@ describe("/.well-known/openid-configuration endpoint test", () => {
 
   it("returns the expected object", async () => {
     const config = Config.getInstance();
-    const pkceEnabledSpy = jest.spyOn(config, "isPKCEEnabled");
+    const pkceEnabledSpy = vi.spyOn(config, "isPKCEEnabled");
     pkceEnabledSpy.mockReturnValue(true);
     const app = createApp();
     const response = await request(app).get(
