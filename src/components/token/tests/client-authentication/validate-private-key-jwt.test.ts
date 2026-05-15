@@ -6,6 +6,7 @@ import { generateKeyPairSync, randomUUID } from "crypto";
 import { logger } from "../../../../logger";
 import { validatePrivateKeyJwt } from "../../client-authentication/validate-private-key-jwt";
 import { JwksError } from "../../../../errors/jwks-error";
+import { Mock } from "vitest";
 
 const fakeClientAssertion = (
   header: Record<string, string>,
@@ -19,11 +20,11 @@ const fakeClientAssertion = (
   signature;
 
 const config = Config.getInstance();
-const publicKeySpy = jest.spyOn(config, "getPublicKey");
-const idTokenSigningSpy = jest.spyOn(config, "getIdTokenSigningAlgorithm");
-const clientIdSpy = jest.spyOn(config, "getClientId");
-const infoLoggerSpy = jest.spyOn(logger, "info");
-const jwksUrlSpy = jest.spyOn(config, "getJwksUrl");
+const publicKeySpy = vi.spyOn(config, "getPublicKey");
+const idTokenSigningSpy = vi.spyOn(config, "getIdTokenSigningAlgorithm");
+const clientIdSpy = vi.spyOn(config, "getClientId");
+const infoLoggerSpy = vi.spyOn(logger, "info");
+const jwksUrlSpy = vi.spyOn(config, "getJwksUrl");
 
 const rsaKeyPair = generateKeyPairSync("rsa", {
   modulusLength: 2048,
@@ -32,21 +33,21 @@ const testTimestamp = 1723707024;
 const knownClientId = "b1a80190cf07983fca7e46375385a8ed";
 const audience = "http://localhost:3000/token";
 const issuer = "http://localhost:3000/";
-jest.mock("jose", () => {
+vi.mock("jose", async () => {
   return {
-    ...jest.requireActual("jose"),
-    createRemoteJWKSet: jest.fn(),
+    ...(await vi.importActual("jose")),
+    createRemoteJWKSet: vi.fn(),
   };
 });
 describe("validatePrivateKeyJwt tests", () => {
   beforeEach(() => {
-    jest.useFakeTimers();
-    jest.setSystemTime(testTimestamp);
+    vi.useFakeTimers();
+    vi.setSystemTime(testTimestamp);
     config.setPublicKeySource("STATIC");
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it("throws an invalid when the client_assertion_type is not urn:ietf:params:oauth:client-assertion-type:jwt-bearer", async () => {
@@ -1035,8 +1036,8 @@ describe("validatePrivateKeyJwt tests", () => {
       );
     });
     const mockJwks = (jwks: JWK[]): void => {
-      jest.spyOn(global, "fetch").mockImplementation(
-        jest.fn(() =>
+      vi.spyOn(global, "fetch").mockImplementation(
+        vi.fn(() =>
           Promise.resolve({
             ok: true,
             json: () =>
@@ -1044,7 +1045,7 @@ describe("validatePrivateKeyJwt tests", () => {
                 keys: jwks,
               }),
           })
-        ) as jest.Mock
+        ) as Mock
       );
     };
   });

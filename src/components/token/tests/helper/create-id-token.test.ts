@@ -31,24 +31,24 @@ describe("createIdToken tests", () => {
   const testAccessToken =
     "eyJhbGciOiJSUzI1NiIsImtpZCI6IjczMzRiNzE4LTNmMjktNDRlZi04YjY1LWUyNjZhMTdkYWVhNSJ9.eyJleHAiOjkzNjQ4OTc4MSwiaWF0Ijo5MzY0ODk2MDEsImlzcyI6Imh0dHBzOi8vb2lkYy50ZXN0LmFjY291bnQuZ292LnVrIiwianRpIjoiMTIzNDU2NyIsImNsaWVudF9pZCI6InRlc3RDbGllbnRJZCIsInN1YiI6InVybjpmZGM6Z292LnVrOjIwMjI6NTZQNENNc0doXzAyWU9sV3BkOFBBT0ktMnNWbEIybnNOVTdtY0xaWWhZdz0iLCJzaWQiOiIxMjM0NTY3Iiwic2NvcGUiOlsib3BlbmlkIl19.GDDz3DcWSUCWMT8OkxZvU8ffiAjOKcNNaW23RzlEBer3G4Xz5Sp7moGtbP4vcfXT_pLUy-_YTIsiJ9r-A1gchhmx_qbfnWcqHxwj3DFYZ_Q16XgpB_7o_MtsiY1aAhqd8-zywTg25aczMHPtZMLVdYx9vw8zlF9iI9sOscS-s5Bje1yZ6ZmbHseHYVa8yJmZIjoKcdnGQXQwGQFp1KyzkA2gJxnR19Nc8O9oM4PA5y6uBCme3YTknei3T3tfJrPiBevtdvr9SV5fBTK2MrPzHao51_8nT841TdnMbHWxYp0FHTiBw7aAQO2VoKQ6Zku5CqBd3dyeQy_sZDNOFrDOTA";
 
-  const clientIdSpy = jest.spyOn(Config.getInstance(), "getClientId");
-  const subSpy = jest.spyOn(Config.getInstance(), "getSub");
-  const tokenSigningAlgorithmSpy = jest.spyOn(
+  const clientIdSpy = vi.spyOn(Config.getInstance(), "getClientId");
+  const subSpy = vi.spyOn(Config.getInstance(), "getSub");
+  const tokenSigningAlgorithmSpy = vi.spyOn(
     Config.getInstance(),
     "getIdTokenSigningAlgorithm"
   );
-  const idTokenErrorSpy = jest.spyOn(Config.getInstance(), "getIdTokenErrors");
+  const idTokenErrorSpy = vi.spyOn(Config.getInstance(), "getIdTokenErrors");
 
   const decodeTokenPart = (part: string) =>
     JSON.parse(Buffer.from(part, "base64url").toString());
 
   beforeEach(() => {
-    jest.useFakeTimers();
-    jest.setSystemTime(testTimestampMs);
+    vi.useFakeTimers();
+    vi.setSystemTime(testTimestampMs);
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it("returns a signed Id token using RS256", async () => {

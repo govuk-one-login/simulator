@@ -57,8 +57,8 @@ describe("parseAuthRequest tests", () => {
       ).toThrow(
         new ParseAuthRequestError(
           "Invalid Request: Invalid prompt parameter",
-          redirectUri,
-          clientId
+          clientId,
+          redirectUri
         )
       );
     });
@@ -120,8 +120,8 @@ describe("parseAuthRequest tests", () => {
       ).toThrow(
         new ParseAuthRequestError(
           "Invalid Request: Missing scope parameter",
-          redirectUri,
-          clientId
+          clientId,
+          redirectUri
         )
       );
     });
@@ -143,8 +143,8 @@ describe("parseAuthRequest tests", () => {
       ).toThrow(
         new ParseAuthRequestError(
           "Invalid Request: Invalid response_type parameter",
-          redirectUri,
-          clientId
+          clientId,
+          redirectUri
         )
       );
     });
@@ -166,8 +166,8 @@ describe("parseAuthRequest tests", () => {
       ).toThrow(
         new ParseAuthRequestError(
           "Invalid Request: The scope must include an openid value",
-          redirectUri,
-          clientId
+          clientId,
+          redirectUri
         )
       );
     });
@@ -188,8 +188,8 @@ describe("parseAuthRequest tests", () => {
       ).toThrow(
         new ParseAuthRequestError(
           "Invalid JSON in claims",
-          redirectUri,
-          clientId
+          clientId,
+          redirectUri
         )
       );
     });
@@ -294,8 +294,7 @@ describe("parseAuthRequest tests", () => {
       ).toThrow(
         new ParseAuthRequestError(
           "Invalid request: Found mutually exclusive request and request_uri parameters",
-          clientId,
-          redirectUri
+          clientId
         )
       );
     });
@@ -312,7 +311,8 @@ describe("parseAuthRequest tests", () => {
         })
       ).toThrow(
         new ParseAuthRequestError(
-          "Invalid request parameter: The JWT sub (subject) claim must not equal the client_id"
+          "Invalid request parameter: The JWT sub (subject) claim must not equal the client_id",
+          clientId
         )
       );
     });
@@ -327,7 +327,8 @@ describe("parseAuthRequest tests", () => {
         })
       ).toThrow(
         new ParseAuthRequestError(
-          "Invalid request parameter: Invalid JWT serialization: Missing dot delimiter"
+          "Invalid request parameter: Invalid JWT serialization: Missing dot delimiter",
+          clientId
         )
       );
     });
@@ -342,7 +343,8 @@ describe("parseAuthRequest tests", () => {
         })
       ).toThrow(
         new ParseAuthRequestError(
-          "Invalid request parameter: Invalid JWT header: Failed to parse JSON"
+          "Invalid request parameter: Invalid JWT header: Failed to parse JSON",
+          clientId
         )
       );
     });
@@ -357,7 +359,8 @@ describe("parseAuthRequest tests", () => {
         })
       ).toThrow(
         new ParseAuthRequestError(
-          "Invalid request parameter: Invalid JWT header: Missing alg in header"
+          "Invalid request parameter: Invalid JWT header: Missing alg in header",
+          clientId
         )
       );
     });

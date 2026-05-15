@@ -5,8 +5,8 @@ import { vtrValidator } from "../vtr-validator";
 describe("vtrValidator tests", () => {
   const config = Config.getInstance();
 
-  const levelOfConfidenceSpy = jest.spyOn(config, "getClientLoCs");
-  const identityVerificationSupportedSpy = jest.spyOn(
+  const levelOfConfidenceSpy = vi.spyOn(config, "getClientLoCs");
+  const identityVerificationSupportedSpy = vi.spyOn(
     config,
     "getIdentityVerificationSupported"
   );

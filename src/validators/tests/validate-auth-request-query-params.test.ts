@@ -240,11 +240,11 @@ describe("validateAuthRequestQueryParams tests", () => {
 
   describe('when PKCE_ENABLED is set to "true"', () => {
     beforeAll(() => {
-      jest.spyOn(config, "isPKCEEnabled").mockReturnValue(true);
+      vi.spyOn(config, "isPKCEEnabled").mockReturnValue(true);
     });
 
     afterAll(() => {
-      jest.spyOn(config, "isPKCEEnabled").mockReturnValue(false);
+      vi.spyOn(config, "isPKCEEnabled").mockReturnValue(false);
     });
 
     it("throw authorise request error when code challenge method is not S256", () => {

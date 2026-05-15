@@ -5,9 +5,11 @@ import { BadRequestError } from "../../errors/bad-request-error";
 import { JWK, jwtVerify } from "jose";
 import { AuthoriseRequestError } from "../../errors/authorise-request-error";
 import { TrustChainValidationError } from "../../errors/trust-chain-validation-error";
+import { Mock } from "vitest";
+import { JwksError } from "../../errors/jwks-error";
 
 const config = Config.getInstance();
-const jwksUrlSpy = jest.spyOn(config, "getJwksUrl");
+const jwksUrlSpy = vi.spyOn(config, "getJwksUrl");
 const defaultRedirectUri = config.getRedirectUrls()[0];
 const defaultState = "123456789";
 const defaultClientId = config.getClientId();
@@ -27,11 +29,11 @@ const defaultAuthRequest = {
   max_age: 123,
 };
 
-jest.mock("jose");
+vi.mock("jose");
 
 describe("Validate auth request object tests", () => {
   beforeEach(() => {
-    (jwtVerify as jest.Mock).mockImplementation();
+    (jwtVerify as Mock).mockImplementation(() => {});
     config.setPublicKeySource("STATIC");
   });
 
@@ -57,7 +59,7 @@ describe("Validate auth request object tests", () => {
       await expect(
         validateAuthRequestObject(authRequest, config)
       ).rejects.toThrow(
-        new Error(
+        new JwksError(
           "No kid present in request object header, cannot verify JWT signature"
         )
       );
@@ -77,7 +79,7 @@ describe("Validate auth request object tests", () => {
       };
       await expect(
         validateAuthRequestObject(authRequest, config)
-      ).rejects.toThrow(new Error("No JWKS url set, returning"));
+      ).rejects.toThrow(new JwksError("No JWKS url set, returning"));
     });
 
     it("throw error when key with kid not found", async () => {
@@ -95,7 +97,7 @@ describe("Validate auth request object tests", () => {
       await expect(
         validateAuthRequestObject(authRequest, config)
       ).rejects.toThrow(
-        new Error(
+        new JwksError(
           "No RSA signing key found on JWKS URL http://example.com/well-known/jwks.json"
         )
       );
@@ -119,8 +121,8 @@ describe("Validate auth request object tests", () => {
     });
 
     const mockJwks = (jwks: JWK[]): void => {
-      jest.spyOn(global, "fetch").mockImplementation(
-        jest.fn(() =>
+      vi.spyOn(global, "fetch").mockImplementation(
+        vi.fn(() =>
           Promise.resolve({
             ok: true,
             json: () =>
@@ -128,13 +130,13 @@ describe("Validate auth request object tests", () => {
                 keys: jwks,
               }),
           })
-        ) as jest.Mock
+        ) as Mock
       );
     };
   });
 
   it("throw parse request error when signature check fails", async () => {
-    (jwtVerify as jest.Mock).mockImplementation(() => {
+    (jwtVerify as Mock).mockImplementation(() => {
       throw new Error();
     });
     const requestObject = defaultRequestObject;
@@ -612,11 +614,11 @@ describe("Validate auth request object tests", () => {
 
   describe('when PKCE_ENABLED is set to "true"', () => {
     beforeAll(() => {
-      jest.spyOn(config, "isPKCEEnabled").mockReturnValue(true);
+      vi.spyOn(config, "isPKCEEnabled").mockReturnValue(true);
     });
 
     afterAll(() => {
-      jest.spyOn(config, "isPKCEEnabled").mockReturnValue(false);
+      vi.spyOn(config, "isPKCEEnabled").mockReturnValue(false);
     });
 
     it("throw authorise request error when code challenge method is not S256", async () => {

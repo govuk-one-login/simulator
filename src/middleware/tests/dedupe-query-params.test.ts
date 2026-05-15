@@ -12,7 +12,7 @@ describe("dedupeQueryParams tests", () => {
       path: "/endpoint",
     } as unknown as Request;
     const mockRes = {} as Response;
-    const mockNext = jest.fn();
+    const mockNext = vi.fn();
 
     dedupeQueryParams(mockReq, mockRes, mockNext);
     expect(mockReq.query).toStrictEqual({
@@ -33,7 +33,7 @@ describe("dedupeQueryParams tests", () => {
       path: "/endpoint",
     } as unknown as Request;
     const mockRes = {} as Response;
-    const mockNext = jest.fn();
+    const mockNext = vi.fn();
 
     dedupeQueryParams(mockReq, mockRes, mockNext);
     expect(mockReq.query).toStrictEqual({
@@ -56,7 +56,7 @@ describe("dedupeQueryParams tests", () => {
       path: "/endpoint",
     } as unknown as Request;
     const mockRes = {} as Response;
-    const mockNext = jest.fn();
+    const mockNext = vi.fn();
 
     dedupeQueryParams(mockReq, mockRes, mockNext);
     expect(mockReq.query).toStrictEqual({
@@ -79,7 +79,7 @@ describe("dedupeQueryParams tests", () => {
       path: "/endpoint",
     } as unknown as Request;
     const mockRes = {} as Response;
-    const mockNext = jest.fn();
+    const mockNext = vi.fn();
 
     dedupeQueryParams(mockReq, mockRes, mockNext);
     expect(mockReq.query).toStrictEqual({
