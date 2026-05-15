@@ -1,4 +1,4 @@
-import { errors, importPKCS8, jwtVerify } from "jose";
+import { errors, importSPKI, jwtVerify } from "jose";
 import { Config } from "../../../../config";
 import {
   ID_TOKEN_EXPIRY,
@@ -12,6 +12,7 @@ import {
 import AuthRequestParameters from "../../../../types/auth-request-parameters";
 import { createIdToken } from "../../helper/create-id-token";
 import { INVALID_KEY_KID } from "../../../utils/make-header-invalid";
+import { createPrivateKey, createPublicKey } from "crypto";
 
 describe("createIdToken tests", () => {
   const mockAuthRequestParams: AuthRequestParameters = {
@@ -183,7 +184,23 @@ describe("createIdToken tests", () => {
 
     const idToken = await createIdToken(mockAuthRequestParams, testAccessToken);
 
-    const ecTokenKey = await importPKCS8(EC_PRIVATE_TOKEN_SIGNING_KEY, "ES256");
+    const ecPrivateKey = createPrivateKey({
+      key: Buffer.from(
+        EC_PRIVATE_TOKEN_SIGNING_KEY.replace(
+          /-----(?:BEGIN|END) PRIVATE KEY-----|\s/g,
+          ""
+        ),
+        "base64"
+      ),
+      type: "pkcs8",
+      format: "der",
+    });
+    const ecTokenPublicKey = createPublicKey(ecPrivateKey);
+    const spki = ecTokenPublicKey.export({
+      type: "spki",
+      format: "pem",
+    }) as string;
+    const ecTokenKey = await importSPKI(spki, "ES256");
 
     await expect(jwtVerify(idToken, ecTokenKey)).rejects.toThrow(
       errors.JWSSignatureVerificationFailed

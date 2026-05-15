@@ -1,4 +1,10 @@
-import { exportJWK, importPKCS8, type JSONWebKeySet, JWK, KeyLike } from "jose";
+import {
+  exportJWK,
+  importPKCS8,
+  type JSONWebKeySet,
+  JWK,
+  CryptoKey,
+} from "jose";
 import { createPrivateKey, createPublicKey } from "node:crypto";
 import {
   EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
@@ -18,7 +24,7 @@ export const getTokenSigningKey = async (
   tokenSigningAlgorithm: string,
   config: Config
 ): Promise<{
-  key: KeyLike;
+  key: CryptoKey;
   keyId: string;
 }> => {
   if (tokenSigningAlgorithm === "ES256") {
@@ -27,7 +33,7 @@ export const getTokenSigningKey = async (
         config.isUseNewIdTokenSigningKeysEnabled()
           ? EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY
           : EC_PRIVATE_TOKEN_SIGNING_KEY,
-        "EC"
+        "ES256"
       ),
       keyId: config.isUseNewIdTokenSigningKeysEnabled()
         ? EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID
@@ -39,7 +45,7 @@ export const getTokenSigningKey = async (
         config.isUseNewIdTokenSigningKeysEnabled()
           ? RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY
           : RSA_PRIVATE_TOKEN_SIGNING_KEY,
-        "RSA"
+        "RS256"
       ),
       keyId: config.isUseNewIdTokenSigningKeysEnabled()
         ? RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID

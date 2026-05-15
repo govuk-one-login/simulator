@@ -6,7 +6,7 @@ import {
   importSPKI,
   JWTPayload,
   jwtVerify,
-  KeyLike,
+  CryptoKey,
 } from "jose";
 import { Config } from "../../../config";
 import { logger } from "../../../logger";
@@ -279,11 +279,11 @@ const isSignatureValid = async (
     const jwk = await config.getRpSigningKey(header.kid);
     parsedPublicKey = await importJWK(jwk);
   }
-  return isSignatureValidUsingKeyLike(parsedPublicKey, token);
+  return isSignatureValidUsingCryptoKey(parsedPublicKey, token);
 };
 
-const isSignatureValidUsingKeyLike = async (
-  parsedPublicKey: KeyLike | Uint8Array,
+const isSignatureValidUsingCryptoKey = async (
+  parsedPublicKey: CryptoKey | Uint8Array,
   token: string
 ): Promise<boolean> => {
   try {
