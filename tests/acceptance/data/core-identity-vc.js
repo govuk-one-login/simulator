@@ -1,4 +1,4 @@
-const CORE_IDENTITY_VC_CLAIM = {
+export const CORE_IDENTITY_VC_CLAIM = {
   type: ["VerifiableCredential", "IdentityCheckCredential"],
   credentialSubject: {
     name: [
@@ -22,5 +22,3 @@ const CORE_IDENTITY_VC_CLAIM = {
     ],
   },
 };
-
-module.exports = { CORE_IDENTITY_VC_CLAIM };

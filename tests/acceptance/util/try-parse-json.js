@@ -1,4 +1,4 @@
-const tryParseJSON = (json) => {
+export const tryParseJSON = (json) => {
   try {
     return JSON.parse(json);
   } catch (
@@ -6,8 +6,4 @@ const tryParseJSON = (json) => {
   ) {
     throw new Error("Failed to parse JSON");
   }
-};
-
-module.exports = {
-  tryParseJSON,
 };

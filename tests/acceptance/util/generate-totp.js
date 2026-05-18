@@ -1,7 +1,7 @@
-const base32 = require("hi-base32");
-const crypto = require("node:crypto");
+import base32 from "hi-base32";
+import crypto from "node:crypto";
 
-const generateTotpCode = () => {
+export const generateTotpCode = () => {
   if (!process.env.TEST_USER_TOTP_SECRET) {
     throw new Error("No TOTP secret set");
   }
@@ -29,8 +29,4 @@ const generateTotpCode = () => {
     (hmac[offset + 3] & 0xff);
 
   return (code % 10 ** 6).toString().padStart(6, "0");
-};
-
-module.exports = {
-  generateTotpCode,
 };
