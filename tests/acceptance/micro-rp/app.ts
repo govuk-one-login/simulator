@@ -1,8 +1,8 @@
 import express from "express";
-import { formPost, rootGet } from "./controllers/root";
+import { formPost, rootGet } from "./controllers/root.js";
 import cookieParser from "cookie-parser";
-import { callbackController } from "./controllers/callback";
-import { logoutController } from "./controllers/logout";
+import { callbackController } from "./controllers/callback.js";
+import { logoutController } from "./controllers/logout.js";
 
 const app = express();
 app.use(express.json());

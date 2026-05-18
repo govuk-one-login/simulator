@@ -3,13 +3,13 @@ import {
   ACCESS_TOKEN_EXPIRY,
   NON_IDENTITY_LOC_VALUES,
   SESSION_ID,
-} from "../../../constants";
-import { Config } from "../../../config";
-import { logger } from "../../../logger";
-import { signToken } from "./sign-token";
-import { AccessTokenClaims } from "../../../types/access-token-claims";
-import { VectorOfTrust } from "../../../types/vector-of-trust";
-import AuthRequestParameters from "src/types/auth-request-parameters";
+} from "../../../constants.js";
+import { Config } from "../../../config.js";
+import { logger } from "../../../logger.js";
+import { signToken } from "./sign-token.js";
+import { AccessTokenClaims } from "../../../types/access-token-claims.js";
+import { VectorOfTrust } from "../../../types/vector-of-trust.js";
+import AuthRequestParameters from "src/types/auth-request-parameters.js";
 
 export const createAccessToken = async (
   authRequestParams: AuthRequestParameters

@@ -1,12 +1,12 @@
-import { RequestObject } from "../../parse/parse-auth-request";
-import { validateAuthRequestObject } from "../validate-auth-request-object";
-import { Config } from "../../config";
-import { BadRequestError } from "../../errors/bad-request-error";
+import { RequestObject } from "../../parse/parse-auth-request.js";
+import { validateAuthRequestObject } from "../validate-auth-request-object.js";
+import { Config } from "../../config.js";
+import { BadRequestError } from "../../errors/bad-request-error.js";
 import { JWK, jwtVerify } from "jose";
-import { AuthoriseRequestError } from "../../errors/authorise-request-error";
-import { TrustChainValidationError } from "../../errors/trust-chain-validation-error";
+import { AuthoriseRequestError } from "../../errors/authorise-request-error.js";
+import { TrustChainValidationError } from "../../errors/trust-chain-validation-error.js";
 import { Mock } from "vitest";
-import { JwksError } from "../../errors/jwks-error";
+import { JwksError } from "../../errors/jwks-error.js";
 
 const config = Config.getInstance();
 const jwksUrlSpy = vi.spyOn(config, "getJwksUrl");

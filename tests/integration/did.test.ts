@@ -1,7 +1,7 @@
-import { createApp } from "../../src/app";
+import { createApp } from "../../src/app.js";
 import request from "supertest";
-import { EC_PRIVATE_IDENTITY_SIGNING_KEY_ID } from "../../src/constants";
-import { generateDidJwks } from "../../src/components/token/helper/key-helpers";
+import { EC_PRIVATE_IDENTITY_SIGNING_KEY_ID } from "../../src/constants.js";
+import { generateDidJwks } from "../../src/components/token/helper/key-helpers.js";
 
 describe("/.well-known/did.json endpoint test", () => {
   it("returns the expected object", async () => {

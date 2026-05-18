@@ -1,19 +1,19 @@
 import express, { Application, Express, Request, Response } from "express";
-import { configController } from "./components/config/config-controller";
-import { tokenController } from "./components/token/token-controller";
-import { authoriseController } from "./components/authorise/authorise-get-controller";
-import { dedupeQueryParams } from "./middleware/dedupe-query-params";
-import { userInfoController } from "./components/user-info/user-info-controller";
-import { openidConfigurationController } from "./components/openid-configuration/openid-configuration-controller";
-import { trustmarkController } from "./components/trustmark/trustmark-controller";
-import { generateConfigRequestPropertyValidators } from "./types/config-request";
+import { configController } from "./components/config/config-controller.js";
+import { tokenController } from "./components/token/token-controller.js";
+import { authoriseController } from "./components/authorise/authorise-get-controller.js";
+import { dedupeQueryParams } from "./middleware/dedupe-query-params.js";
+import { userInfoController } from "./components/user-info/user-info-controller.js";
+import { openidConfigurationController } from "./components/openid-configuration/openid-configuration-controller.js";
+import { trustmarkController } from "./components/trustmark/trustmark-controller.js";
+import { generateConfigRequestPropertyValidators } from "./types/config-request.js";
 import { body, checkExact } from "express-validator";
-import { didController } from "./components/did/did-controller";
-import { logoutController } from "./components/logout/logout-controller";
-import { getConfigController } from "./components/config/get-config-controller";
-import { formSubmitController } from "./components/form-submit/form-submit-controller";
-import { generateConfigFormFieldValidator } from "./types/response-configuration";
-import { jwksController } from "./components/jwks/jwks-controller";
+import { didController } from "./components/did/did-controller.js";
+import { logoutController } from "./components/logout/logout-controller.js";
+import { getConfigController } from "./components/config/get-config-controller.js";
+import { formSubmitController } from "./components/form-submit/form-submit-controller.js";
+import { generateConfigFormFieldValidator } from "./types/response-configuration.js";
+import { jwksController } from "./components/jwks/jwks-controller.js";
 
 const createApp = (): Application => {
   const app: Express = express();

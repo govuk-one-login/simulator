@@ -1,6 +1,6 @@
-import { logger } from "../logger";
-import { Config } from "../config";
-import { VALID_SCOPES } from "../constants";
+import { logger } from "../logger.js";
+import { Config } from "../config.js";
+import { VALID_SCOPES } from "../constants.js";
 
 export const areScopesValid = (scopes: string[], config: Config): boolean => {
   const invalidScopes = scopes.filter((scope) => !VALID_SCOPES.includes(scope));

@@ -1,8 +1,8 @@
 import ReturnCode, {
   generateReturnCodePropertyValidators,
-} from "./return-code";
+} from "./return-code.js";
 import { body, ValidationChain } from "express-validator";
-import { nameof } from "./util/nameof";
+import { nameof } from "./util/nameof.js";
 import {
   bodyOptional,
   bodyOptionalAllowEmptyFormSubmission,
@@ -10,8 +10,8 @@ import {
   isOptionalJsonArray,
   isOptionalJsonObject,
   isOptionalReturnCodeArray,
-} from "./util/body-helpers";
-import { VALID_LOC_VALUES } from "../constants";
+} from "./util/body-helpers.js";
+import { VALID_LOC_VALUES } from "../constants.js";
 
 export default interface ResponseConfiguration {
   sub?: string;

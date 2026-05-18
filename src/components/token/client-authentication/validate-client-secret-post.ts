@@ -1,9 +1,9 @@
-import { ParseTokenRequestError } from "../../../errors/parse-token-request-error";
-import { TokenRequest } from "../../../types/token-request";
-import { logger } from "../../../logger";
-import { TokenRequestError } from "../../..//errors/token-request-error";
-import { Config } from "../../../config";
-import { isClientSecretValid } from "../../../validators/client-secret-validator";
+import { ParseTokenRequestError } from "../../../errors/parse-token-request-error.js";
+import { TokenRequest } from "../../../types/token-request.js";
+import { logger } from "../../../logger.js";
+import { TokenRequestError } from "../../..//errors/token-request-error.js";
+import { Config } from "../../../config.js";
+import { isClientSecretValid } from "../../../validators/client-secret-validator.js";
 
 export const validateClientSecretPost = async (
   tokenRequest: Record<string, string>,

@@ -1,9 +1,9 @@
-import { UserInfoRequestError } from "../errors/user-info-request-error";
-import { signedJwtValidator } from "./signed-jwt-validator";
-import { Config } from "../config";
-import { logger } from "../logger";
-import { VALID_SCOPES } from "../constants";
-import { UserIdentityClaim, UserScope } from "../types/user-info";
+import { UserInfoRequestError } from "../errors/user-info-request-error.js";
+import { signedJwtValidator } from "./signed-jwt-validator.js";
+import { Config } from "../config.js";
+import { logger } from "../logger.js";
+import { VALID_SCOPES } from "../constants.js";
+import { UserIdentityClaim, UserScope } from "../types/user-info.js";
 
 export const userInfoRequestValidator = async (
   accessToken: string | undefined

@@ -1,6 +1,6 @@
 import { base64url } from "jose";
 import { createHash } from "node:crypto";
-import { TokenRequestError } from "../../../errors/token-request-error";
+import { TokenRequestError } from "../../../errors/token-request-error.js";
 
 export const comparePKCECodeChallengeAndVerifier = (
   codeChallenge?: string,

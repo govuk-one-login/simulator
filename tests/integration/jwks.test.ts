@@ -1,12 +1,12 @@
-import { createApp } from "../../src/app";
+import { createApp } from "../../src/app.js";
 import request from "supertest";
 import {
   EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID,
   EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
   RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID,
   RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
-} from "../../src/constants";
-import { Config } from "../../src/config";
+} from "../../src/constants.js";
+import { Config } from "../../src/config.js";
 
 describe("/.well-known/jwks.json endpoint test", () => {
   beforeEach(() => {

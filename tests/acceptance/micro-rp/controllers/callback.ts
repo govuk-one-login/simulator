@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import { Request, Response } from "express";
 import { decodeJwt, importPKCS8, SignJWT } from "jose";
-import { STYLE_SHEET } from "../public/style";
+import { STYLE_SHEET } from "../public/style.js";
 
 export const callbackController = async (
   req: Request,

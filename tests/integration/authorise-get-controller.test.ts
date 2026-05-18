@@ -1,7 +1,7 @@
 import crypto, { generateKeyPairSync } from "crypto";
-import { createApp } from "./../../src/app";
+import { createApp } from "./../../src/app.js";
 import request from "supertest";
-import { Config } from "./../../src/config";
+import { Config } from "./../../src/config.js";
 import {
   base64url,
   exportSPKI,

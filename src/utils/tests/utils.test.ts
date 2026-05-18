@@ -1,11 +1,11 @@
-import { AuthoriseRequestError } from "../../errors/authorise-request-error";
-import { JwksError } from "../../errors/jwks-error";
+import { AuthoriseRequestError } from "../../errors/authorise-request-error.js";
+import { JwksError } from "../../errors/jwks-error.js";
 import {
   getClaimsKeys,
   getRequestObjectVtrAsString,
   getSigningKeyFromJwksList,
   parseRequestObjectClaims,
-} from "../utils";
+} from "../utils.js";
 
 describe("Utils test", () => {
   describe("get vtr as string", () => {

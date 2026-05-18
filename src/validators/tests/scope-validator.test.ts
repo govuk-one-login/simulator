@@ -1,5 +1,5 @@
-import { Config } from "../../config";
-import { areScopesValid } from "../scope-validator";
+import { Config } from "../../config.js";
+import { areScopesValid } from "../scope-validator.js";
 
 describe("scope validator tests", () => {
   const config = Config.getInstance();

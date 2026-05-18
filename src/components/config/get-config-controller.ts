@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Config } from "../../config";
+import { Config } from "../../config.js";
 
 export const getConfigController = (req: Request, res: Response): void => {
   const config = Config.getInstance();

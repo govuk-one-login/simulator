@@ -1,5 +1,5 @@
 import { hash } from "argon2";
-import { isClientSecretValid } from "../../validators/client-secret-validator";
+import { isClientSecretValid } from "../../validators/client-secret-validator.js";
 import { randomBytes } from "crypto";
 
 describe("client secret validator tests", () => {

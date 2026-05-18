@@ -2,15 +2,15 @@ vi.mock("crypto", () => ({
   randomUUID: () => "1234567",
 }));
 
-import { Config } from "../../../../config";
+import { Config } from "../../../../config.js";
 import {
   ACCESS_TOKEN_EXPIRY,
   EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
   RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
   SESSION_ID,
   VALID_CLAIMS,
-} from "../../../../constants";
-import { createAccessToken } from "../../helper/create-access-token";
+} from "../../../../constants.js";
+import { createAccessToken } from "../../helper/create-access-token.js";
 
 describe("createAccessToken tests", () => {
   const testTimestamp = 1723707024;

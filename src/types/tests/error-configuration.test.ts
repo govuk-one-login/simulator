@@ -1,9 +1,9 @@
 import request from "supertest";
-import { createTestValidationApp } from "./validator-helper";
+import { createTestValidationApp } from "./validator-helper.js";
 import {
   ErrorConfiguration,
   generateErrorConfigPropertyValidators,
-} from "../error-configuration";
+} from "../error-configuration.js";
 
 describe("return error configuration", () => {
   const app = createTestValidationApp(generateErrorConfigPropertyValidators());

@@ -1,13 +1,13 @@
-import { AuthoriseRequestError } from "../errors/authorise-request-error";
-import { BadRequestError } from "../errors/bad-request-error";
-import { logger } from "../logger";
-import { areClaimsValid } from "./claims-validator";
-import { areScopesValid } from "./scope-validator";
-import { vtrValidator } from "./vtr-validator";
-import { Config } from "../config";
-import { AuthRequest } from "src/parse/parse-auth-request";
-import { validatePKCECodeChallengeAndMethod } from "./code-challenge-validator";
-import { VALID_CHANNELS } from "../constants";
+import { AuthoriseRequestError } from "../errors/authorise-request-error.js";
+import { BadRequestError } from "../errors/bad-request-error.js";
+import { logger } from "../logger.js";
+import { areClaimsValid } from "./claims-validator.js";
+import { areScopesValid } from "./scope-validator.js";
+import { vtrValidator } from "./vtr-validator.js";
+import { Config } from "../config.js";
+import { AuthRequest } from "src/parse/parse-auth-request.js";
+import { validatePKCECodeChallengeAndMethod } from "./code-challenge-validator.js";
+import { VALID_CHANNELS } from "../constants.js";
 
 export const validateAuthRequestQueryParams = (
   queryParams: AuthRequest,

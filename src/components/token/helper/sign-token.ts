@@ -1,7 +1,7 @@
 import { SignJWT } from "jose";
-import { Config } from "../../../config";
-import { getTokenSigningKey } from "./key-helpers";
-import { logger } from "../../../logger";
+import { Config } from "../../../config.js";
+import { getTokenSigningKey } from "./key-helpers.js";
+import { logger } from "../../../logger.js";
 
 export const signToken = async (
   claimSet: Record<string, unknown>

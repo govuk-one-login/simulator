@@ -1,6 +1,6 @@
 import { ValidationChain } from "express-validator";
-import { nameof } from "./util/nameof";
-import { bodyRequired } from "./util/body-helpers";
+import { nameof } from "./util/nameof.js";
+import { bodyRequired } from "./util/body-helpers.js";
 
 export default interface ReturnCode {
   code: string;

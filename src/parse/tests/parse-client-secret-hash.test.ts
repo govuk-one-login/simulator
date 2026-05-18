@@ -1,4 +1,4 @@
-import { parseClientSecretHashIntoParams } from "../parse-client-secret-hash";
+import { parseClientSecretHashIntoParams } from "../parse-client-secret-hash.js";
 
 describe("parseClientSecretHashTests tests", () => {
   it("parses a valid argon2 hash into its parameters", () => {

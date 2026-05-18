@@ -1,5 +1,5 @@
 import { errors, importSPKI, jwtVerify } from "jose";
-import { Config } from "../../../../config";
+import { Config } from "../../../../config.js";
 import {
   ID_TOKEN_EXPIRY,
   EC_PRIVATE_TOKEN_SIGNING_KEY_ID,
@@ -8,10 +8,10 @@ import {
   EC_PRIVATE_TOKEN_SIGNING_KEY,
   INVALID_ISSUER,
   ONE_DAY_IN_SECONDS,
-} from "../../../../constants";
-import AuthRequestParameters from "../../../../types/auth-request-parameters";
-import { createIdToken } from "../../helper/create-id-token";
-import { INVALID_KEY_KID } from "../../../utils/make-header-invalid";
+} from "../../../../constants.js";
+import AuthRequestParameters from "../../../../types/auth-request-parameters.js";
+import { createIdToken } from "../../helper/create-id-token.js";
+import { INVALID_KEY_KID } from "../../../utils/make-header-invalid.js";
 import { createPrivateKey, createPublicKey } from "crypto";
 
 describe("createIdToken tests", () => {

@@ -1,7 +1,7 @@
-import AuthRequestParameters from "src/types/auth-request-parameters";
-import { govukStyles } from "./gov-uk-styles";
+import AuthRequestParameters from "src/types/auth-request-parameters.js";
+import { govukStyles } from "./gov-uk-styles.js";
 import { base64url } from "jose";
-import { Config } from "./../../../config";
+import { Config } from "./../../../config.js";
 
 //The base64 encoding here looks weird but it's done to escape
 // '/' chars in the html which stop the value being rendered

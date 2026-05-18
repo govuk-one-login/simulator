@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import { Config } from "../../config";
+import { Config } from "../../config.js";
 import { base64url } from "jose";
-import AuthRequestParameters from "src/types/auth-request-parameters";
-import ResponseConfiguration from "src/types/response-configuration";
+import AuthRequestParameters from "src/types/auth-request-parameters.js";
+import ResponseConfiguration from "src/types/response-configuration.js";
 import { validationResult } from "express-validator";
-import { logger } from "../../logger";
+import { logger } from "../../logger.js";
 
 export const formSubmitController = (req: Request, res: Response): void => {
   try {

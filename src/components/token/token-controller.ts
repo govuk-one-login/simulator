@@ -1,15 +1,15 @@
 import { Request, Response } from "express";
-import { logger } from "../../logger";
-import { Config } from "../../config";
-import { createAccessToken } from "./helper/create-access-token";
-import { createIdToken } from "./helper/create-id-token";
-import { TokenRequestError } from "../../errors/token-request-error";
-import { ParseTokenRequestError } from "../../errors/parse-token-request-error";
-import { parseTokenRequest } from "../../parse/parse-token-request";
-import ResponseConfiguration from "src/types/response-configuration";
-import { comparePKCECodeChallengeAndVerifier } from "./helper/code-challenge-comparer";
-import { ACCESS_TOKEN_EXPIRY } from "../../constants";
-import { JwksError } from "../../errors/jwks-error";
+import { logger } from "../../logger.js";
+import { Config } from "../../config.js";
+import { createAccessToken } from "./helper/create-access-token.js";
+import { createIdToken } from "./helper/create-id-token.js";
+import { TokenRequestError } from "../../errors/token-request-error.js";
+import { ParseTokenRequestError } from "../../errors/parse-token-request-error.js";
+import { parseTokenRequest } from "../../parse/parse-token-request.js";
+import ResponseConfiguration from "src/types/response-configuration.js";
+import { comparePKCECodeChallengeAndVerifier } from "./helper/code-challenge-comparer.js";
+import { ACCESS_TOKEN_EXPIRY } from "../../constants.js";
+import { JwksError } from "../../errors/jwks-error.js";
 
 export const tokenController = async (
   req: Request,

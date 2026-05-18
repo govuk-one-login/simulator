@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { STYLE_SHEET } from "./../public/style";
+import { STYLE_SHEET } from "./../public/style.js";
 import { randomUUID } from "crypto";
 
 export const rootGet = (req: Request, res: Response): void => {

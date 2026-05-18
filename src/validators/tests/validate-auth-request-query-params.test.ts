@@ -1,9 +1,9 @@
-import { Config } from "../../config";
-import { AuthoriseRequestError } from "../../errors/authorise-request-error";
-import { BadRequestError } from "../../errors/bad-request-error";
-import { AuthRequest } from "../../parse/parse-auth-request";
+import { Config } from "../../config.js";
+import { AuthoriseRequestError } from "../../errors/authorise-request-error.js";
+import { BadRequestError } from "../../errors/bad-request-error.js";
+import { AuthRequest } from "../../parse/parse-auth-request.js";
 
-import { validateAuthRequestQueryParams } from "../validate-auth-request-query-params";
+import { validateAuthRequestQueryParams } from "../validate-auth-request-query-params.js";
 
 const config = Config.getInstance();
 const defaultRedirectUri = config.getRedirectUrls()[0];

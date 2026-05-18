@@ -1,12 +1,12 @@
-import { AuthoriseRequestError } from "../errors/authorise-request-error";
-import { SUPPORTED_UI_LOCALES, VALID_OIDC_PROMPTS } from "../constants";
-import { logger } from "../logger";
-import { AuthRequest, RequestObject } from "../parse/parse-auth-request";
-import { VectorOfTrust } from "../types/vector-of-trust";
+import { AuthoriseRequestError } from "../errors/authorise-request-error.js";
+import { SUPPORTED_UI_LOCALES, VALID_OIDC_PROMPTS } from "../constants.js";
+import { logger } from "../logger.js";
+import { AuthRequest, RequestObject } from "../parse/parse-auth-request.js";
+import { VectorOfTrust } from "../types/vector-of-trust.js";
 import { JSONWebKeySet, JWK, JWTPayload } from "jose";
-import { ParseAuthRequestError } from "..//errors/parse-auth-request-error";
-import { JwksError } from "../errors/jwks-error";
-import { ensureLegalRedirectURI } from "../validators/validate-redirectUri";
+import { ParseAuthRequestError } from "..//errors/parse-auth-request-error.js";
+import { JwksError } from "../errors/jwks-error.js";
+import { ensureLegalRedirectURI } from "../validators/validate-redirectUri.js";
 
 export const isValidUri = (uri: string): boolean => {
   try {

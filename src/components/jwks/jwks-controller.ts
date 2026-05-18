@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { generateJWKS } from "../token/helper/key-helpers";
+import { generateJWKS } from "../token/helper/key-helpers.js";
 
 export const jwksController = async (
   _req: Request,

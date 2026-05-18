@@ -8,7 +8,7 @@ import {
   SignJWT,
   UnsecuredJWT,
 } from "jose";
-import { createApp } from "../../src/app";
+import { createApp } from "../../src/app.js";
 import request from "supertest";
 import {
   createPrivateKey,
@@ -17,8 +17,8 @@ import {
   randomBytes,
   randomUUID,
 } from "crypto";
-import { Config } from "../../src/config";
-import AuthRequestParameters from "../../src/types/auth-request-parameters";
+import { Config } from "../../src/config.js";
+import AuthRequestParameters from "../../src/types/auth-request-parameters.js";
 import {
   INVALID_ISSUER,
   RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
@@ -30,12 +30,12 @@ import {
   EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID,
   EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY,
   RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY,
-} from "../../src/constants";
-import { decodeJwtNoVerify } from "./helper/decode-jwt-no-verify";
-import { exampleResponseConfig } from "./helper/test-constants";
-import { INVALID_KEY_KID } from "../../src/components/utils/make-header-invalid";
+} from "../../src/constants.js";
+import { decodeJwtNoVerify } from "./helper/decode-jwt-no-verify.js";
+import { exampleResponseConfig } from "./helper/test-constants.js";
+import { INVALID_KEY_KID } from "../../src/components/utils/make-header-invalid.js";
 import { argon2id, hash } from "argon2";
-import { publicJwkWithKidFromPrivateKey } from "../../src/components/token/helper/key-helpers";
+import { publicJwkWithKidFromPrivateKey } from "../../src/components/token/helper/key-helpers.js";
 import { Mock } from "vitest";
 
 const TOKEN_ENDPOINT = "/token";

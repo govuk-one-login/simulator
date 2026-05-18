@@ -1,17 +1,17 @@
 import { createHash, randomBytes } from "crypto";
-import { Config } from "../../../config";
+import { Config } from "../../../config.js";
 import {
   ID_TOKEN_EXPIRY,
   INVALID_ISSUER,
   ONE_DAY_IN_SECONDS,
   SESSION_ID,
-} from "../../../constants";
-import { logger } from "../../../logger";
-import AuthRequestParameters from "../../../types/auth-request-parameters";
-import { signToken } from "./sign-token";
-import { IdTokenClaims } from "../../../types/id-token-claims";
-import { fakeSignature } from "../../../components/utils/fake-signature";
-import { makeHeaderInvalid } from "../../utils/make-header-invalid";
+} from "../../../constants.js";
+import { logger } from "../../../logger.js";
+import AuthRequestParameters from "../../../types/auth-request-parameters.js";
+import { signToken } from "./sign-token.js";
+import { IdTokenClaims } from "../../../types/id-token-claims.js";
+import { fakeSignature } from "../../../components/utils/fake-signature.js";
+import { makeHeaderInvalid } from "../../utils/make-header-invalid.js";
 
 export const createIdToken = async (
   authRequestParams: AuthRequestParameters,

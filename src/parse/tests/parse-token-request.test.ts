@@ -8,11 +8,11 @@ vi.mock(
   { spy: true }
 );
 
-import { validateClientSecretPost } from "../../components/token/client-authentication/validate-client-secret-post";
-import { Config } from "../../config";
-import { TokenRequestError } from "../../errors/token-request-error";
-import { parseTokenRequest } from "../parse-token-request";
-import { validatePrivateKeyJwt } from "../../components/token/client-authentication/validate-private-key-jwt";
+import { validateClientSecretPost } from "../../components/token/client-authentication/validate-client-secret-post.js";
+import { Config } from "../../config.js";
+import { TokenRequestError } from "../../errors/token-request-error.js";
+import { parseTokenRequest } from "../parse-token-request.js";
+import { validatePrivateKeyJwt } from "../../components/token/client-authentication/validate-private-key-jwt.js";
 
 const config = Config.getInstance();
 

@@ -1,4 +1,4 @@
-import { AuthoriseRequestError } from "../errors/authorise-request-error";
+import { AuthoriseRequestError } from "../errors/authorise-request-error.js";
 
 const validCodeChallengeMethod = "S256";
 

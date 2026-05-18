@@ -1,4 +1,4 @@
-import { logger } from "../logger";
+import { logger } from "../logger.js";
 
 export type TokenAuthMethod = "private_key_jwt" | "client_secret_post";
 

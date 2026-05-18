@@ -1,8 +1,8 @@
 import { createLocalJWKSet, jwtVerify } from "jose";
-import { logger } from "../logger";
-import type { JWTPayload } from "jose/dist/types/types";
-import { generateJWKS } from "../components/token/helper/key-helpers";
-import { Config } from "../config";
+import { logger } from "../logger.js";
+import type { JWTPayload } from "jose";
+import { generateJWKS } from "../components/token/helper/key-helpers.js";
+import { Config } from "../config.js";
 
 export const signedJwtValidator = async <PayloadType = JWTPayload>(
   token: string

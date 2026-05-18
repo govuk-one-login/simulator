@@ -1,4 +1,4 @@
-import { UserIdentityClaim } from "./types/user-info";
+import { UserIdentityClaim } from "./types/user-info.js";
 
 export const VALID_SCOPES = ["openid", "email", "phone"];
 

@@ -1,8 +1,8 @@
 import request from "supertest";
 import ReturnCode, {
   generateReturnCodePropertyValidators,
-} from "../return-code";
-import { createTestValidationApp } from "./validator-helper";
+} from "../return-code.js";
+import { createTestValidationApp } from "./validator-helper.js";
 
 describe("return code validator", () => {
   const app = createTestValidationApp(generateReturnCodePropertyValidators());

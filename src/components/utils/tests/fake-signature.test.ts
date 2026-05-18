@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { fakeSignature } from "../fake-signature";
+import { fakeSignature } from "../fake-signature.js";
 
 describe("fakeSignature tests", () => {
   const testToken =
