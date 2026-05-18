@@ -1,11 +1,10 @@
 {
   "compilerOptions": {
-    "module": "ESNext",
+    "module": "nodenext",
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "target": "ESNext",
-    "noImplicitAny": true,
-    "moduleResolution": "bundler",
+    "moduleResolution": "nodenext",
     "strict": true,
     "sourceMap": true,
     "outDir": "dist",
@@ -13,6 +12,6 @@
     "typeRoots": ["@types", "node_modules/@types", "node_modules"],
     "types": ["node", "vitest/globals"]
   },
-  "include": ["src/**/*.ts", "tests/integration"],
-  "exclude": ["tests/acceptance", "coverage"]
+  "include": ["src/**/*", "tests/**/*"],
+  "exclude": ["coverage"]
 }

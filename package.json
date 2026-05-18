@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "acceptance-test": "mkdir -p reports && cucumber-js --config ./tests/acceptance/cucumber.js",
-    "build": "npx tsc",
+    "build": "npx tsc --project tsconfig.build.json",
     "start": "node dist/server.js",
     "start:micro-rp": "node dist/tests/acceptance/micro-rp/app.js",
     "check:lint": "eslint .",
