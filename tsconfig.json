@@ -11,9 +11,7 @@
     "outDir": "dist",
     "baseUrl": ".",
     "typeRoots": ["@types", "node_modules/@types", "node_modules"],
-    "types": ["node", "vitest/globals"],
-    "noEmit": true,
-    "allowImportingTsExtensions": true
+    "types": ["node", "vitest/globals"]
   },
   "include": ["src/**/*.ts", "tests/integration"],
   "exclude": ["tests/acceptance", "coverage"]
