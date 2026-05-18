@@ -1,8 +1,11 @@
-import { SUPPORTED_UI_LOCALES, VALID_OIDC_RESPONSE_TYPES } from "../constants";
-import { ParseAuthRequestError } from "../errors/parse-auth-request-error";
-import { logger } from "../logger";
+import {
+  SUPPORTED_UI_LOCALES,
+  VALID_OIDC_RESPONSE_TYPES,
+} from "../constants.js";
+import { ParseAuthRequestError } from "../errors/parse-auth-request-error.js";
+import { logger } from "../logger.js";
 import { Request } from "express";
-import { MissingParameterError } from "../errors/missing-parameter-error";
+import { MissingParameterError } from "../errors/missing-parameter-error.js";
 import {
   base64url,
   decodeJwt,
@@ -10,8 +13,8 @@ import {
   JWTPayload,
   ProtectedHeaderParameters,
 } from "jose";
-import { VectorOfTrust } from "../types/vector-of-trust";
-import { isValidUri, parsePrompts } from "../utils/utils";
+import { VectorOfTrust } from "../types/vector-of-trust.js";
+import { isValidUri, parsePrompts } from "../utils/utils.js";
 
 export type RequestObject = {
   header: ProtectedHeaderParameters;

@@ -1,8 +1,11 @@
-import { Config } from "../config";
-import { AuthoriseRequestError } from "../errors/authorise-request-error";
-import { logger } from "../logger";
-import { VALID_CREDENTIAL_TRUST_VALUES, VALID_LOC_VALUES } from "../constants";
-import { VectorOfTrust } from "../types/vector-of-trust";
+import { Config } from "../config.js";
+import { AuthoriseRequestError } from "../errors/authorise-request-error.js";
+import { logger } from "../logger.js";
+import {
+  VALID_CREDENTIAL_TRUST_VALUES,
+  VALID_LOC_VALUES,
+} from "../constants.js";
+import { VectorOfTrust } from "../types/vector-of-trust.js";
 
 export const DEFAULT_VTR: VectorOfTrust[] = [
   {

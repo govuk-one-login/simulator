@@ -1,5 +1,5 @@
-import ResponseConfiguration from "./response-configuration";
-import { VectorOfTrust } from "./vector-of-trust";
+import ResponseConfiguration from "./response-configuration.js";
+import { VectorOfTrust } from "./vector-of-trust.js";
 
 export default interface AuthRequestParameters {
   redirectUri: string;

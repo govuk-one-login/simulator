@@ -1,6 +1,6 @@
 import request from "supertest";
-import { createApp } from "../../src/app";
-import { Config } from "../../src/config";
+import { createApp } from "../../src/app.js";
+import { Config } from "../../src/config.js";
 
 test("returns 200 response with current configuration", async () => {
   const app = createApp();

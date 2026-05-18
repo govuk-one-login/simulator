@@ -1,7 +1,7 @@
 import crypto, { generateKeyPairSync } from "crypto";
-import { createApp } from "./../../src/app";
+import { createApp } from "./../../src/app.js";
 import request from "supertest";
-import { Config } from "./../../src/config";
+import { Config } from "./../../src/config.js";
 import {
   base64url,
   exportSPKI,
@@ -10,6 +10,7 @@ import {
   JWTPayload,
   SignJWT,
 } from "jose";
+import { Mock } from "vitest";
 
 const authoriseEndpoint = "/authorize";
 const knownClientId = "43c729a8f8a8bed3441a872039d45180";
@@ -74,13 +75,22 @@ const mockJwks = (jwks: JWK[]): void => {
             keys: jwks,
           }),
       })
-    ) as vi.Mock
+    ) as Mock
   );
 };
 
 describe("Authorise controller tests", () => {
+  vi.mock("crypto", async () => {
+    return {
+      ...(await vi.importActual("crypto")),
+      randomBytes: vi.fn().mockReturnValue(
+        Buffer.from(
+          "6e4195129066135da2c81745247bb0edf82e00da5a8925d1a1289629ad8633" // This value is the same as the fixedBuffer variable!
+        )
+      ),
+    };
+  });
   beforeEach(async () => {
-    vi.spyOn(crypto, "randomBytes").mockImplementation(() => fixedBuffer);
     process.env.CLIENT_ID = knownClientId;
     process.env.REDIRECT_URLS = knownRedirectUri;
     process.env.SCOPES = "openid,email";

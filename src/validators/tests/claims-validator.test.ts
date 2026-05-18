@@ -1,5 +1,5 @@
-import { Config } from "../../config";
-import { areClaimsValid } from "../claims-validator";
+import { Config } from "../../config.js";
+import { areClaimsValid } from "../claims-validator.js";
 
 describe("claims validation tests", () => {
   const config = Config.getInstance();

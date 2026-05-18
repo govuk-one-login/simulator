@@ -1,4 +1,4 @@
-import ResponseConfiguration from "../../../src/types/response-configuration";
+import ResponseConfiguration from "../../../src/types/response-configuration.js";
 
 const VERIFIABLE_CREDENTIAL = {
   type: ["VerifiableCredential"],

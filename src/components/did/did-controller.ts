@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { Config } from "../../config";
-import { generateDidJwks } from "../token/helper/key-helpers";
-import { EC_PRIVATE_IDENTITY_SIGNING_KEY_ID } from "../../constants";
+import { Config } from "../../config.js";
+import { generateDidJwks } from "../token/helper/key-helpers.js";
+import { EC_PRIVATE_IDENTITY_SIGNING_KEY_ID } from "../../constants.js";
 
 export const didController = async (
   _req: Request,

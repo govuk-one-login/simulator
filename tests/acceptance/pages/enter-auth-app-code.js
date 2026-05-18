@@ -1,8 +1,8 @@
-const BasePage = require("./base-page.js");
-const { generateTotpCode } = require("./../util/generate-totp.js");
-const { By } = require("selenium-webdriver");
+import BasePage from "./base-page.js";
+import { generateTotpCode } from "./../util/generate-totp.js";
+import { By } from "selenium-webdriver";
 
-module.exports = class EnterAuthAppCodePage extends BasePage {
+export default class EnterAuthAppCodePage extends BasePage {
   constructor(page) {
     super(page);
   }
@@ -18,4 +18,4 @@ module.exports = class EnterAuthAppCodePage extends BasePage {
   _enterAuthAppCode = async (totpCode) => {
     await this.clearFieldAndEnter(this.authAppCodeField, totpCode);
   };
-};
+}

@@ -8,16 +8,16 @@ import {
   jwtVerify,
   CryptoKey,
 } from "jose";
-import { Config } from "../../../config";
-import { logger } from "../../../logger";
-import { TokenRequestError } from "../../../errors/token-request-error";
+import { Config } from "../../../config.js";
+import { logger } from "../../../logger.js";
+import { TokenRequestError } from "../../../errors/token-request-error.js";
 import {
   ClientAssertionHeader,
   PrivateKeyJwt,
-} from "src/types/private-key-jwt";
-import { ParseTokenRequestError } from "../../../errors/parse-token-request-error";
-import { TokenRequest } from "../../../types/token-request";
-import { JwksError } from "../../../errors/jwks-error";
+} from "src/types/private-key-jwt.js";
+import { ParseTokenRequestError } from "../../../errors/parse-token-request-error.js";
+import { TokenRequest } from "../../../types/token-request.js";
+import { JwksError } from "../../../errors/jwks-error.js";
 
 export const validatePrivateKeyJwt = async (
   tokenRequestBody: Record<string, string>,

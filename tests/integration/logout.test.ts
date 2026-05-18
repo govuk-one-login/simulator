@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { createApp } from "../../src/app";
+import { createApp } from "../../src/app.js";
 import request from "supertest";
 import {
   EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY,
@@ -10,9 +10,9 @@ import {
   RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID,
   RSA_PRIVATE_TOKEN_SIGNING_KEY,
   RSA_PRIVATE_TOKEN_SIGNING_KEY_ID,
-} from "../../src/constants";
+} from "../../src/constants.js";
 import { importPKCS8, SignJWT } from "jose";
-import { Config } from "../../src/config";
+import { Config } from "../../src/config.js";
 
 const LOGOUT_ENDPOINT = "/logout";
 const DEFAULT_LOGGED_OUT_URL = "https://gov.uk";

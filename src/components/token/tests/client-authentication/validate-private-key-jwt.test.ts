@@ -1,11 +1,11 @@
 import { exportSPKI, JWK, SignJWT } from "jose";
-import { Config } from "../../../../config";
-import { ParseTokenRequestError } from "../../../../errors/parse-token-request-error";
-import { TokenRequestError } from "../../../../errors/token-request-error";
+import { Config } from "../../../../config.js";
+import { ParseTokenRequestError } from "../../../../errors/parse-token-request-error.js";
+import { TokenRequestError } from "../../../../errors/token-request-error.js";
 import { generateKeyPairSync, randomUUID } from "crypto";
-import { logger } from "../../../../logger";
-import { validatePrivateKeyJwt } from "../../client-authentication/validate-private-key-jwt";
-import { JwksError } from "../../../../errors/jwks-error";
+import { logger } from "../../../../logger.js";
+import { validatePrivateKeyJwt } from "../../client-authentication/validate-private-key-jwt.js";
+import { JwksError } from "../../../../errors/jwks-error.js";
 import { Mock } from "vitest";
 
 const fakeClientAssertion = (

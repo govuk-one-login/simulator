@@ -1,63 +1,65 @@
-const { By, until } = require('selenium-webdriver');
+import { By, until } from "selenium-webdriver";
 
-module.exports = class BasePage {
-    RP_URL = process.env.RP_URL ?? "http://localhost:3001/";
-    SELENIUM_HEADLESS = process.env.SELENIUM_HEADLESS === "true";
-    DEFAULT_PAGE_LOAD_WAIT_TIME = 60 * 1000; // 60 Seconds
-    driver;
+export default class BasePage {
+  RP_URL = process.env.RP_URL ?? "http://localhost:3001/";
+  SELENIUM_HEADLESS = process.env.SELENIUM_HEADLESS === "true";
+  DEFAULT_PAGE_LOAD_WAIT_TIME = 60 * 1000; // 60 Seconds
+  driver;
 
-    constructor(page) {
-        this.page = page
+  constructor(page) {
+    this.page = page;
+  }
+
+  waitForPageLoad = async (titleContains) => {
+    await this.page.wait(until.titleContains(titleContains), this.DEFAULT_PAGE_LOAD_WAIT_TIME);
+    await this.waitForReadyStateComplete();
+  };
+
+  findAndClickContinue = async () => {
+    await this.waitForReadyStateComplete();
+    const continueButton = this.page.findElement(By.xpath("//button[text()[normalize-space() = 'Continue']]"));
+    await continueButton.click();
+  };
+
+  findAndClickButtonByText = async (buttonText) => {
+    await this.waitForReadyStateComplete();
+    const button = this.page.findElement(
+      By.xpath("//button[text()[normalize-space() = '" + buttonText + "']]")
+    );
+    await button.click();
+  };
+
+  waitForThisText = async (expectedText) => {
+    await this.page.wait(
+      until.elementIsVisible(
+        this.page.findElement(By.xpath("//*[contains(text(), '" + expectedText + "')]"))
+      )
+    );
+  };
+
+  clearFieldAndEnter = async (ele, text) => {
+    await this.page.findElement(ele).clear();
+    await this.page.findElement(ele).sendKeys(text);
+  };
+
+  waitForReadyStateComplete = async () => {
+    const startTime = Date.now();
+    while (Date.now() - startTime < this.DEFAULT_PAGE_LOAD_WAIT_TIME) {
+      const isPageLoaded = await this.page.executeScript("return document.readyState") === "complete";
+
+      if (isPageLoaded) {
+        return;
+      }
+
+      await this.page.pause(500);
     }
 
-    waitForPageLoad = async (titleContains) => {
-        await this.page.wait(until.titleContains(titleContains), this.DEFAULT_PAGE_LOAD_WAIT_TIME);
-        await this.waitForReadyStateComplete();
-    }
+    throw new Error("Page did not load within the specified time.");
+  };
 
-    findAndClickContinue = async ()=> {
-       await this.waitForReadyStateComplete();
-       const continueButton = this.page.findElement(By.xpath("//button[text()[normalize-space() = 'Continue']]"));
-       await continueButton.click();
-    }
-
-    findAndClickButtonByText = async (buttonText) => {
-        await this.waitForReadyStateComplete();
-        const button = this.page.findElement(
-            By.xpath("//button[text()[normalize-space() = '" + buttonText + "']]"));
-        await button.click();
-    }
-
-    waitForThisText = async (expectedText) => {
-        await this.page.wait(until.elementIsVisible(
-            this.page.findElement(
-                By.xpath(
-                    "//*[contains(text(), '" + expectedText + "')]"))));
-    }
-
-    clearFieldAndEnter = async (ele, text) => {
-        await this.page.findElement(ele).clear();
-        await this.page.findElement(ele).sendKeys(text);
-    }
-
-    waitForReadyStateComplete = async () => {
-        const startTime = Date.now();
-        while (Date.now() - startTime < this.DEFAULT_PAGE_LOAD_WAIT_TIME) {
-            const isPageLoaded = await this.page.executeScript("return document.readyState") === "complete";
-
-            if (isPageLoaded) {
-                return;
-            }
-
-            await this.page.pause(500);
-        }
-
-        throw new Error("Page did not load within the specified time.");
-    };
-
-    getElementWithId = async (elementId) => {
-        await this.waitForReadyStateComplete();
-        const element = await this.page.findElement(By.id(elementId));
-        return await element.getText();
-    }
+  getElementWithId = async (elementId) => {
+    await this.waitForReadyStateComplete();
+    const element = await this.page.findElement(By.id(elementId));
+    return await element.getText();
+  };
 }

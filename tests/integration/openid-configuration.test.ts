@@ -1,6 +1,6 @@
-import { createApp } from "../../src/app";
+import { createApp } from "../../src/app.js";
 import request from "supertest";
-import { Config } from "../../src/config";
+import { Config } from "../../src/config.js";
 
 describe("/.well-known/openid-configuration endpoint test", () => {
   it("returns the expected object", async () => {

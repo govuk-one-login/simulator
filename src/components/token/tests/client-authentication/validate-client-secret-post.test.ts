@@ -1,8 +1,8 @@
-import { Config } from "../../../../config";
-import { TokenRequest } from "../../../../types/token-request";
-import { validateClientSecretPost } from "../../client-authentication/validate-client-secret-post";
-import { TokenRequestError } from "../../../../errors/token-request-error";
-import { TokenAuthMethod } from "../../../../validators/token-auth-method-validator";
+import { Config } from "../../../../config.js";
+import { TokenRequest } from "../../../../types/token-request.js";
+import { validateClientSecretPost } from "../../client-authentication/validate-client-secret-post.js";
+import { TokenRequestError } from "../../../../errors/token-request-error.js";
+import { TokenAuthMethod } from "../../../../validators/token-auth-method-validator.js";
 import { randomBytes } from "crypto";
 import { argon2id, hash } from "argon2";
 

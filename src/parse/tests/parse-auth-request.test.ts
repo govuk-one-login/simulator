@@ -1,6 +1,6 @@
-import { parseAuthRequest } from "../parse-auth-request";
-import { ParseAuthRequestError } from "../../errors/parse-auth-request-error";
-import { MissingParameterError } from "../../errors/missing-parameter-error";
+import { parseAuthRequest } from "../parse-auth-request.js";
+import { ParseAuthRequestError } from "../../errors/parse-auth-request-error.js";
+import { MissingParameterError } from "../../errors/missing-parameter-error.js";
 
 const clientId = "284e6ac9818525b254053711c9251fa7";
 const redirectUri = "https://example.com/authenication-callback";

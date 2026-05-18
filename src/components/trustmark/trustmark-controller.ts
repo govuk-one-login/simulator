@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Config } from "../../config";
+import { Config } from "../../config.js";
 
 export const trustmarkController = async (
   _req: Request,

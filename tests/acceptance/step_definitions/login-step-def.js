@@ -1,8 +1,11 @@
-const EnterYourPasswordPage = require("../pages/enter-your-password-page.js");
-const EnterYourEmailAddressToSignInPage = require("../pages/enter-your-email-address-to-sign-in-page.js");
-const CreateOrSignInPage = require("../pages/create-or-sign-in-page.js");
-const { When } = require("@cucumber/cucumber");
-const EnterAuthAppCodePage = require("../pages/enter-auth-app-code.js");
+import EnterYourPasswordPage from "../pages/enter-your-password-page.js";
+import EnterYourEmailAddressToSignInPage from "../pages/enter-your-email-address-to-sign-in-page.js";
+import CreateOrSignInPage from "../pages/create-or-sign-in-page.js";
+import { When } from "@cucumber/cucumber";
+import EnterAuthAppCodePage from "../pages/enter-auth-app-code.js";
+
+const sleep = async (ms) =>
+  await new Promise((resolve) => setTimeout(resolve, ms));
 
 When("the user selects sign in", async function () {
   await sleep(2000);
@@ -32,6 +35,3 @@ When(
     await checkYourPhonePage.enterAuthAppCodeAndContinue();
   }
 );
-
-const sleep = async (ms) =>
-  await new Promise((resolve) => setTimeout(resolve, ms));

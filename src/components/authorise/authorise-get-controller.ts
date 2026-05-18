@@ -1,21 +1,21 @@
 import { Request, Response } from "express";
-import { logger } from "../../logger";
-import { parseAuthRequest } from "../../parse/parse-auth-request";
-import { AuthoriseRequestError } from "../../errors/authorise-request-error";
-import { BadRequestError } from "../../errors/bad-request-error";
-import { ParseAuthRequestError } from "../../errors/parse-auth-request-error";
-import { Config } from "../../config";
-import { MissingParameterError } from "../../errors/missing-parameter-error";
+import { logger } from "../../logger.js";
+import { parseAuthRequest } from "../../parse/parse-auth-request.js";
+import { AuthoriseRequestError } from "../../errors/authorise-request-error.js";
+import { BadRequestError } from "../../errors/bad-request-error.js";
+import { ParseAuthRequestError } from "../../errors/parse-auth-request-error.js";
+import { Config } from "../../config.js";
+import { MissingParameterError } from "../../errors/missing-parameter-error.js";
 import { base64url } from "jose";
 import { randomBytes } from "crypto";
-import { validateAuthRequestQueryParams } from "../../validators/validate-auth-request-query-params";
-import { MethodNotAllowedError } from "../../errors/method-not-allowed-error";
-import { VectorOfTrust } from "../../types/vector-of-trust";
-import { validateAuthRequestObject } from "../../validators/validate-auth-request-object";
-import { transformRequestObject } from "../../utils/utils";
-import { TrustChainValidationError } from "../../errors/trust-chain-validation-error";
-import { renderResponseConfigFrom } from "../utils/form/render-response-config-form";
-import { JwksError } from "../../errors/jwks-error";
+import { validateAuthRequestQueryParams } from "../../validators/validate-auth-request-query-params.js";
+import { MethodNotAllowedError } from "../../errors/method-not-allowed-error.js";
+import { VectorOfTrust } from "../../types/vector-of-trust.js";
+import { validateAuthRequestObject } from "../../validators/validate-auth-request-object.js";
+import { transformRequestObject } from "../../utils/utils.js";
+import { TrustChainValidationError } from "../../errors/trust-chain-validation-error.js";
+import { renderResponseConfigFrom } from "../utils/form/render-response-config-form.js";
+import { JwksError } from "../../errors/jwks-error.js";
 
 export const authoriseController = async (
   req: Request,

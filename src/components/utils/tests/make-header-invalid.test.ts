@@ -1,4 +1,4 @@
-import { INVALID_KEY_KID, makeHeaderInvalid } from "../make-header-invalid";
+import { INVALID_KEY_KID, makeHeaderInvalid } from "../make-header-invalid.js";
 
 describe("makeHeaderInvalid tests", () => {
   const testToken =

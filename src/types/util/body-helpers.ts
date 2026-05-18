@@ -1,6 +1,6 @@
 import { body, ValidationChain } from "express-validator";
-import { logger } from "../../logger";
-import ReturnCode from "../return-code";
+import { logger } from "../../logger.js";
+import ReturnCode from "../return-code.js";
 
 export const bodyRequired = (path: string): ValidationChain => {
   const substrings = path.split(".");

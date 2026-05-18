@@ -1,7 +1,7 @@
-import { logger } from "../logger";
-import { Config } from "../config";
-import { VALID_CLAIMS } from "../constants";
-import { UserIdentityClaim } from "../types/user-info";
+import { logger } from "../logger.js";
+import { Config } from "../config.js";
+import { VALID_CLAIMS } from "../constants.js";
+import { UserIdentityClaim } from "../types/user-info.js";
 
 export const areClaimsValid = (claims: string[], config: Config): boolean => {
   const clientClaims = config.getClaims();

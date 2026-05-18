@@ -5,7 +5,7 @@ import {
   ValidationChain,
   validationResult,
 } from "express-validator";
-import ConfigRequest from "../config-request";
+import ConfigRequest from "../config-request.js";
 
 export const createTestValidationApp = (
   validators: ValidationChain[]

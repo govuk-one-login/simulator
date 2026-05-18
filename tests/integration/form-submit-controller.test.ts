@@ -1,10 +1,10 @@
-import { createApp } from "../../src/app";
+import { createApp } from "../../src/app.js";
 import request from "supertest";
-import { Config } from "../../src/config";
+import { Config } from "../../src/config.js";
 import { base64url } from "jose";
 import { randomUUID } from "crypto";
-import { VALID_CLAIMS, VALID_SCOPES } from "../../src/constants";
-import { exampleResponseConfig } from "./helper/test-constants";
+import { VALID_CLAIMS, VALID_SCOPES } from "../../src/constants.js";
+import { exampleResponseConfig } from "./helper/test-constants.js";
 
 const exampleConfig = exampleResponseConfig();
 

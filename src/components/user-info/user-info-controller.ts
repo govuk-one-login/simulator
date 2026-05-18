@@ -3,21 +3,21 @@ import {
   UserIdentity,
   UserIdentityClaim,
   UserInfo,
-} from "../../types/user-info";
-import { userInfoRequestValidator } from "../../validators/user-info-request-validator";
-import { Config } from "../../config";
-import { UserInfoRequestError } from "../../errors/user-info-request-error";
+} from "../../types/user-info.js";
+import { userInfoRequestValidator } from "../../validators/user-info-request-validator.js";
+import { Config } from "../../config.js";
+import { UserInfoRequestError } from "../../errors/user-info-request-error.js";
 import { importPKCS8, SignJWT } from "jose";
 import {
   EC_PRIVATE_IDENTITY_SIGNING_KEY,
   EC_PRIVATE_IDENTITY_SIGNING_KEY_ID,
-} from "../../constants";
-import { logger } from "../../logger";
+} from "../../constants.js";
+import { logger } from "../../logger.js";
 import { randomBytes } from "crypto";
-import { makeHeaderInvalid } from "../utils/make-header-invalid";
-import { fakeSignature } from "../utils/fake-signature";
-import { getAccessTokenFromHeaders } from "../../utils/utils";
-import ResponseConfiguration from "../../types/response-configuration";
+import { makeHeaderInvalid } from "../utils/make-header-invalid.js";
+import { fakeSignature } from "../utils/fake-signature.js";
+import { getAccessTokenFromHeaders } from "../../utils/utils.js";
+import ResponseConfiguration from "../../types/response-configuration.js";
 
 const AuthenticateHeaderKey: string = "www-authenticate";
 
@@ -197,7 +197,10 @@ const tryAddCoreIdentityJwt = async (
       iat: timeNowSeconds,
     };
 
-    const signingKey = await importPKCS8(EC_PRIVATE_IDENTITY_SIGNING_KEY, "EC");
+    const signingKey = await importPKCS8(
+      EC_PRIVATE_IDENTITY_SIGNING_KEY,
+      "ES256"
+    );
     let coreIdentityJwt = await new SignJWT(coreIdentity)
       .setProtectedHeader({
         kid: `${config.getDidController()}#${EC_PRIVATE_IDENTITY_SIGNING_KEY_ID}`,

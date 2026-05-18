@@ -16,9 +16,9 @@ import {
   EC_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID,
   RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY,
   RSA_PRIVATE_SECONDARY_TOKEN_SIGNING_KEY_ID,
-} from "../../../constants";
+} from "../../../constants.js";
 import { Buffer } from "node:buffer";
-import { Config } from "../../../config";
+import { Config } from "../../../config.js";
 
 export const getTokenSigningKey = async (
   tokenSigningAlgorithm: string,

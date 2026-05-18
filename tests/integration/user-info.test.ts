@@ -1,12 +1,12 @@
 import { importPKCS8, importSPKI, jwtVerify, SignJWT } from "jose";
-import { Config } from "../../src/config";
-import { EC_PRIVATE_TOKEN_SIGNING_KEY } from "../../src/constants";
-import { createApp } from "../../src/app";
+import { Config } from "../../src/config.js";
+import { EC_PRIVATE_TOKEN_SIGNING_KEY } from "../../src/constants.js";
+import { createApp } from "../../src/app.js";
 import request from "supertest";
-import { UserIdentityClaim, UserInfo } from "../../src/types/user-info";
-import ReturnCode from "../../src/types/return-code";
-import { decodeJwtNoVerify } from "./helper/decode-jwt-no-verify";
-import { exampleResponseConfig } from "./helper/test-constants";
+import { UserIdentityClaim, UserInfo } from "../../src/types/user-info.js";
+import ReturnCode from "../../src/types/return-code.js";
+import { decodeJwtNoVerify } from "./helper/decode-jwt-no-verify.js";
+import { exampleResponseConfig } from "./helper/test-constants.js";
 
 const USER_INFO_ENDPOINT = "/userinfo";
 const KNOWN_CLIENT_ID = "d76db56760ceda7cab875f085c54bd35";
@@ -947,7 +947,7 @@ async function createAccessToken(
   }
 
   const signedJwt = await signedJwtBuilder.sign(
-    await importPKCS8(privateKey, "EC")
+    await importPKCS8(privateKey, "ES256")
   );
 
   return signedJwt;

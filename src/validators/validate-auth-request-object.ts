@@ -1,21 +1,21 @@
 import { importJWK, importSPKI, JWTPayload, jwtVerify, CryptoKey } from "jose";
-import { Config } from "../config";
-import { AuthoriseRequestError } from "../errors/authorise-request-error";
-import { BadRequestError } from "../errors/bad-request-error";
-import { TrustChainValidationError } from "../errors/trust-chain-validation-error";
-import { logger } from "../logger";
-import { AuthRequest, RequestObject } from "../parse/parse-auth-request";
+import { Config } from "../config.js";
+import { AuthoriseRequestError } from "../errors/authorise-request-error.js";
+import { BadRequestError } from "../errors/bad-request-error.js";
+import { TrustChainValidationError } from "../errors/trust-chain-validation-error.js";
+import { logger } from "../logger.js";
+import { AuthRequest, RequestObject } from "../parse/parse-auth-request.js";
 import {
   getRequestObjectVtrAsString,
   parseRequestObjectClaims,
   parseUiLocales,
   isValidUri,
-} from "../utils/utils";
-import { areScopesValid } from "./scope-validator";
-import { vtrValidator } from "./vtr-validator";
-import { areClaimsValid } from "./claims-validator";
-import { validatePKCECodeChallengeAndMethod } from "./code-challenge-validator";
-import { VALID_CHANNELS } from "../constants";
+} from "../utils/utils.js";
+import { areScopesValid } from "./scope-validator.js";
+import { vtrValidator } from "./vtr-validator.js";
+import { areClaimsValid } from "./claims-validator.js";
+import { validatePKCECodeChallengeAndMethod } from "./code-challenge-validator.js";
+import { VALID_CHANNELS } from "../constants.js";
 
 export const validateAuthRequestObject = async (
   authRequest: AuthRequest,

@@ -1,5 +1,5 @@
-import { logger } from "../logger";
-import { parseClientSecretHashIntoParams } from "../parse/parse-client-secret-hash";
+import { logger } from "../logger.js";
+import { parseClientSecretHashIntoParams } from "../parse/parse-client-secret-hash.js";
 import { argon2id, hash, Options } from "argon2";
 
 export const isClientSecretValid = async (

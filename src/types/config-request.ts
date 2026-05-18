@@ -1,16 +1,16 @@
 import ClientConfiguration, {
   generateClientConfigurationPropertyValidators,
-} from "./client-configuration";
+} from "./client-configuration.js";
 import ResponseConfiguration, {
   generateResponseConfigurationPropertyValidators,
-} from "./response-configuration";
+} from "./response-configuration.js";
 import { ValidationChain } from "express-validator";
-import { nameof } from "./util/nameof";
+import { nameof } from "./util/nameof.js";
 import {
   ErrorConfiguration,
   generateErrorConfigPropertyValidators,
-} from "./error-configuration";
-import { bodyOptional } from "./util/body-helpers";
+} from "./error-configuration.js";
+import { bodyOptional } from "./util/body-helpers.js";
 
 export default interface ConfigRequest {
   simulatorUrl?: string;

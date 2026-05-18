@@ -1,9 +1,9 @@
 import request from "supertest";
-import { createTestValidationApp } from "./validator-helper";
+import { createTestValidationApp } from "./validator-helper.js";
 import ConfigRequest, {
   generateConfigRequestPropertyValidators,
-} from "../config-request";
-import ClientConfiguration from "../client-configuration";
+} from "../config-request.js";
+import ClientConfiguration from "../client-configuration.js";
 
 describe("config request validator", () => {
   const app = createTestValidationApp(

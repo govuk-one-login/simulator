@@ -1,15 +1,15 @@
 import { body, ValidationChain } from "express-validator";
-import { nameof } from "./util/nameof";
+import { nameof } from "./util/nameof.js";
 import {
   VALID_CLAIMS,
   VALID_LOC_VALUES,
   VALID_PUBLIC_KEY_SOURCE,
   VALID_SCOPES,
   VALID_TOKEN_SIGNING_ALGORITHMS,
-} from "../constants";
-import { UserIdentityClaim } from "./user-info";
-import { bodyOptional } from "./util/body-helpers";
-import { TokenAuthMethod } from "../validators/token-auth-method-validator";
+} from "../constants.js";
+import { UserIdentityClaim } from "./user-info.js";
+import { bodyOptional } from "./util/body-helpers.js";
+import { TokenAuthMethod } from "../validators/token-auth-method-validator.js";
 export default interface ClientConfiguration {
   clientId?: string;
   publicKeySource: string;

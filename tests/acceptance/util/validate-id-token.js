@@ -1,5 +1,5 @@
-const { strictEqual } = require("assert");
-const jose = require("jose");
+import { strictEqual } from "assert";
+import * as jose from "jose";
 
 const decodeJwtPart = (part) =>
   JSON.parse(Buffer.from(part, "base64url").toString());
@@ -32,7 +32,7 @@ const validateSignature = async (jwt, tokenKey) => {
 const getDomain = (isRpStub) =>
   isRpStub ? `${process.env.ENVIRONMENT}.account.gov.uk` : `localhost:3000`;
 
-const validateIdToken = async (idToken, isRpStub) => {
+export const validateIdToken = async (idToken, isRpStub) => {
   const timeNowSeconds = Date.now() / 1000;
   const domain = getDomain(isRpStub);
 
@@ -72,8 +72,4 @@ const validateIdToken = async (idToken, isRpStub) => {
   );
 
   await validateSignature(idToken, idTokenKey);
-};
-
-module.exports = {
-  validateIdToken,
 };

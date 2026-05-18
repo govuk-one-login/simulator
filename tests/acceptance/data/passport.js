@@ -1,5 +1,3 @@
-const { tryParseJSON } = require("./../util/try-parse-json");
+import { tryParseJSON } from "./../util/try-parse-json.js";
 
-const PASSPORT = [tryParseJSON(process.env.TEST_USER_PASSPORT ?? "{}")];
-
-module.exports = { PASSPORT };
+export const PASSPORT = [tryParseJSON(process.env.TEST_USER_PASSPORT ?? "{}")];

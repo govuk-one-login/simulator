@@ -1,14 +1,14 @@
-import { AuthoriseError } from "./authorise-errors";
-import { CoreIdentityError } from "./core-identity-error";
-import { IdTokenError } from "./id-token-error";
+import { AuthoriseError } from "./authorise-errors.js";
+import { CoreIdentityError } from "./core-identity-error.js";
+import { IdTokenError } from "./id-token-error.js";
 import { ValidationChain } from "express-validator";
-import { nameof } from "./util/nameof";
+import { nameof } from "./util/nameof.js";
 import {
   AUTHORISE_ERRORS,
   CORE_IDENTITY_ERRORS,
   ID_TOKEN_ERRORS,
-} from "../constants";
-import { bodyOptional } from "./util/body-helpers";
+} from "../constants.js";
+import { bodyOptional } from "./util/body-helpers.js";
 
 export type ErrorConfiguration = {
   coreIdentityErrors?: CoreIdentityError[];

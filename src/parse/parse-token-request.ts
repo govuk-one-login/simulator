@@ -1,9 +1,9 @@
-import { TokenRequestError } from "../errors/token-request-error";
-import { logger } from "../logger";
-import { TokenRequest } from "../types/token-request";
-import { Config } from "../config";
-import { validatePrivateKeyJwt } from "../components/token/client-authentication/validate-private-key-jwt";
-import { validateClientSecretPost } from "../components/token/client-authentication/validate-client-secret-post";
+import { TokenRequestError } from "../errors/token-request-error.js";
+import { logger } from "../logger.js";
+import { TokenRequest } from "../types/token-request.js";
+import { Config } from "../config.js";
+import { validatePrivateKeyJwt } from "../components/token/client-authentication/validate-private-key-jwt.js";
+import { validateClientSecretPost } from "../components/token/client-authentication/validate-client-secret-post.js";
 
 export const parseTokenRequest = async (
   tokenRequestBody: Record<string, string>,

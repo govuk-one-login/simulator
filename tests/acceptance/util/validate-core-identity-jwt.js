@@ -1,6 +1,6 @@
-const { strictEqual, deepStrictEqual } = require("assert");
-const { CORE_IDENTITY_VC_CLAIM } = require("../data/core-identity-vc");
-const jose = require("jose");
+import { strictEqual, deepStrictEqual } from "assert";
+import { CORE_IDENTITY_VC_CLAIM } from "../data/core-identity-vc.js";
+import * as jose from "jose";
 
 const decodeJwtPart = (part) =>
   JSON.parse(Buffer.from(part, "base64url").toString());
@@ -33,7 +33,7 @@ const validateSignature = async (jwt, didKey) => {
   jose.jwtVerify(jwt, parsedKey);
 };
 
-const validateCoreIdentityJwt = async (jwt, isRpStub) => {
+export const validateCoreIdentityJwt = async (jwt, isRpStub) => {
   const timeNowSeconds = Date.now() / 1000;
   const domain = getDomain(isRpStub);
 
@@ -79,8 +79,4 @@ const validateCoreIdentityJwt = async (jwt, isRpStub) => {
   );
 
   await validateSignature(jwt, didKey);
-};
-
-module.exports = {
-  validateCoreIdentityJwt,
 };

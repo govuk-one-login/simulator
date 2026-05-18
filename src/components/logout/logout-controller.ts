@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { decodeJwt, decodeProtectedHeader, jwtVerify } from "jose";
-import { Config } from "../../config";
-import { logger } from "../../logger";
-import { generateJWKS } from "../token/helper/key-helpers";
+import { Config } from "../../config.js";
+import { logger } from "../../logger.js";
+import { generateJWKS } from "../token/helper/key-helpers.js";
 
 export const logoutController = async (
   req: Request,

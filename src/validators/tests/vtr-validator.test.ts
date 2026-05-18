@@ -1,6 +1,6 @@
-import { Config } from "../../config";
-import { AuthoriseRequestError } from "../../errors/authorise-request-error";
-import { vtrValidator } from "../vtr-validator";
+import { Config } from "../../config.js";
+import { AuthoriseRequestError } from "../../errors/authorise-request-error.js";
+import { vtrValidator } from "../vtr-validator.js";
 
 describe("vtrValidator tests", () => {
   const config = Config.getInstance();

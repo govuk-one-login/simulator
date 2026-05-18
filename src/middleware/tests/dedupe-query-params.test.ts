@@ -1,5 +1,5 @@
 import { Response, Request } from "express";
-import { dedupeQueryParams } from "../dedupe-query-params";
+import { dedupeQueryParams } from "../dedupe-query-params.js";
 
 describe("dedupeQueryParams tests", () => {
   it("returns string and undefined query params", () => {

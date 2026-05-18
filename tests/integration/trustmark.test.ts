@@ -1,4 +1,4 @@
-import { createApp } from "../../src/app";
+import { createApp } from "../../src/app.js";
 import request from "supertest";
 
 describe("/trustmark endpoint test", () => {

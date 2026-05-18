@@ -1,14 +1,13 @@
-const BasePage = require("./base-page.js");
+import BasePage from "./base-page.js";
 
-module.exports = class RpStubUserInfoPage extends BasePage {
-    constructor(page) {
-        super(page);
-    }
+export default class RpStubUserInfoPage extends BasePage {
+  constructor(page) {
+    super(page);
+  }
 
   getUserInfoDataWithoutCoreIdentityJwt = async () => {
     const userInfoString = await this.getElementWithId("user-info-response");
     const parsedUserinfo = JSON.parse(userInfoString);
-    //Let's validate this one separately
     delete parsedUserinfo["https://vocab.account.gov.uk/v1/coreIdentityJWT"];
     return parsedUserinfo;
   };
@@ -21,11 +20,11 @@ module.exports = class RpStubUserInfoPage extends BasePage {
     return await this.getElementWithId("user-info-id-token");
   };
 
-    clickLogoutButton = async () => {
-        await this.findAndClickButtonByText("Log out");
-    }
+  clickLogoutButton = async () => {
+    await this.findAndClickButtonByText("Log out");
+  };
 
-    waitForStubUserInfoPageLoad = async () => {
-        await this.waitForPageLoad("Example - GOV.UK - User Info");
-    }
+  waitForStubUserInfoPageLoad = async () => {
+    await this.waitForPageLoad("Example - GOV.UK - User Info");
+  };
 }

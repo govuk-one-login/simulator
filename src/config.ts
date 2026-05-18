@@ -1,28 +1,28 @@
 import {
   AccessTokenStore,
   AccessTokenStoreKey,
-} from "./types/access-token-store";
-import AuthRequestParameters from "./types/auth-request-parameters";
-import ClientConfiguration from "./types/client-configuration";
-import ResponseConfiguration from "./types/response-configuration";
-import { ErrorConfiguration } from "./types/error-configuration";
-import { isCoreIdentityError } from "./validators/core-identity-error";
-import { isIdTokenError } from "./validators/id-token-error";
-import { CoreIdentityError } from "./types/core-identity-error";
-import { IdTokenError } from "./types/id-token-error";
-import { isAuthoriseError } from "./validators/authorise-errors";
-import { AuthoriseError } from "./types/authorise-errors";
-import ReturnCode from "./types/return-code";
-import { UserIdentityClaim } from "./types/user-info";
-import { ResponseConfigurationStore } from "./types/response-configuration-store";
+} from "./types/access-token-store.js";
+import AuthRequestParameters from "./types/auth-request-parameters.js";
+import ClientConfiguration from "./types/client-configuration.js";
+import ResponseConfiguration from "./types/response-configuration.js";
+import { ErrorConfiguration } from "./types/error-configuration.js";
+import { isCoreIdentityError } from "./validators/core-identity-error.js";
+import { isIdTokenError } from "./validators/id-token-error.js";
+import { CoreIdentityError } from "./types/core-identity-error.js";
+import { IdTokenError } from "./types/id-token-error.js";
+import { isAuthoriseError } from "./validators/authorise-errors.js";
+import { AuthoriseError } from "./types/authorise-errors.js";
+import ReturnCode from "./types/return-code.js";
+import { UserIdentityClaim } from "./types/user-info.js";
+import { ResponseConfigurationStore } from "./types/response-configuration-store.js";
 import {
   isValidTokenAuthMethod,
   TokenAuthMethod,
-} from "./validators/token-auth-method-validator";
-import { logger } from "./logger";
+} from "./validators/token-auth-method-validator.js";
+import { logger } from "./logger.js";
 import { JWK } from "jose";
-import { getSigningKeyFromJwksUrl } from "./utils/utils";
-import { JwksError } from "./errors/jwks-error";
+import { getSigningKeyFromJwksUrl } from "./utils/utils.js";
+import { JwksError } from "./errors/jwks-error.js";
 
 export class Config {
   private static instance: Config;

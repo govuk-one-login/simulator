@@ -1,4 +1,4 @@
-import { ensureLegalRedirectURI } from "../validate-redirectUri";
+import { ensureLegalRedirectURI } from "../validate-redirectUri.js";
 
 describe("Validate RedirectUri tests", () => {
   it("should not throw if the redirectUri is legal", () => {

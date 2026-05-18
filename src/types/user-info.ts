@@ -1,4 +1,4 @@
-import ReturnCode from "./return-code";
+import ReturnCode from "./return-code.js";
 
 export interface UserInfo extends UserIdentity {
   sub: string;

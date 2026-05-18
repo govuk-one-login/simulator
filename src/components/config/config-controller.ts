@@ -1,12 +1,12 @@
-import ConfigRequest from "../../types/config-request";
+import ConfigRequest from "../../types/config-request.js";
 import { Request, Response } from "express";
-import { Config } from "../../config";
-import ClientConfiguration from "../../types/client-configuration";
-import ResponseConfiguration from "../../types/response-configuration";
-import { ErrorConfiguration } from "../../types/error-configuration";
-import { isCoreIdentityError } from "../../validators/core-identity-error";
-import { isIdTokenError } from "../../validators/id-token-error";
-import { isAuthoriseError } from "../../validators/authorise-errors";
+import { Config } from "../../config.js";
+import ClientConfiguration from "../../types/client-configuration.js";
+import ResponseConfiguration from "../../types/response-configuration.js";
+import { ErrorConfiguration } from "../../types/error-configuration.js";
+import { isCoreIdentityError } from "../../validators/core-identity-error.js";
+import { isIdTokenError } from "../../validators/id-token-error.js";
+import { isAuthoriseError } from "../../validators/authorise-errors.js";
 import { validationResult } from "express-validator";
 
 export const configController = (
