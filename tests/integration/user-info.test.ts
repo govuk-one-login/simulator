@@ -947,7 +947,7 @@ async function createAccessToken(
   }
 
   const signedJwt = await signedJwtBuilder.sign(
-    await importPKCS8(privateKey, "EC")
+    await importPKCS8(privateKey, "ES256")
   );
 
   return signedJwt;

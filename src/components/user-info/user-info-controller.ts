@@ -197,7 +197,10 @@ const tryAddCoreIdentityJwt = async (
       iat: timeNowSeconds,
     };
 
-    const signingKey = await importPKCS8(EC_PRIVATE_IDENTITY_SIGNING_KEY, "EC");
+    const signingKey = await importPKCS8(
+      EC_PRIVATE_IDENTITY_SIGNING_KEY,
+      "ES256"
+    );
     let coreIdentityJwt = await new SignJWT(coreIdentity)
       .setProtectedHeader({
         kid: `${config.getDidController()}#${EC_PRIVATE_IDENTITY_SIGNING_KEY_ID}`,

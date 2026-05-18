@@ -1,7 +1,7 @@
 import {
   errors,
   exportSPKI,
-  importPKCS8,
+  importSPKI,
   JWK,
   JWTPayload,
   jwtVerify,
@@ -10,7 +10,13 @@ import {
 } from "jose";
 import { createApp } from "../../src/app";
 import request from "supertest";
-import { generateKeyPairSync, randomBytes, randomUUID } from "crypto";
+import {
+  createPrivateKey,
+  createPublicKey,
+  generateKeyPairSync,
+  randomBytes,
+  randomUUID,
+} from "crypto";
 import { Config } from "../../src/config";
 import AuthRequestParameters from "../../src/types/auth-request-parameters";
 import {
@@ -30,6 +36,7 @@ import { exampleResponseConfig } from "./helper/test-constants";
 import { INVALID_KEY_KID } from "../../src/components/utils/make-header-invalid";
 import { argon2id, hash } from "argon2";
 import { publicJwkWithKidFromPrivateKey } from "../../src/components/token/helper/key-helpers";
+import { Mock } from "vitest";
 
 const TOKEN_ENDPOINT = "/token";
 
@@ -126,7 +133,7 @@ const mockJwks = (jwks: JWK[]): void => {
             keys: jwks,
           }),
       })
-    ) as vi.Mock
+    ) as Mock
   );
 };
 
@@ -813,8 +820,24 @@ describe("/token endpoint, configured error responses", () => {
     const app = createApp();
     const response = await request(app).post(TOKEN_ENDPOINT).send(validRequest);
     const { id_token } = response.body;
-    const rsaKey = await importPKCS8(RSA_PRIVATE_TOKEN_SIGNING_KEY, "RS256");
-    await expect(jwtVerify(id_token, rsaKey)).rejects.toThrow(
+    const rsaPrivateKey = createPrivateKey({
+      key: Buffer.from(
+        RSA_PRIVATE_TOKEN_SIGNING_KEY.replace(
+          /-----(?:BEGIN|END) PRIVATE KEY-----|\s/g,
+          ""
+        ),
+        "base64"
+      ),
+      type: "pkcs8",
+      format: "der",
+    });
+    const rsaTokenPublicKey = createPublicKey(rsaPrivateKey);
+    const spki = rsaTokenPublicKey.export({
+      type: "spki",
+      format: "pem",
+    }) as string;
+    const rsaTokenKey = await importSPKI(spki, "RS256");
+    await expect(jwtVerify(id_token, rsaTokenKey)).rejects.toThrow(
       errors.JWSSignatureVerificationFailed
     );
   });
