@@ -74,6 +74,15 @@ export const vtrValidator = (
     );
     throw generateInvalidVtrError(redirectUri, state);
   }
+  if (
+    identityVectors.length > 0 &&
+    "client_secret_post" == config.getTokenAuthMethod()
+  ) {
+    logger.error(
+      "Request contains level of confidence values for an identity journey but the tokenAuthMethod is incompatible."
+    );
+    throw generateInvalidVtrError(redirectUri, state);
+  }
 
   return parsedVtrSet;
 };
