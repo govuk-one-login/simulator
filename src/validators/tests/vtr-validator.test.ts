@@ -14,6 +14,10 @@ describe("vtrValidator tests", () => {
   const state = "4063a64d651d9077adee7c51a26e87e8";
   const redirectUri = "https://example.com/authentication-callback";
 
+  afterEach(() => {
+    vi.resetAllMocks();
+  });
+
   it("returns the default credential trust and level of confidence when vtr is undefined", () => {
     levelOfConfidenceSpy.mockReturnValue(["P0", "P2"]);
 
@@ -233,7 +237,6 @@ describe("vtrValidator tests", () => {
 
   it("throws an error when an identity journey is requested with an incompatible tokenAuthMethod", () => {
     levelOfConfidenceSpy.mockReturnValue(["P0", "P2"]);
-    identityVerificationSupportedSpy.mockReturnValue(true);
     tokenAuthMethodSpy.mockReturnValue("client_secret_post");
 
     expect(() =>
@@ -251,8 +254,6 @@ describe("vtrValidator tests", () => {
 
   it("returns a parsed valid vtr set", () => {
     levelOfConfidenceSpy.mockReturnValue(["P1", "P2", "P3"]);
-    identityVerificationSupportedSpy.mockReturnValue(true);
-    tokenAuthMethodSpy.mockReturnValue("private_key_jwt");
 
     expect(
       vtrValidator(
