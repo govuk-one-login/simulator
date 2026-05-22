@@ -10,8 +10,13 @@ describe("vtrValidator tests", () => {
     config,
     "getIdentityVerificationSupported"
   );
+  const tokenAuthMethodSpy = vi.spyOn(config, "getTokenAuthMethod");
   const state = "4063a64d651d9077adee7c51a26e87e8";
   const redirectUri = "https://example.com/authentication-callback";
+
+  afterEach(() => {
+    vi.resetAllMocks();
+  });
 
   it("returns the default credential trust and level of confidence when vtr is undefined", () => {
     levelOfConfidenceSpy.mockReturnValue(["P0", "P2"]);
@@ -230,9 +235,25 @@ describe("vtrValidator tests", () => {
     );
   });
 
+  it("throws an error when an identity journey is requested with an incompatible tokenAuthMethod", () => {
+    levelOfConfidenceSpy.mockReturnValue(["P0", "P2"]);
+    tokenAuthMethodSpy.mockReturnValue("client_secret_post");
+
+    expect(() =>
+      vtrValidator('["Cl.Cm.P2"]', config, state, redirectUri)
+    ).toThrow(
+      new AuthoriseRequestError({
+        errorCode: "invalid_request",
+        errorDescription: "Request vtr not valid",
+        httpStatusCode: 302,
+        state,
+        redirectUri,
+      })
+    );
+  });
+
   it("returns a parsed valid vtr set", () => {
     levelOfConfidenceSpy.mockReturnValue(["P1", "P2", "P3"]);
-    identityVerificationSupportedSpy.mockReturnValue(true);
 
     expect(
       vtrValidator(
