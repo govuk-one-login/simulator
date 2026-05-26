@@ -11,28 +11,43 @@ export default class BasePage {
   }
 
   waitForPageLoad = async (titleContains) => {
-    await this.page.wait(until.titleContains(titleContains), this.DEFAULT_PAGE_LOAD_WAIT_TIME);
+    await this.page.wait(
+      until.titleContains(titleContains),
+      this.DEFAULT_PAGE_LOAD_WAIT_TIME
+    );
     await this.waitForReadyStateComplete();
   };
 
   findAndClickContinue = async () => {
     await this.waitForReadyStateComplete();
-    const continueButton = this.page.findElement(By.xpath("//button[text()[normalize-space() = 'Continue']]"));
+    const continueButton = this.page.findElement(
+      By.xpath("//button[text()[normalize-space() = 'Continue']]")
+    );
     await continueButton.click();
   };
 
   findAndClickButtonByText = async (buttonText) => {
     await this.waitForReadyStateComplete();
-    const button = this.page.findElement(
-      By.xpath("//button[text()[normalize-space() = '" + buttonText + "']]")
-    );
-    await button.click();
+    try {
+      const button = await this.page.findElement(
+        By.xpath("//button[text()[normalize-space() = '" + buttonText + "']]")
+      );
+      await button.click();
+    } catch {
+      // Cannot find button, looking for fake buttons using <a> tags...
+      const link = await this.page.findElement(
+        By.xpath("//a[text()[normalize-space() = '" + buttonText + "']]")
+      );
+      await link.click();
+    }
   };
 
   waitForThisText = async (expectedText) => {
     await this.page.wait(
       until.elementIsVisible(
-        this.page.findElement(By.xpath("//*[contains(text(), '" + expectedText + "')]"))
+        this.page.findElement(
+          By.xpath("//*[contains(text(), '" + expectedText + "')]")
+        )
       )
     );
   };
@@ -45,7 +60,9 @@ export default class BasePage {
   waitForReadyStateComplete = async () => {
     const startTime = Date.now();
     while (Date.now() - startTime < this.DEFAULT_PAGE_LOAD_WAIT_TIME) {
-      const isPageLoaded = await this.page.executeScript("return document.readyState") === "complete";
+      const isPageLoaded =
+        (await this.page.executeScript("return document.readyState")) ===
+        "complete";
 
       if (isPageLoaded) {
         return;
