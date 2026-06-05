@@ -50,7 +50,7 @@
     "eslint-plugin-prettier": "^5.5.4",
     "hi-base32": "^0.5.1",
     "husky": "^9.1.7",
-    "selenium-webdriver": "^4.41.0",
+    "selenium-webdriver": "^4.43.0",
     "supertest": "^7.1.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
