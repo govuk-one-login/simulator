@@ -1,11 +1,11 @@
-FROM node:24.11.1@sha256:9a2ed90cd91b1f3412affe080b62e69b057ba8661d9844e143a6bbd76a23260f as base
+FROM node:26.3.0@sha256:e3ffe0cbaeebdcddbfe1ee7bca9b564a92863a8386d5b99a3d72677b3667b61d as base
 WORKDIR /app
 COPY . ./
 RUN npm ci 
 RUN npm run build
 RUN npm ci --omit=dev
 
-FROM node:24.11.1@sha256:9a2ed90cd91b1f3412affe080b62e69b057ba8661d9844e143a6bbd76a23260f as release
+FROM node:26.3.0@sha256:e3ffe0cbaeebdcddbfe1ee7bca9b564a92863a8386d5b99a3d72677b3667b61d as release
 WORKDIR /app
 COPY --chown=node:node --from=base /app/package*.json ./
 COPY --chown=node:node --from=base /app/node_modules/ node_modules
