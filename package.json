@@ -25,7 +25,7 @@
     "semi": true
   },
   "dependencies": {
-    "argon2": "^0.44.0",
+    "argon2": "^0.45.0",
     "cookie-parser": "^1.4.7",
     "express": "^4.22.2",
     "express-validator": "^7.3.1",
