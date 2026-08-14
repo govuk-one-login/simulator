@@ -46,6 +46,16 @@ export const dedupeQueryParams = (
     {}
   );
 
-  req.query = dedupedParams;
+  const url = new URL(
+    req.url,
+    `${req.protocol}://${req.headers?.host || "localhost"}`
+  );
+  url.search = "";
+  Object.entries(dedupedParams).forEach(([key, value]) => {
+    if (value !== undefined) {
+      url.searchParams.append(key, value);
+    }
+  });
+  req.url = url.pathname + url.search;
   next();
 };
