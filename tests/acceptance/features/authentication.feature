@@ -9,6 +9,7 @@ Feature: Authentication
     When the user enters their password
     Then the user is taken to the "Enter the 6 digit security code shown in your authenticator app" page
     When the user enters the six digit security code from their authenticator app
+    When the user skips any passkey prompts
     Then the user is returned to the service
     And the RP receives a valid ID Token
     And the RP receives the expected auth-only user info
