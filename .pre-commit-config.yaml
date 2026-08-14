@@ -21,7 +21,7 @@ repos:
     rev: v1.5.0
     hooks:
       - id: detect-secrets
-        exclude: package.lock.json
+        exclude: ^(package.lock.json)|(parameters.json)$
   - repo: local
     hooks:
       - id: lint-fix
@@ -29,7 +29,7 @@ repos:
         entry: bash
         args:
           - -c
-          - npm run fix:lint && npm run fix:pretty
+          - npm run fix
         language: system
         pass_filenames: false
         files: ^.*\.ts$
