@@ -3,6 +3,7 @@ import EnterYourEmailAddressToSignInPage from "../pages/enter-your-email-address
 import CreateOrSignInPage from "../pages/create-or-sign-in-page.js";
 import { When } from "@cucumber/cucumber";
 import EnterAuthAppCodePage from "../pages/enter-auth-app-code.js";
+import CreatePassKeyPage from "../pages/create-passkey-page.js";
 
 const sleep = async (ms) =>
   await new Promise((resolve) => setTimeout(resolve, ms));
@@ -33,5 +34,13 @@ When(
   async function () {
     const checkYourPhonePage = new EnterAuthAppCodePage(this.driver);
     await checkYourPhonePage.enterAuthAppCodeAndContinue();
+  }
+);
+
+When(
+  "the user skips any passkey prompts",
+  async function () {
+    const createPasskeyPage = new CreatePassKeyPage(this.driver);
+    await createPasskeyPage.shouldOptionallySkipPassKeyPrompt()
   }
 );

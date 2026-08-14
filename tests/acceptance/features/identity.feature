@@ -9,6 +9,7 @@ Feature: Identity
     When the user enters their password
     Then the user is taken to the "Enter the 6 digit security code shown in your authenticator app" page
     When the user enters the six digit security code from their authenticator app
+    When the user skips any passkey prompts
     Then the user is taken to the "Confirm your details" page
     When the user clicks the "Confirm and continue" button
     Then the user is returned to the service with extended timeout
