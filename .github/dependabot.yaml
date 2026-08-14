@@ -36,3 +36,8 @@ updates:
       - dependabot
     commit-message:
       prefix: BAU
+ignore:
+  # We need to ignore argon2 versions above 0.44.0 because the ordering of parameters in the hash have changed
+  #  which will probably break a LOT of stuff
+  - dependency-name: "argon2"
+    versions: [ ">0.44.0" ]
