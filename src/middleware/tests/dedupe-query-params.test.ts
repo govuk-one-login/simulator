@@ -9,17 +9,14 @@ describe("dedupeQueryParams tests", () => {
         key1: "val1",
         key2: undefined,
       },
+      url: "/endpoint",
       path: "/endpoint",
     } as unknown as Request;
     const mockRes = {} as Response;
     const mockNext = vi.fn();
 
     dedupeQueryParams(mockReq, mockRes, mockNext);
-    expect(mockReq.query).toStrictEqual({
-      key: "val",
-      key1: "val1",
-      key2: undefined,
-    });
+    expect(mockReq.url).toStrictEqual("/endpoint?key=val&key1=val1");
     expect(mockNext).toHaveBeenCalled();
   });
 
@@ -30,17 +27,14 @@ describe("dedupeQueryParams tests", () => {
         key1: ["val1", "val2", "val3"],
         key2: undefined,
       },
+      url: "/endpoint",
       path: "/endpoint",
     } as unknown as Request;
     const mockRes = {} as Response;
     const mockNext = vi.fn();
 
     dedupeQueryParams(mockReq, mockRes, mockNext);
-    expect(mockReq.query).toStrictEqual({
-      key: "val",
-      key1: "val3",
-      key2: undefined,
-    });
+    expect(mockReq.url).toStrictEqual("/endpoint?key=val&key1=val3");
     expect(mockNext).toHaveBeenCalled();
   });
 
@@ -53,16 +47,14 @@ describe("dedupeQueryParams tests", () => {
           someOtherKey: "val4",
         },
       },
+      url: "/endpoint",
       path: "/endpoint",
     } as unknown as Request;
     const mockRes = {} as Response;
     const mockNext = vi.fn();
 
     dedupeQueryParams(mockReq, mockRes, mockNext);
-    expect(mockReq.query).toStrictEqual({
-      key: "val",
-      key1: "val3",
-    });
+    expect(mockReq.url).toStrictEqual("/endpoint?key=val&key1=val3");
     expect(mockNext).toHaveBeenCalled();
   });
 
@@ -76,17 +68,14 @@ describe("dedupeQueryParams tests", () => {
           someOtherKey: "val4",
         },
       },
+      url: "/endpoint",
       path: "/endpoint",
     } as unknown as Request;
     const mockRes = {} as Response;
     const mockNext = vi.fn();
 
     dedupeQueryParams(mockReq, mockRes, mockNext);
-    expect(mockReq.query).toStrictEqual({
-      key: "val",
-      key1: "val3",
-      key2: undefined,
-    });
+    expect(mockReq.url).toStrictEqual("/endpoint?key=val&key1=val3");
     expect(mockNext).toHaveBeenCalled();
   });
 });
