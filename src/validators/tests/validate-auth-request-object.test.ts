@@ -150,6 +150,34 @@ describe("Validate auth request object tests", () => {
     ).rejects.toThrow(new TrustChainValidationError());
   });
 
+  it("throw bad request error when request object has expired", async () => {
+    const requestObject = requestObjectWithParams({
+      exp: Date.now() / 1000 - 3600, // Expired an hour ago
+    });
+    const authRequest = {
+      ...defaultAuthRequest,
+      requestObject,
+    };
+
+    await expect(
+      validateAuthRequestObject(authRequest, config)
+    ).rejects.toThrow(new BadRequestError("Expired JWT"));
+  });
+
+  it("does not throw error when request object has expired, but expiry is within clock skew", async () => {
+    const requestObject = requestObjectWithParams({
+      exp: Date.now() / 1000 - 30, // Expired 30 seconds ago
+    });
+    const authRequest = {
+      ...defaultAuthRequest,
+      requestObject,
+    };
+
+    await expect(
+      validateAuthRequestObject(authRequest, config)
+    ).resolves.not.toThrow();
+  });
+
   it("throw bad request error when redirect_uri not present in request object", async () => {
     const requestObject = requestObjectWithParams({
       redirect_uri: undefined,
