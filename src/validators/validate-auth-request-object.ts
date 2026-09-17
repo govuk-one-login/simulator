@@ -32,6 +32,15 @@ export const validateAuthRequestObject = async (
   }
 
   const payload = requestObject.payload;
+
+  const MAX_CLOCK_SKEW_SECONDS = 60;
+  if (payload.exp) {
+    const currentTimeSeconds = Date.now() / 1000;
+    if (payload.exp + MAX_CLOCK_SKEW_SECONDS <= currentTimeSeconds) {
+      throw new BadRequestError("Expired JWT");
+    }
+  }
+
   const redirectUri = payload["redirect_uri"] as string;
 
   if (!redirectUri || !config.getRedirectUrls().includes(redirectUri)) {
