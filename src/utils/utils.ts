@@ -185,9 +185,7 @@ export const getSigningKeyFromJwksList = (
   kid: string,
   url: string
 ): JWK => {
-  const validKeys = jwks.filter(
-    (jwk) => jwk.use === "sig" && jwk.kty === "RSA" && jwk.kid === kid
-  );
+  const validKeys = jwks.filter((jwk) => jwk.kid === kid);
   if (validKeys.length > 0) {
     return validKeys[0];
   } else {
