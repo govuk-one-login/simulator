@@ -9,6 +9,8 @@ This can be enabled by:
 - Or setting the following environment variables:
     - `PUBLIC_KEY_SOURCE` set to `JWKS`
     - `JWKS_URL` set to the URL of a valid JWKS endpoint
+- Or by copying contents of the `.env.jwks.local` to an `.env` file
+
 
 Once these values are set, instead of using a public key defined in the simulator, the simulator will look for the correct key on the JWKS endpoint to use in signature validation.
 
