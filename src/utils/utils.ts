@@ -69,7 +69,9 @@ export const transformRequestObject = (
   const client_id = payload.client_id;
   const redirect_uri = payload.redirect_uri;
   const state = payload.state;
-  const claims = payload.claims ? getClaimsKeys(payload.claims as string) : [];
+  const claims = payload.claims
+    ? parseRequestObjectClaims(payload.claims as string)
+    : [];
   const vtr = payload.vtr as VectorOfTrust[];
   const ui_locales = payload.ui_locales;
   const code_challenge = payload.code_challenge;
